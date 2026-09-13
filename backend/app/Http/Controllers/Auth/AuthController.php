@@ -15,16 +15,16 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        $user = $this->authService->register($request);
+        ['user' => $user, 'token' => $token] = $this->authService->register($request);
 
-        return response()->json(['user' => new UserResource($user)]);
+        return response()->json(['user' => new UserResource($user), 'token' => $token]);
     }
 
     public function login(LoginRequest $request)
     {
-        $user = $this->authService->login($request);
+        ['user' => $user, 'token' => $token] = $this->authService->login($request);
 
-        return response()->json(['user' => new UserResource($user)]);
+        return response()->json(['user' => new UserResource($user), 'token' => $token]);
     }
 
     public function logout(Request $request)

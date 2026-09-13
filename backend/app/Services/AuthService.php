@@ -13,7 +13,10 @@ use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
-    public function register(RegisterRequest $request): User
+    /**
+     * @return array{user: User, token: string}
+     */
+    public function register(RegisterRequest $request): array
     {
         $user = User::create([
             'name' => $request->name,
@@ -23,38 +26,82 @@ class AuthService
 
         $user->assignRole('user');
 
-        Auth::login($user);
+        $this->establishSessionIfAvailable($request, $user);
 
-        $request->session()->regenerate();
-
-        $this->queueAuthStatusCookie();
-
-        return $user;
+        return ['user' => $user, 'token' => $this->issueToken($user)];
     }
 
-    public function login(LoginRequest $request): User
+    /**
+     * @return array{user: User, token: string}
+     */
+    public function login(LoginRequest $request): array
     {
-        if (! Auth::attempt($request->only('email', 'password'), true)) {
+        $user = User::where('email', $request->email)->first();
+
+        // Checked directly against the 'web' guard's credentials, not
+        // Auth::attempt() — that starts a session-backed login, but a
+        // cross-domain caller (the Next.js BFF) has no session on the
+        // request at all, since Sanctum only attaches one for requests it
+        // recognizes as coming from a stateful (first-party) domain.
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
         }
 
+        $this->establishSessionIfAvailable($request, $user);
+
+        return ['user' => $user, 'token' => $this->issueToken($user)];
+    }
+
+    /**
+     * Only a request Sanctum has recognized as stateful (first-party,
+     * same-domain) carries a session at all. For everything else — in
+     * particular the cross-domain BFF's server-to-server calls — this is a
+     * no-op and the caller relies solely on the returned Bearer token.
+     */
+    private function establishSessionIfAvailable(Request $request, User $user): void
+    {
+        if (! $request->hasSession()) {
+            return;
+        }
+
+        Auth::login($user, true);
         $request->session()->regenerate();
 
         $this->queueAuthStatusCookie();
-
-        return Auth::user();
     }
 
     public function logout(Request $request): void
     {
-        Auth::guard('web')->logout();
+        $token = $request->user()?->currentAccessToken();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        // A request authenticated via a Bearer token (the cross-domain BFF
+        // flow) gets a real, revocable PersonalAccessToken here. A request
+        // authenticated via the first-party session cookie gets Sanctum's
+        // TransientToken instead, which isn't a real DB row — fall back to
+        // the usual session logout for that case.
+        if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+            $token->delete();
+        } else {
+            Auth::guard('web')->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         Cookie::queue(Cookie::forget($this->authStatusCookieName()));
+    }
+
+    /**
+     * Issued alongside the session on every register/login so a caller that
+     * can't share the session cookie (a cross-domain frontend acting as its
+     * own BFF) can use Bearer auth instead. The session-based frontend just
+     * ignores this field.
+     */
+    private function issueToken(User $user): string
+    {
+        return $user->createToken('spa')->plainTextToken;
     }
 
     /**

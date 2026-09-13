@@ -1,5 +1,3 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 export class ApiError extends Error {
   status: number;
   errors?: Record<string, string[]>;
@@ -11,36 +9,16 @@ export class ApiError extends Error {
   }
 }
 
-function readCookie(name: string): string | null {
-  const match = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(`${name}=`));
-
-  return match ? decodeURIComponent(match.split("=").slice(1).join("=")) : null;
-}
-
-async function ensureCsrfCookie(): Promise<void> {
-  if (readCookie("XSRF-TOKEN")) return;
-
-  await fetch(`${API_URL}/sanctum/csrf-cookie`, {
-    credentials: "include",
-  });
-}
-
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const method = (options.method ?? "GET").toUpperCase();
-
-  if (method !== "GET" && method !== "HEAD") {
-    await ensureCsrfCookie();
-  }
-
-  const xsrfToken = readCookie("XSRF-TOKEN");
   const isFormData = options.body instanceof FormData;
 
-  const response = await fetch(`${API_URL}${path}`, {
+  // Same-origin: this hits our own /api/* route handlers (see
+  // src/app/api/[...path]/route.ts), which proxy to Laravel server-side.
+  const response = await fetch(path, {
     ...options,
     method,
     credentials: "include",
@@ -48,7 +26,6 @@ export async function apiFetch<T>(
       Accept: "application/json",
       // Let the browser set Content-Type (with boundary) for FormData bodies.
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
-      ...(xsrfToken ? { "X-XSRF-TOKEN": xsrfToken } : {}),
       ...options.headers,
     },
   });
