@@ -84,11 +84,16 @@ copy that part of them).
    and `stage-form.tsx`.
 4. **Page** — `src/features/<model>/<model>s-page.tsx`: `useQuery(["<models>"], ...)`
    for the list, `useMutation` for delete — all invalidating the same query
-   key on success. Create/edit renders inside a shadcn `Dialog`, not inline
-   on the page — an "Add <model>" button (+ each row's "Edit") opens it via
-   `dialogOpen`/`editingStage` state (`null` = create, a record = edit); the
-   form's `onSuccess` closes the dialog. See `stages-page.tsx` (not `Post`,
-   which predates this and still renders its form inline). Gate on
+   key on success. One delete mutation backs every row, so
+   `deleteMutation.isPending` alone can't tell which row is in flight —
+   use `deleteMutation.variables` (the record passed to `mutate()`) to scope
+   the disabled/spinner state to that one row's button instead of freezing
+   every row's buttons on any delete. Create/edit renders inside a shadcn
+   `Dialog`, not inline on the page — an "Add <model>" button (+ each row's
+   "Edit") opens it via `dialogOpen`/`editingStage` state (`null` = create, a
+   record = edit); the form's `onSuccess` closes the dialog. See
+   `stages-page.tsx` (not `Post`, which predates this and still renders its
+   form inline). Gate on
    `useAuth()`'s `user`/`isLoading` the same way `dashboard/page.tsx` does,
    rendering `<PageLoader />` (a centered spinner, not "Loading…" text)
    while that resolves; the list's own `isLoading` renders

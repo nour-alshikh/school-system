@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -88,6 +88,14 @@ export function StagesPage() {
     },
   });
 
+  // One mutation backs every row's delete button, so `isPending` alone can't
+  // tell which row is in flight — `variables` (the stage passed to
+  // `mutate()`) does, letting only that row disable/spin instead of freezing
+  // the whole table.
+  const deletingId = deleteMutation.isPending
+    ? deleteMutation.variables?.id
+    : undefined;
+
   if (isAuthLoading || !user) {
     return <PageLoader />;
   }
@@ -139,10 +147,14 @@ export function StagesPage() {
                             type="button"
                             variant="destructive"
                             size="sm"
-                            disabled={deleteMutation.isPending}
+                            disabled={deletingId === stage.id}
                             onClick={() => deleteMutation.mutate(stage)}
                           >
-                            {t("delete")}
+                            {deletingId === stage.id ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              t("delete")
+                            )}
                           </Button>
                         </div>
                       </TableCell>
