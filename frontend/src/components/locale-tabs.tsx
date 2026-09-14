@@ -2,18 +2,20 @@
 
 import { cn } from "@/lib/utils";
 
+const LOCALE_CODE = { en: "EN", ar: "AR" } as const;
+
 // Small pill toggle for switching which locale's input is visible on a
 // bilingual field (see docs/forms.md#translatable-fields-locale-tabs) —
-// reused across any form with a translatable name/label pair.
+// reused across any form with a translatable name/label pair. Shows a
+// fixed EN/AR code rather than the field's own label — the field's
+// (sr-only) FormLabel already carries that, and it's too long for a pill.
 export function LocaleTabs({
   value,
   onChange,
-  labels,
   errors,
 }: {
   value: "en" | "ar";
   onChange: (locale: "en" | "ar") => void;
-  labels: { en: string; ar: string };
   errors?: { en?: boolean; ar?: boolean };
 }) {
   return (
@@ -30,7 +32,7 @@ export function LocaleTabs({
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          {labels[locale]}
+          {LOCALE_CODE[locale]}
           {errors?.[locale] && <span className="text-destructive"> *</span>}
         </button>
       ))}

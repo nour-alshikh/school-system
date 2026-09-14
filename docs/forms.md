@@ -98,8 +98,10 @@ see `Stage::$translatable` — a whole other field shape than Post's
 per-request-locale `title`/`body`) still has one form field per locale
 (`name_en`, `name_ar`), but showing both inputs side by side wastes space
 and isn't how the rest of the app presents a single "Name" field. Instead,
-`src/components/locale-tabs.tsx`'s `LocaleTabs` renders a small pill toggle
-and only one input is visible at a time — see `stage-form.tsx`:
+`src/components/locale-tabs.tsx`'s `LocaleTabs` renders a small `EN`/`AR`
+pill toggle (a fixed code, not the field's own label — that's too long for
+a pill and the field's `sr-only` `FormLabel` already carries it) and only
+one input is visible at a time — see `stage-form.tsx`:
 
 ```tsx
 const [activeLocale, setActiveLocale] = useState<"en" | "ar">("en");
@@ -107,7 +109,6 @@ const [activeLocale, setActiveLocale] = useState<"en" | "ar">("en");
 <LocaleTabs
   value={activeLocale}
   onChange={setActiveLocale}
-  labels={{ en: t("nameEnLabel"), ar: t("nameArLabel") }}
   errors={{ en: !!form.formState.errors.name_en, ar: !!form.formState.errors.name_ar }}
 />
 
@@ -115,6 +116,7 @@ const [activeLocale, setActiveLocale] = useState<"en" | "ar">("en");
   name="name_en"
   render={({ field }) => (
     <FormItem className={cn(activeLocale !== "en" && "hidden")}>
+      <FormLabel className="sr-only">{t("nameEnLabel")}</FormLabel>
       ...
 ```
 

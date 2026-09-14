@@ -55,7 +55,6 @@ export function StageForm({
     defaultValues: stage ? valuesFromStage(stage) : defaultValues,
   });
 
-
   const mutation = useMutation({
     mutationFn: (values: StageFormValues) => {
       const payload = {
@@ -117,7 +116,6 @@ export function StageForm({
         <LocaleTabs
           value={activeLocale}
           onChange={setActiveLocale}
-          labels={{ en: t("nameEnLabel"), ar: t("nameArLabel") }}
           errors={{
             en: !!form.formState.errors.name_en,
             ar: !!form.formState.errors.name_ar,
@@ -131,7 +129,7 @@ export function StageForm({
             <FormItem className={cn(activeLocale !== "en" && "hidden")}>
               <FormLabel className="sr-only">{t("nameEnLabel")}</FormLabel>
               <FormControl>
-                <Input {...field} dir="ltr" />
+                <Input {...field} dir="ltr" className="h-10" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -145,7 +143,7 @@ export function StageForm({
             <FormItem className={cn(activeLocale !== "ar" && "hidden")}>
               <FormLabel className="sr-only">{t("nameArLabel")}</FormLabel>
               <FormControl>
-                <Input {...field} dir="rtl" />
+                <Input {...field} dir="rtl" className="h-10" />
               </FormControl>
               <FormMessage />
             </FormItem>
