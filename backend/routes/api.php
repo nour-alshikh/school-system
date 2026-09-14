@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\GradeController;
 use App\Http\Controllers\StageController;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
@@ -35,9 +36,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Any authenticated user can view the academic structure (stages,
     // grades, classrooms); only admins may change it.
     Route::get('/stages', [StageController::class, 'index']);
+    Route::get('/grades', [GradeController::class, 'index']);
     Route::middleware('permission:manage-academics')->group(function () {
         Route::post('/stages', [StageController::class, 'store']);
         Route::put('/stages/{stage}', [StageController::class, 'update']);
         Route::delete('/stages/{stage}', [StageController::class, 'destroy']);
+
+        Route::post('/grades', [GradeController::class, 'store']);
+        Route::put('/grades/{grade}', [GradeController::class, 'update']);
+        Route::delete('/grades/{grade}', [GradeController::class, 'destroy']);
     });
 });

@@ -4,6 +4,14 @@ readonly name: string,
 readonly email: string,
 readonly roles: RoleType[],
 };
+export type GradeType = {
+readonly id: number,
+readonly stage_id: number,
+readonly name_en: string,
+readonly name_ar: string,
+readonly created_at: string,
+readonly updated_at: string,
+};
 export type PostAuthorType = {
 readonly id: number,
 readonly name: string,

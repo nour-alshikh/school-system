@@ -7,6 +7,7 @@
     "brand": "نظام المدرسة",
     "dashboard": "لوحة التحكم",
     "stages": "المراحل",
+    "grades": "الصفوف",
     "manageUsers": "إدارة المستخدمين",
     "logout": "تسجيل الخروج",
     "login": "تسجيل الدخول",
@@ -140,6 +141,31 @@
     "createdToast": "تم إنشاء المرحلة.",
     "updatedToast": "تم تحديث المرحلة."
   },
+  "GradesPage": {
+    "newGrade": "صف جديد",
+    "editGrade": "تعديل الصف",
+    "gradesHeading": "الصفوف",
+    "noGrades": "لا توجد صفوف بعد.",
+    "nameColumn": "الاسم",
+    "stageColumn": "المرحلة",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteSuccess": "تم حذف الصف.",
+    "deleteError": "فشل حذف الصف.",
+    "loadError": "فشل تحميل الصفوف."
+  },
+  "GradeForm": {
+    "stageLabel": "المرحلة",
+    "stagePlaceholder": "اختر مرحلة",
+    "nameEnLabel": "الاسم (إنجليزي)",
+    "nameArLabel": "الاسم (عربي)",
+    "saving": "جارٍ الحفظ…",
+    "saveChanges": "حفظ التغييرات",
+    "createGrade": "إنشاء صف",
+    "cancel": "إلغاء",
+    "createdToast": "تم إنشاء الصف.",
+    "updatedToast": "تم تحديث الصف."
+  },
   "AdminUsersPage": {
     "heading": "المستخدمون",
     "loadError": "تعذّر تحميل المستخدمين.",
@@ -158,7 +184,10 @@
     "readingMinutesMin": "يجب ألا تقل عن دقيقة واحدة",
     "readingMinutesMax": "يجب ألا تزيد عن 180 دقيقة",
     "stageNameEnRequired": "الاسم بالإنجليزية مطلوب",
-    "stageNameArRequired": "الاسم بالعربية مطلوب"
+    "stageNameArRequired": "الاسم بالعربية مطلوب",
+    "gradeStageRequired": "المرحلة مطلوبة",
+    "gradeNameEnRequired": "الاسم بالإنجليزية مطلوب",
+    "gradeNameArRequired": "الاسم بالعربية مطلوب"
   },
   "Errors": {
     "somethingWentWrong": "حدث خطأ ما."

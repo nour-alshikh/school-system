@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   GraduationCap,
   LayoutDashboard,
+  Layers,
   PanelLeftClose,
   PanelLeftOpen,
   Users,
@@ -113,6 +114,12 @@ export function SiteSidebar() {
         href="/stages"
         icon={GraduationCap}
         label={t("stages")}
+        collapsed={collapsed}
+      />
+      <SidebarLink
+        href="/grades"
+        icon={Layers}
+        label={t("grades")}
         collapsed={collapsed}
       />
 

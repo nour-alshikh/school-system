@@ -7,6 +7,7 @@
     "brand": "School System",
     "dashboard": "Dashboard",
     "stages": "Stages",
+    "grades": "Grades",
     "manageUsers": "Manage users",
     "logout": "Log out",
     "login": "Log in",
@@ -140,6 +141,31 @@
     "createdToast": "Stage created.",
     "updatedToast": "Stage updated."
   },
+  "GradesPage": {
+    "newGrade": "New grade",
+    "editGrade": "Edit grade",
+    "gradesHeading": "Grades",
+    "noGrades": "No grades yet.",
+    "nameColumn": "Name",
+    "stageColumn": "Stage",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteSuccess": "Grade deleted.",
+    "deleteError": "Failed to delete grade.",
+    "loadError": "Failed to load grades."
+  },
+  "GradeForm": {
+    "stageLabel": "Stage",
+    "stagePlaceholder": "Select a stage",
+    "nameEnLabel": "Name (English)",
+    "nameArLabel": "Name (Arabic)",
+    "saving": "Saving…",
+    "saveChanges": "Save changes",
+    "createGrade": "Create grade",
+    "cancel": "Cancel",
+    "createdToast": "Grade created.",
+    "updatedToast": "Grade updated."
+  },
   "AdminUsersPage": {
     "heading": "Users",
     "loadError": "Couldn't load users.",
@@ -158,7 +184,10 @@
     "readingMinutesMin": "Must be at least 1 minute",
     "readingMinutesMax": "Must be 180 minutes or less",
     "stageNameEnRequired": "English name is required",
-    "stageNameArRequired": "Arabic name is required"
+    "stageNameArRequired": "Arabic name is required",
+    "gradeStageRequired": "Stage is required",
+    "gradeNameEnRequired": "English name is required",
+    "gradeNameArRequired": "Arabic name is required"
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
