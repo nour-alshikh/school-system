@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PageSkeleton } from "@/components/page-skeleton";
+import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
 
 export default function AdminUsersPage() {
@@ -57,7 +57,7 @@ export default function AdminUsersPage() {
   }, [usersError, t]);
 
   if (isAuthLoading || !user || !isAuthorized) {
-    return <PageSkeleton />;
+    return <PageLoader />;
   }
 
   return (

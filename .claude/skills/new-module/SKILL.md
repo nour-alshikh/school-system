@@ -81,10 +81,10 @@ copy that part of them).
    for the list, the form component for create/edit, `useMutation` for
    delete — all invalidating the same query key on success. Gate on
    `useAuth()`'s `user`/`isLoading` the same way `dashboard/page.tsx` does,
-   rendering `<PageSkeleton />` (not "Loading…" text) while that resolves;
-   the list's own `isLoading` renders `<TableSkeletonRows columns={n} />`
-   inside the real `<TableHeader>` — see
-   [`docs/data-fetching.md`](../../docs/data-fetching.md#loading-state-ui-skeletons-not-loading-text).
+   rendering `<PageLoader />` (a centered spinner, not "Loading…" text)
+   while that resolves; the list's own `isLoading` renders
+   `<TableSkeletonRows columns={n} />` inside the real `<TableHeader>` — see
+   [`docs/data-fetching.md`](../../docs/data-fetching.md#loading-state-ui-not-a-bare-loading-text).
    `src/app/[locale]/<model>s/page.tsx` is then just:
    ```ts
    export { <Model>sPage as default } from "@/features/<model>s/<model>s-page";
@@ -98,9 +98,10 @@ copy that part of them).
 - **Data fetching**: `@tanstack/react-query`'s `useQuery`/`useMutation`,
   never a hand-rolled `useEffect` + `useState` loading/error dance. See
   [`docs/data-fetching.md`](../../docs/data-fetching.md).
-- **Loading UI**: skeletons (`PageSkeleton`, `TableSkeletonRows`), never a
-  bare "Loading…" string. See
-  [`docs/data-fetching.md`](../../docs/data-fetching.md#loading-state-ui-skeletons-not-loading-text).
+- **Loading UI**: `PageLoader` (centered spinner) for the auth gate,
+  `TableSkeletonRows` (skeleton) for a table body — never a bare "Loading…"
+  string. See
+  [`docs/data-fetching.md`](../../docs/data-fetching.md#loading-state-ui-not-a-bare-loading-text).
 - **API calls**: always through `apiFetch` (`src/lib/api.ts`) — it handles
   the CSRF cookie, credentials, and error shape. Never call `fetch`
   directly against the API.
@@ -124,5 +125,5 @@ copy that part of them).
 - ✅ `composer types` run after any backend shape change
 - ✅ Frontend: `features/<model>/` (types, schema, form, page) + thin
   `app/[locale]/<model>s/page.tsx` re-export
-- ✅ Loading states use `PageSkeleton`/`TableSkeletonRows`, not text
+- ✅ Loading states use `PageLoader`/`TableSkeletonRows`, not text
 - ✅ Nav link added only if the module is meant to be user-facing

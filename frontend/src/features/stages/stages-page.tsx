@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PageSkeleton } from "@/components/page-skeleton";
+import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
 import { StageForm } from "./stage-form";
 import type { Stage } from "./types";
@@ -70,7 +70,7 @@ export function StagesPage() {
   });
 
   if (isAuthLoading || !user) {
-    return <PageSkeleton />;
+    return <PageLoader />;
   }
 
   return (

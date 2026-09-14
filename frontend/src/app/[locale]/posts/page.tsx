@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PageSkeleton } from "@/components/page-skeleton";
+import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
 
 export default function PostsPage() {
@@ -67,7 +67,7 @@ export default function PostsPage() {
   });
 
   if (isAuthLoading || !user) {
-    return <PageSkeleton />;
+    return <PageLoader />;
   }
 
   return (

@@ -93,13 +93,18 @@ For anything that changes server state, use `useMutation` and either
 new data — see `AuthProvider` above) or `queryClient.invalidateQueries()` (when
 it doesn't, and a refetch is the simplest way to get the new state).
 
-## Loading state UI: skeletons, not "Loading…" text
+## Loading state UI: not a bare "Loading…" text
 
-Every page's `isLoading` branch renders a skeleton, not a text string — see
-`src/components/page-skeleton.tsx` (`PageSkeleton`, for the outer
-auth-resolving gate every authenticated page has) and
-`src/components/table-skeleton.tsx` (`TableSkeletonRows`, for a table body
-while its own query loads — keep the real `TableHeader` mounted around it so
-columns don't jump once data arrives). `dashboard`, `posts`, `stages`, and
-`admin/users` all follow this; copy them for a new page instead of writing a
-`<p>{t("loading...")}</p>` fallback.
+Every page's outer `isLoading` branch (the auth-resolving gate) renders
+`src/components/page-loader.tsx`'s `PageLoader` — a centered spinner, not a
+skeleton. There's no known page shape yet at that point (auth hasn't
+resolved), so a skeleton would just be guessing at a layout; a spinner makes
+no such claim.
+
+Once auth has resolved and a page's own list query is loading, that *does*
+have a known shape (the table itself), so that one uses
+`src/components/table-skeleton.tsx`'s `TableSkeletonRows` — skeleton rows
+inside the real `TableHeader`, so columns don't jump once data arrives.
+
+`dashboard`, `posts`, `stages`, and `admin/users` all follow this; copy them
+for a new page instead of writing a `<p>{t("loading...")}</p>` fallback.

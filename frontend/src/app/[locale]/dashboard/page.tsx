@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { AvatarUploader } from "@/components/avatar-uploader";
-import { PageSkeleton } from "@/components/page-skeleton";
+import { PageLoader } from "@/components/page-loader";
 
 export default function DashboardPage() {
   const t = useTranslations("DashboardPage");
@@ -19,7 +19,7 @@ export default function DashboardPage() {
   }, [isLoading, user, router]);
 
   if (isLoading || !user) {
-    return <PageSkeleton />;
+    return <PageLoader />;
   }
 
   return (
