@@ -79,9 +79,18 @@ Backend (rename `Post`/`post` → your model throughout):
 8. Routes in `routes/api.php`
 9. `composer types`
 
-Frontend:
+Frontend — once a module is more than a one-off (see
+[frontend-structure.md](./frontend-structure.md)), put it in its own feature
+folder instead of scattering files across `components/`, `lib/schemas.ts`,
+and `types/`:
 
-1. `src/types/<model>.ts` — re-export from `./generated`
-2. `src/lib/schemas.ts` — zod schema mirroring the Request rules
-3. `src/components/<model>-form.tsx`
-4. `src/app/<model>/page.tsx`
+1. `src/features/<model>/types.ts` — re-export from `@/types/generated`
+2. `src/features/<model>/schema.ts` — zod schema mirroring the Request rules
+3. `src/features/<model>/<model>-form.tsx`
+4. `src/features/<model>/<model>s-page.tsx` — the real page component
+5. `src/app/[locale]/<model>s/page.tsx` — thin re-export:
+   `export { <Model>sPage as default } from "@/features/<model>s/<model>s-page";`
+
+`Post`/`AdminUsers` still use the older flat layout (`components/post-form.tsx`,
+one entry in `lib/schemas.ts`, `types/post.ts`) — fine for a two-module app,
+not copied for new ones anymore.

@@ -30,6 +30,13 @@ export type RoleType = {
 readonly id: number,
 readonly name: string,
 };
+export type StageType = {
+readonly id: number,
+readonly name_en: string,
+readonly name_ar: string,
+readonly created_at: string,
+readonly updated_at: string,
+};
 export type UserType = {
 readonly id: number,
 readonly name: string,

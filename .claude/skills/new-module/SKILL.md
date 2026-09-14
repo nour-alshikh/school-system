@@ -56,27 +56,35 @@ read the actual file it names.
 
 #### Frontend
 
-1. **Types** — `src/types/<model>.ts`: re-export from the generated file,
-   don't hand-declare fields.
+Every module lives in its own feature folder — see
+[`docs/frontend-structure.md`](../../docs/frontend-structure.md) for why
+(`Post`/`AdminUsers` predate this and still use the old flat layout; don't
+copy that part of them).
+
+1. **Types** — `src/features/<model>/types.ts`: re-export from the
+   generated file, don't hand-declare fields.
    ```ts
-   export type { <Model>Type as <Model> } from "./generated";
+   export type { <Model>Type as <Model> } from "@/types/generated";
    ```
-2. **Zod schema** — add to `src/lib/schemas.ts`, mirroring the backend
-   FormRequest's rules by hand (this project's established convention —
-   see [`docs/forms.md`](../../docs/forms.md)). For any enum field, type its
+2. **Zod schema** — `src/features/<model>/schema.ts`, mirroring the backend
+   FormRequest's rules by hand (this project's established convention — see
+   [`docs/forms.md`](../../docs/forms.md)). For any enum field, type its
    option list `satisfies readonly <Thing>[]` against the generated union
    so a backend enum change is a compile error here, not silent drift.
-3. **Form component** — `src/components/<model>-form.tsx`: `useForm` +
+3. **Form component** — `src/features/<model>/<model>-form.tsx`: `useForm` +
    `zodResolver`, shadcn `Form`/`FormField`/`FormItem`/`FormControl`, one
    `<FormField>` per column. Use `apiFetch` (`src/lib/api.ts`) inside a
    `useMutation`, never raw `fetch`. On error, call
    `applyServerErrors(form, err, [...knownFields])` so backend validation
    errors render inline like client-side ones.
-4. **Page** — `src/app/<model>/page.tsx`: `useQuery(["<models>"], ...)` for
-   the list, the form component for create/edit, `useMutation` for
+4. **Page** — `src/features/<model>/<model>s-page.tsx`: `useQuery(["<models>"], ...)`
+   for the list, the form component for create/edit, `useMutation` for
    delete — all invalidating the same query key on success. Gate on
-   `useAuth()`'s `user`/`isLoading` the same way `dashboard/page.tsx` and
-   `posts/page.tsx` do.
+   `useAuth()`'s `user`/`isLoading` the same way `dashboard/page.tsx` does.
+   `src/app/[locale]/<model>s/page.tsx` is then just:
+   ```ts
+   export { <Model>sPage as default } from "@/features/<model>s/<model>s-page";
+   ```
 5. Add a nav link in `src/components/site-header.tsx` if the module should
    actually be reachable (Posts deliberately isn't — it's a reference, not
    a feature).
@@ -107,5 +115,6 @@ read the actual file it names.
 - ✅ Backend: Migration, Model, FormRequests, Resource, TypeScript type,
   Routes (+ Policy if needed, Enums if needed)
 - ✅ `composer types` run after any backend shape change
-- ✅ Frontend: `types/<model>.ts`, zod schema, form component, page
+- ✅ Frontend: `features/<model>/` (types, schema, form, page) + thin
+  `app/[locale]/<model>s/page.tsx` re-export
 - ✅ Nav link added only if the module is meant to be user-facing

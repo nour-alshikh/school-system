@@ -63,6 +63,10 @@ export function SiteHeader() {
                   {t("dashboard")}
                 </DropdownMenuItem>
 
+                <DropdownMenuItem onClick={() => router.push("/stages")}>
+                  {t("stages")}
+                </DropdownMenuItem>
+
                 {can("manage-users") && (
                   <DropdownMenuItem
                     onClick={() => router.push("/admin/users")}

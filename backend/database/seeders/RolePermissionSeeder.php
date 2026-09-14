@@ -11,9 +11,11 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         $manageUsers = Permission::firstOrCreate(['name' => 'manage-users']);
+        $manageAcademics = Permission::firstOrCreate(['name' => 'manage-academics']);
 
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->givePermissionTo($manageUsers);
+        $admin->givePermissionTo($manageAcademics);
 
         Role::firstOrCreate(['name' => 'user']);
     }

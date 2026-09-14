@@ -6,6 +6,7 @@
   "Nav": {
     "brand": "نظام المدرسة",
     "dashboard": "لوحة التحكم",
+    "stages": "المراحل",
     "manageUsers": "إدارة المستخدمين",
     "logout": "تسجيل الخروج",
     "login": "تسجيل الدخول",
@@ -117,6 +118,30 @@
     "createdToast": "تم إنشاء المنشور.",
     "updatedToast": "تم تحديث المنشور."
   },
+  "StagesPage": {
+    "newStage": "مرحلة جديدة",
+    "editStage": "تعديل المرحلة",
+    "stagesHeading": "المراحل",
+    "loadingStages": "جارٍ تحميل المراحل…",
+    "noStages": "لا توجد مراحل بعد.",
+    "nameEnColumn": "الاسم (إنجليزي)",
+    "nameArColumn": "الاسم (عربي)",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteSuccess": "تم حذف المرحلة.",
+    "deleteError": "فشل حذف المرحلة.",
+    "loadError": "فشل تحميل المراحل."
+  },
+  "StageForm": {
+    "nameEnLabel": "الاسم (إنجليزي)",
+    "nameArLabel": "الاسم (عربي)",
+    "saving": "جارٍ الحفظ…",
+    "saveChanges": "حفظ التغييرات",
+    "createStage": "إنشاء مرحلة",
+    "cancel": "إلغاء",
+    "createdToast": "تم إنشاء المرحلة.",
+    "updatedToast": "تم تحديث المرحلة."
+  },
   "AdminUsersPage": {
     "heading": "المستخدمون",
     "loadingUsers": "جارٍ تحميل المستخدمين…",
@@ -134,7 +159,9 @@
     "titleRequired": "العنوان مطلوب",
     "contentRequired": "المحتوى مطلوب",
     "readingMinutesMin": "يجب ألا تقل عن دقيقة واحدة",
-    "readingMinutesMax": "يجب ألا تزيد عن 180 دقيقة"
+    "readingMinutesMax": "يجب ألا تزيد عن 180 دقيقة",
+    "stageNameEnRequired": "الاسم بالإنجليزية مطلوب",
+    "stageNameArRequired": "الاسم بالعربية مطلوب"
   },
   "Errors": {
     "somethingWentWrong": "حدث خطأ ما."

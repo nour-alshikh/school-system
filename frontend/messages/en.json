@@ -6,6 +6,7 @@
   "Nav": {
     "brand": "School System",
     "dashboard": "Dashboard",
+    "stages": "Stages",
     "manageUsers": "Manage users",
     "logout": "Log out",
     "login": "Log in",
@@ -117,6 +118,30 @@
     "createdToast": "Post created.",
     "updatedToast": "Post updated."
   },
+  "StagesPage": {
+    "newStage": "New stage",
+    "editStage": "Edit stage",
+    "stagesHeading": "Stages",
+    "loadingStages": "Loading stages…",
+    "noStages": "No stages yet.",
+    "nameEnColumn": "Name (English)",
+    "nameArColumn": "Name (Arabic)",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteSuccess": "Stage deleted.",
+    "deleteError": "Failed to delete stage.",
+    "loadError": "Failed to load stages."
+  },
+  "StageForm": {
+    "nameEnLabel": "Name (English)",
+    "nameArLabel": "Name (Arabic)",
+    "saving": "Saving…",
+    "saveChanges": "Save changes",
+    "createStage": "Create stage",
+    "cancel": "Cancel",
+    "createdToast": "Stage created.",
+    "updatedToast": "Stage updated."
+  },
   "AdminUsersPage": {
     "heading": "Users",
     "loadingUsers": "Loading users…",
@@ -134,7 +159,9 @@
     "titleRequired": "Title is required",
     "contentRequired": "Content is required",
     "readingMinutesMin": "Must be at least 1 minute",
-    "readingMinutesMax": "Must be 180 minutes or less"
+    "readingMinutesMax": "Must be 180 minutes or less",
+    "stageNameEnRequired": "English name is required",
+    "stageNameArRequired": "Arabic name is required"
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
