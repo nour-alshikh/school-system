@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiFetch, ApiError } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
+import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { LocaleTabs } from "@/components/locale-tabs";
 import { createStageSchema, type StageFormValues } from "./schema";
 import type { Stage } from "./types";
 
@@ -44,6 +46,7 @@ export function StageForm({
   const tValidation = useTranslations("Validation");
   const tErrors = useTranslations("Errors");
   const queryClient = useQueryClient();
+  const [activeLocale, setActiveLocale] = useState<"en" | "ar">("en");
 
   const schema = useMemo(() => createStageSchema(tValidation), [tValidation]);
 
@@ -52,12 +55,6 @@ export function StageForm({
     defaultValues: stage ? valuesFromStage(stage) : defaultValues,
   });
 
-  // Editing a different stage (or switching from create to edit) — sync the
-  // form to the new record instead of keeping stale values around.
-  useEffect(() => {
-    form.reset(stage ? valuesFromStage(stage) : defaultValues);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage?.id]);
 
   const mutation = useMutation({
     mutationFn: (values: StageFormValues) => {
@@ -106,15 +103,33 @@ export function StageForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
+        onSubmit={form.handleSubmit(
+          (values) => mutation.mutate(values),
+          // A hidden tab's own error would otherwise render invisibly —
+          // jump to whichever locale actually failed validation.
+          (errors) => {
+            if (errors.name_en && activeLocale !== "en") setActiveLocale("en");
+            else if (errors.name_ar && activeLocale !== "ar") setActiveLocale("ar");
+          }
+        )}
         className="flex flex-col gap-4"
       >
+        <LocaleTabs
+          value={activeLocale}
+          onChange={setActiveLocale}
+          labels={{ en: t("nameEnLabel"), ar: t("nameArLabel") }}
+          errors={{
+            en: !!form.formState.errors.name_en,
+            ar: !!form.formState.errors.name_ar,
+          }}
+        />
+
         <FormField
           control={form.control}
           name="name_en"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("nameEnLabel")}</FormLabel>
+            <FormItem className={cn(activeLocale !== "en" && "hidden")}>
+              <FormLabel className="sr-only">{t("nameEnLabel")}</FormLabel>
               <FormControl>
                 <Input {...field} dir="ltr" />
               </FormControl>
@@ -127,8 +142,8 @@ export function StageForm({
           control={form.control}
           name="name_ar"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("nameArLabel")}</FormLabel>
+            <FormItem className={cn(activeLocale !== "ar" && "hidden")}>
+              <FormLabel className="sr-only">{t("nameArLabel")}</FormLabel>
               <FormControl>
                 <Input {...field} dir="rtl" />
               </FormControl>

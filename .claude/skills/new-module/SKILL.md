@@ -76,7 +76,12 @@ copy that part of them).
    `<FormField>` per column. Use `apiFetch` (`src/lib/api.ts`) inside a
    `useMutation`, never raw `fetch`. On error, call
    `applyServerErrors(form, err, [...knownFields])` so backend validation
-   errors render inline like client-side ones.
+   errors render inline like client-side ones. A bilingual field
+   (`<field>_en`/`<field>_ar`, backed by `HasTranslations` — see
+   `Stage::$translatable`) uses `src/components/locale-tabs.tsx`'s
+   `LocaleTabs` to show one input at a time instead of both side by side —
+   see [`docs/forms.md`](../../docs/forms.md#translatable-fields-localetabs)
+   and `stage-form.tsx`.
 4. **Page** — `src/features/<model>/<model>s-page.tsx`: `useQuery(["<models>"], ...)`
    for the list, the form component for create/edit, `useMutation` for
    delete — all invalidating the same query key on success. Gate on

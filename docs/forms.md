@@ -90,3 +90,49 @@ async function onSubmit(values: ThingPayload) {
   }
 }
 ```
+
+## Translatable fields: `LocaleTabs`
+
+A field stored bilingually on the backend (`spatie/laravel-translatable`,
+see `Stage::$translatable` — a whole other field shape than Post's
+per-request-locale `title`/`body`) still has one form field per locale
+(`name_en`, `name_ar`), but showing both inputs side by side wastes space
+and isn't how the rest of the app presents a single "Name" field. Instead,
+`src/components/locale-tabs.tsx`'s `LocaleTabs` renders a small pill toggle
+and only one input is visible at a time — see `stage-form.tsx`:
+
+```tsx
+const [activeLocale, setActiveLocale] = useState<"en" | "ar">("en");
+
+<LocaleTabs
+  value={activeLocale}
+  onChange={setActiveLocale}
+  labels={{ en: t("nameEnLabel"), ar: t("nameArLabel") }}
+  errors={{ en: !!form.formState.errors.name_en, ar: !!form.formState.errors.name_ar }}
+/>
+
+<FormField
+  name="name_en"
+  render={({ field }) => (
+    <FormItem className={cn(activeLocale !== "en" && "hidden")}>
+      ...
+```
+
+Both `FormField`s stay mounted (`hidden`, not conditionally unrendered) so
+react-hook-form keeps tracking whichever locale isn't currently visible —
+unmounting it would drop its value/validation on toggle. Submitting with an
+error on the hidden locale would otherwise render invisibly, so
+`form.handleSubmit`'s second (`onInvalid`) callback switches to whichever
+locale actually failed:
+
+```tsx
+form.handleSubmit(
+  (values) => mutation.mutate(values),
+  (errors) => {
+    if (errors.name_en && activeLocale !== "en") setActiveLocale("en");
+    else if (errors.name_ar && activeLocale !== "ar") setActiveLocale("ar");
+  }
+)
+```
+
+Copy this for any new bilingual field (grades/classrooms' names included).
