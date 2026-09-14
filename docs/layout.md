@@ -15,32 +15,49 @@ page needing to render it itself.
   a skeleton — wasn't worth it for how briefly this state is visible in
   practice; revisit if that stops being true.
 - **Authenticated**: an avatar-or-initial + name button that opens a small
-  dropdown menu (click-outside-to-close via a `mousedown` listener attached
-  only while the menu is open, not globally) containing:
-  - `Dashboard`
-  - `Manage users` — only rendered when `can("manage-users")`, same check
-    used everywhere else permission-gated UI exists (see
-    [authorization.md](./authorization.md))
-  - `Log out`
+  dropdown menu containing just `Log out`. Everything else that used to
+  live here (`Dashboard`, `Manage users`) moved to `SiteSidebar` — see
+  below.
 
-`src/app/layout.tsx`:
+## `SiteSidebar`
+
+`src/components/site-sidebar.tsx` — a client component rendered once, in the
+root layout next to `{children}` (not inside it), so every page gets the same
+nav without rendering it itself. Same guest/loading gate as `SiteHeader`:
+renders nothing until `useAuth()` resolves to a logged-in user. Hidden below
+the `md` breakpoint (`hidden md:flex`) — no mobile drawer built for it yet.
+
+Links, each a plain `<Link>` highlighted via `usePathname()` when active:
+- `Dashboard`
+- `Stages`
+- `Manage users` — only rendered when `can("manage-users")`, same check
+  used everywhere else permission-gated UI exists (see
+  [authorization.md](./authorization.md))
+
+`src/app/[locale]/layout.tsx`:
 
 ```tsx
 <AuthProvider>
   <SiteHeader />
-  {children}
+  <div className="flex flex-1">
+    <SiteSidebar />
+    <div className="flex flex-1 flex-col">{children}</div>
+  </div>
 </AuthProvider>
 ```
 
-Has to be inside `AuthProvider`, not outside it — `useAuth()` needs the
-provider above it in the tree.
+Both have to be inside `AuthProvider`, not outside it — `useAuth()` needs the
+provider above it in the tree. `SiteSidebar` sits next to `{children}`, not
+wrapping it, so it renders once per layout instead of once per page and
+individual pages don't need to know it exists.
 
 ## What moved out of `dashboard/page.tsx`
 
 The dashboard page no longer renders its own logout button or "Manage users"
-link — both now live only in `SiteHeader`, once, instead of duplicated on
-every page that happened to need them. `dashboard/page.tsx` is back to just
-page content: the avatar uploader and a welcome message.
+link — logout lives only in `SiteHeader`, nav links only in `SiteSidebar`,
+once each, instead of duplicated on every page that happened to need them.
+`dashboard/page.tsx` is back to just page content: the avatar uploader and a
+welcome message.
 
 ## Why the header's authenticated state doesn't appear in the initial HTML
 
@@ -54,6 +71,8 @@ nothing for that state until hydration resolves it.
 
 ## Adding a new authenticated-only nav item
 
-Add it inside the `user ? (...) : (...)` branch in `SiteHeader`, gated by
-`can()`/`hasRole()` the same way `Manage users` is if it's permission-specific,
-or unconditionally (like `Dashboard`) if every logged-in user should see it.
+Add a `SidebarLink` inside `SiteSidebar`, gated by `can()`/`hasRole()` the
+same way `Manage users` is if it's permission-specific, or unconditionally
+(like `Dashboard`/`Stages`) if every logged-in user should see it.
+`SiteHeader`'s dropdown is only for account-level actions (`Log out`) now,
+not feature nav.
