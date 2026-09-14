@@ -39,6 +39,10 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-foreground: var(--accent-blue-foreground);
+  --color-accent-red: var(--accent-red);
+  --color-accent-red-foreground: var(--accent-red-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -93,6 +97,14 @@ html[dir="rtl"] {
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Standalone accent tokens, not tied to primary/destructive -- apply
+     manually per component (bg-accent-blue, text-accent-blue-foreground,
+     etc.) rather than as a theme-wide replacement. Same values in light
+     and dark: brand accents, not surface colors. */
+  --accent-blue: #0070f3;
+  --accent-blue-foreground: #ffffff;
+  --accent-red: #ff5b4f;
+  --accent-red-foreground: #ffffff;
 }
 
 .dark {
@@ -127,6 +139,10 @@ html[dir="rtl"] {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --accent-blue: #0070f3;
+  --accent-blue-foreground: #ffffff;
+  --accent-red: #ff5b4f;
+  --accent-red-foreground: #ffffff;
 }
 
 @layer base {
