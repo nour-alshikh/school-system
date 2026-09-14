@@ -32,6 +32,12 @@ class GradeController extends Controller
 
     public function destroy(Grade $grade)
     {
+        if ($grade->classrooms()->exists()) {
+            return response()->json([
+                'message' => 'This grade has classrooms and cannot be deleted.',
+            ], 422);
+        }
+
         $grade->delete();
 
         return response()->noContent();

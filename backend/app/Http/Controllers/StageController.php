@@ -32,6 +32,12 @@ class StageController extends Controller
 
     public function destroy(Stage $stage)
     {
+        if ($stage->grades()->exists()) {
+            return response()->json([
+                'message' => 'This stage has grades and cannot be deleted.',
+            ], 422);
+        }
+
         $stage->delete();
 
         return response()->noContent();
