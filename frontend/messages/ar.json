@@ -134,7 +134,6 @@
   "StageForm": {
     "nameEnLabel": "الاسم (إنجليزي)",
     "nameArLabel": "الاسم (عربي)",
-    "saving": "جارٍ الحفظ…",
     "saveChanges": "حفظ التغييرات",
     "createStage": "إنشاء مرحلة",
     "cancel": "إلغاء",
@@ -159,7 +158,6 @@
     "stagePlaceholder": "اختر مرحلة",
     "nameEnLabel": "الاسم (إنجليزي)",
     "nameArLabel": "الاسم (عربي)",
-    "saving": "جارٍ الحفظ…",
     "saveChanges": "حفظ التغييرات",
     "createGrade": "إنشاء صف",
     "cancel": "إلغاء",

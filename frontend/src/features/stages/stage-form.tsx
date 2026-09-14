@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import { cn } from "@/lib/utils";
@@ -163,11 +164,10 @@ export function StageForm({
 
         <div className="flex gap-2">
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting
-              ? t("saving")
-              : stage
-                ? t("saveChanges")
-                : t("createStage")}
+            {form.formState.isSubmitting && (
+              <Loader2 className="size-4 animate-spin" />
+            )}
+            {stage ? t("saveChanges") : t("createStage")}
           </Button>
 
           {onSuccess && (
