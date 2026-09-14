@@ -49,10 +49,15 @@
 }
 
 /* Geist has no Arabic glyphs, so the Arabic route (html[dir="rtl"], set
-   from the locale in the root layout) overrides --font-sans to Cairo
-   (Latin + Arabic) instead of the English-route default above. */
+   from the locale in the root layout) switches to Cairo (Latin + Arabic)
+   instead of the English-route default below.
+   Overriding font-family directly, not --font-sans: @theme inline resolves
+   and inlines --font-sans's value straight into the `font-sans` utility at
+   build time (font-family: var(--font-geist-sans) literally), so it no
+   longer reads --font-sans at all once compiled — reassigning that
+   variable later has nothing left to affect. */
 html[dir="rtl"] {
-  --font-sans: var(--font-cairo);
+  font-family: var(--font-cairo);
 }
 
 :root {
