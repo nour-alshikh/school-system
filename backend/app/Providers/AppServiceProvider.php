@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Translatable\Translatable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,9 +28,22 @@ class AppServiceProvider extends ServiceProvider
     {
         ResetPassword::createUrlUsing(function ($notifiable, string $token) {
             $frontendUrl = rtrim(config('cors.allowed_origins')[0] ?? 'http://localhost:3000', '/');
+            // The frontend's locale-prefixed routing (localePrefix: "always")
+            // requires every page URL to start with /en or /ar — this request's
+            // locale was set by SetLocale from the Accept-Language the BFF
+            // forwarded, so it matches whatever the user was actually using.
+            $locale = app()->getLocale();
 
-            return "{$frontendUrl}/reset-password?token={$token}&email={$notifiable->getEmailForPasswordReset()}";
+            return "{$frontendUrl}/{$locale}/reset-password?token={$token}&email={$notifiable->getEmailForPasswordReset()}";
         });
+
+        // Posts store title/body as {locale => text} (see Post::$translatable);
+        // a post that was only ever written in one language should still show
+        // that content when browsed in the other, instead of coming back blank.
+        app(Translatable::class)->fallback(
+            fallbackLocale: config('app.fallback_locale'),
+            fallbackAny: true,
+        );
 
         // General ceiling for the whole API surface (bootstrap/app.php's
         // throttleApi() wires this in as the 'api' middleware group's default).
