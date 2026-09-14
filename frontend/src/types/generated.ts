@@ -4,6 +4,14 @@ readonly name: string,
 readonly email: string,
 readonly roles: RoleType[],
 };
+export type ClassroomType = {
+readonly id: number,
+readonly grade_id: number,
+readonly name: string,
+readonly capacity: number | null,
+readonly created_at: string,
+readonly updated_at: string,
+};
 export type GradeType = {
 readonly id: number,
 readonly stage_id: number,

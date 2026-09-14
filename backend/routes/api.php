@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\StageController;
 use App\Models\Post;
@@ -37,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // grades, classrooms); only admins may change it.
     Route::get('/stages', [StageController::class, 'index']);
     Route::get('/grades', [GradeController::class, 'index']);
+    Route::get('/classrooms', [ClassroomController::class, 'index']);
     Route::middleware('permission:manage-academics')->group(function () {
         Route::post('/stages', [StageController::class, 'store']);
         Route::put('/stages/{stage}', [StageController::class, 'update']);
@@ -45,5 +47,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/grades', [GradeController::class, 'store']);
         Route::put('/grades/{grade}', [GradeController::class, 'update']);
         Route::delete('/grades/{grade}', [GradeController::class, 'destroy']);
+
+        Route::post('/classrooms', [ClassroomController::class, 'store']);
+        Route::put('/classrooms/{classroom}', [ClassroomController::class, 'update']);
+        Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy']);
     });
 });

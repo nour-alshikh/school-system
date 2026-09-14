@@ -3,6 +3,7 @@
 import { useState, type ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import {
+  DoorOpen,
   GraduationCap,
   LayoutDashboard,
   Layers,
@@ -120,6 +121,12 @@ export function SiteSidebar() {
         href="/grades"
         icon={Layers}
         label={t("grades")}
+        collapsed={collapsed}
+      />
+      <SidebarLink
+        href="/classrooms"
+        icon={DoorOpen}
+        label={t("classrooms")}
         collapsed={collapsed}
       />
 

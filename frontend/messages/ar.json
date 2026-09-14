@@ -8,6 +8,7 @@
     "dashboard": "لوحة التحكم",
     "stages": "المراحل",
     "grades": "الصفوف",
+    "classrooms": "الفصول",
     "manageUsers": "إدارة المستخدمين",
     "logout": "تسجيل الخروج",
     "login": "تسجيل الدخول",
@@ -164,6 +165,43 @@
     "createdToast": "تم إنشاء الصف.",
     "updatedToast": "تم تحديث الصف."
   },
+  "ClassroomsPage": {
+    "newClassrooms": "فصول جديدة",
+    "editClassroom": "تعديل الفصل",
+    "classroomsHeading": "الفصول",
+    "noClassrooms": "لا توجد فصول بعد.",
+    "nameColumn": "الاسم",
+    "gradeColumn": "الصف",
+    "capacityColumn": "السعة",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteSuccess": "تم حذف الفصل.",
+    "deleteError": "فشل حذف الفصل.",
+    "loadError": "فشل تحميل الفصول."
+  },
+  "ClassroomForm": {
+    "gradeLabel": "الصف",
+    "gradePlaceholder": "اختر صفًا",
+    "nameLabel": "الاسم",
+    "capacityLabel": "السعة",
+    "capacityPlaceholder": "اختياري",
+    "saveChanges": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "updatedToast": "تم تحديث الفصل."
+  },
+  "ClassroomsBulkForm": {
+    "gradeLabel": "الصف",
+    "gradePlaceholder": "اختر صفًا",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "مثال: 1أ",
+    "capacityLabel": "السعة",
+    "capacityPlaceholder": "اختياري",
+    "addRow": "إضافة فصل آخر",
+    "removeRow": "إزالة",
+    "createClassrooms": "إنشاء الفصول",
+    "cancel": "إلغاء",
+    "createdToast": "{count, plural, one {تم إنشاء فصل واحد.} other {تم إنشاء # فصول.}}"
+  },
   "AdminUsersPage": {
     "heading": "المستخدمون",
     "loadError": "تعذّر تحميل المستخدمين.",
@@ -185,7 +223,11 @@
     "stageNameArRequired": "الاسم بالعربية مطلوب",
     "gradeStageRequired": "المرحلة مطلوبة",
     "gradeNameEnRequired": "الاسم بالإنجليزية مطلوب",
-    "gradeNameArRequired": "الاسم بالعربية مطلوب"
+    "gradeNameArRequired": "الاسم بالعربية مطلوب",
+    "classroomGradeRequired": "الصف مطلوب",
+    "classroomNameRequired": "الاسم مطلوب",
+    "classroomCapacityInvalid": "يجب أن تكون السعة رقمًا موجبًا",
+    "classroomRowsRequired": "أضف فصلاً واحدًا على الأقل"
   },
   "Errors": {
     "somethingWentWrong": "حدث خطأ ما."

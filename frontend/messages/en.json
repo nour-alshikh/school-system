@@ -8,6 +8,7 @@
     "dashboard": "Dashboard",
     "stages": "Stages",
     "grades": "Grades",
+    "classrooms": "Classrooms",
     "manageUsers": "Manage users",
     "logout": "Log out",
     "login": "Log in",
@@ -164,6 +165,43 @@
     "createdToast": "Grade created.",
     "updatedToast": "Grade updated."
   },
+  "ClassroomsPage": {
+    "newClassrooms": "New classrooms",
+    "editClassroom": "Edit classroom",
+    "classroomsHeading": "Classrooms",
+    "noClassrooms": "No classrooms yet.",
+    "nameColumn": "Name",
+    "gradeColumn": "Grade",
+    "capacityColumn": "Capacity",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteSuccess": "Classroom deleted.",
+    "deleteError": "Failed to delete classroom.",
+    "loadError": "Failed to load classrooms."
+  },
+  "ClassroomForm": {
+    "gradeLabel": "Grade",
+    "gradePlaceholder": "Select a grade",
+    "nameLabel": "Name",
+    "capacityLabel": "Capacity",
+    "capacityPlaceholder": "Optional",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "updatedToast": "Classroom updated."
+  },
+  "ClassroomsBulkForm": {
+    "gradeLabel": "Grade",
+    "gradePlaceholder": "Select a grade",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. 1A",
+    "capacityLabel": "Capacity",
+    "capacityPlaceholder": "Optional",
+    "addRow": "Add another classroom",
+    "removeRow": "Remove",
+    "createClassrooms": "Create classrooms",
+    "cancel": "Cancel",
+    "createdToast": "{count, plural, one {Classroom created.} other {# classrooms created.}}"
+  },
   "AdminUsersPage": {
     "heading": "Users",
     "loadError": "Couldn't load users.",
@@ -185,7 +223,11 @@
     "stageNameArRequired": "Arabic name is required",
     "gradeStageRequired": "Stage is required",
     "gradeNameEnRequired": "English name is required",
-    "gradeNameArRequired": "Arabic name is required"
+    "gradeNameArRequired": "Arabic name is required",
+    "classroomGradeRequired": "Grade is required",
+    "classroomNameRequired": "Name is required",
+    "classroomCapacityInvalid": "Capacity must be a positive number",
+    "classroomRowsRequired": "Add at least one classroom"
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
