@@ -12,7 +12,9 @@
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",
     "switchToArabic": "العربية",
-    "switchToEnglish": "English"
+    "switchToEnglish": "English",
+    "collapseSidebar": "طي الشريط الجانبي",
+    "expandSidebar": "توسيع الشريط الجانبي"
   },
   "Common": {
     "loading": "جارٍ التحميل…"

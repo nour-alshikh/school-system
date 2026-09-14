@@ -12,7 +12,9 @@
     "login": "Log in",
     "register": "Register",
     "switchToArabic": "العربية",
-    "switchToEnglish": "English"
+    "switchToEnglish": "English",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
   },
   "Common": {
     "loading": "Loading…"
