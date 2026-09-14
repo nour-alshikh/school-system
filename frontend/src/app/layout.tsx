@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Your App",
-  description: "TODO: replace with a real description",
+  title: "School System",
+  description: "School System",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

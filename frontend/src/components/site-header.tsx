@@ -26,7 +26,7 @@ export function SiteHeader() {
     <header className="border-b">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <Link href="/" className="text-sm font-semibold">
-          Your App
+          School System
         </Link>
 
         {isLoading ? null : user ? (
