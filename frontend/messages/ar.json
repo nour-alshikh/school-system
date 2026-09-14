@@ -14,7 +14,9 @@
     "switchToArabic": "العربية",
     "switchToEnglish": "English",
     "collapseSidebar": "طي الشريط الجانبي",
-    "expandSidebar": "توسيع الشريط الجانبي"
+    "expandSidebar": "توسيع الشريط الجانبي",
+    "switchToLightTheme": "التبديل إلى الوضع الفاتح",
+    "switchToDarkTheme": "التبديل إلى الوضع الداكن"
   },
   "LoginPage": {
     "heading": "تسجيل الدخول",

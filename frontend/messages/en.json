@@ -14,7 +14,9 @@
     "switchToArabic": "العربية",
     "switchToEnglish": "English",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "switchToLightTheme": "Switch to light theme",
+    "switchToDarkTheme": "Switch to dark theme"
   },
   "LoginPage": {
     "heading": "Log in",

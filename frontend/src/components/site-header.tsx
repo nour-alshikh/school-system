@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { UserAvatar } from "@/components/user-avatar";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,6 +75,7 @@ export function SiteHeader() {
             </div>
           )}
 
+          <ThemeToggle />
           <LocaleSwitcher />
         </div>
       </div>
