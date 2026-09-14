@@ -127,7 +127,7 @@ export function StageForm({
           name="name_en"
           render={({ field }) => (
             <FormItem className={cn(activeLocale !== "en" && "hidden")}>
-              <FormLabel className="sr-only">{t("nameEnLabel")}</FormLabel>
+              <FormLabel>{t("nameEnLabel")}</FormLabel>
               <FormControl>
                 <Input {...field} dir="ltr" className="h-10" />
               </FormControl>
@@ -141,7 +141,7 @@ export function StageForm({
           name="name_ar"
           render={({ field }) => (
             <FormItem className={cn(activeLocale !== "ar" && "hidden")}>
-              <FormLabel className="sr-only">{t("nameArLabel")}</FormLabel>
+              <FormLabel>{t("nameArLabel")}</FormLabel>
               <FormControl>
                 <Input {...field} dir="rtl" className="h-10" />
               </FormControl>
@@ -159,7 +159,7 @@ export function StageForm({
                 : t("createStage")}
           </Button>
 
-          {stage && onSuccess && (
+          {onSuccess && (
             <Button type="button" variant="outline" onClick={onSuccess}>
               {t("cancel")}
             </Button>

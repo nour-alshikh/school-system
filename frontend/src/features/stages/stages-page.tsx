@@ -5,9 +5,16 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -30,7 +37,18 @@ export function StagesPage() {
 
   const canManage = can("manage-academics");
 
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<Stage | null>(null);
+
+  function openCreateDialog() {
+    setEditingStage(null);
+    setDialogOpen(true);
+  }
+
+  function openEditDialog(stage: Stage) {
+    setEditingStage(stage);
+    setDialogOpen(true);
+  }
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -63,7 +81,7 @@ export function StagesPage() {
     onSuccess: (_data, stage) => {
       queryClient.invalidateQueries({ queryKey: ["stages"] });
       toast.success(t("deleteSuccess"));
-      if (editingStage?.id === stage.id) setEditingStage(null);
+      if (editingStage?.id === stage.id) setDialogOpen(false);
     },
     onError: (err) => {
       toast.error(err instanceof ApiError ? err.message : t("deleteError"));
@@ -76,21 +94,16 @@ export function StagesPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 p-6">
-      {canManage && (
-        <section className="flex flex-col gap-4">
-          <h1 className="text-xl font-semibold">
-            {editingStage ? t("editStage") : t("newStage")}
-          </h1>
-          <StageForm
-            key={editingStage?.id ?? "new"}
-            stage={editingStage ?? undefined}
-            onSuccess={() => setEditingStage(null)}
-          />
-        </section>
-      )}
-
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">{t("stagesHeading")}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">{t("stagesHeading")}</h2>
+          {canManage && (
+            <Button type="button" size="sm" onClick={openCreateDialog}>
+              <Plus className="size-4" />
+              {t("newStage")}
+            </Button>
+          )}
+        </div>
 
         {!isLoadingStages && stages.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("noStages")}</p>
@@ -118,7 +131,7 @@ export function StagesPage() {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => setEditingStage(stage)}
+                            onClick={() => openEditDialog(stage)}
                           >
                             {t("edit")}
                           </Button>
@@ -141,6 +154,23 @@ export function StagesPage() {
           </Table>
         )}
       </section>
+
+      {canManage && (
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {editingStage ? t("editStage") : t("newStage")}
+              </DialogTitle>
+            </DialogHeader>
+            <StageForm
+              key={editingStage?.id ?? "new"}
+              stage={editingStage ?? undefined}
+              onSuccess={() => setDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </main>
   );
 }
