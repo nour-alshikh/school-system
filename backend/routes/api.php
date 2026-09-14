@@ -41,14 +41,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/classrooms', [ClassroomController::class, 'index']);
     Route::middleware('permission:manage-academics')->group(function () {
         Route::post('/stages', [StageController::class, 'store']);
+        Route::post('/stages/bulk-delete', [StageController::class, 'bulkDestroy']);
         Route::put('/stages/{stage}', [StageController::class, 'update']);
         Route::delete('/stages/{stage}', [StageController::class, 'destroy']);
 
         Route::post('/grades', [GradeController::class, 'store']);
+        Route::post('/grades/bulk-delete', [GradeController::class, 'bulkDestroy']);
         Route::put('/grades/{grade}', [GradeController::class, 'update']);
         Route::delete('/grades/{grade}', [GradeController::class, 'destroy']);
 
         Route::post('/classrooms', [ClassroomController::class, 'store']);
+        Route::post('/classrooms/bulk-delete', [ClassroomController::class, 'bulkDestroy']);
         Route::put('/classrooms/{classroom}', [ClassroomController::class, 'update']);
         Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy']);
     });

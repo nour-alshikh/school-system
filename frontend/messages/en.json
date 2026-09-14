@@ -120,17 +120,32 @@
     "createdToast": "Post created.",
     "updatedToast": "Post updated."
   },
+  "Pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {page} of {lastPage}"
+  },
+  "Table": {
+    "selectAll": "Select all",
+    "selectRow": "Select row"
+  },
   "StagesPage": {
     "newStage": "New stage",
     "editStage": "Edit stage",
     "stagesHeading": "Stages",
     "noStages": "No stages yet.",
+    "noResults": "No stages match your search.",
     "nameColumn": "Name",
     "edit": "Edit",
     "delete": "Delete",
     "deleteSuccess": "Stage deleted.",
     "deleteError": "Failed to delete stage.",
-    "loadError": "Failed to load stages."
+    "loadError": "Failed to load stages.",
+    "searchPlaceholder": "Search stages...",
+    "deleteSelected": "Delete selected ({count})",
+    "confirmBulkDelete": "Delete {count} selected stage(s)? This cannot be undone.",
+    "bulkDeleteSuccess": "Selected stages deleted.",
+    "bulkDeleteError": "Failed to delete selected stages."
   },
   "StageForm": {
     "nameEnLabel": "Name (English)",
@@ -146,13 +161,21 @@
     "editGrade": "Edit grade",
     "gradesHeading": "Grades",
     "noGrades": "No grades yet.",
+    "noResults": "No grades match your filters.",
     "nameColumn": "Name",
     "stageColumn": "Stage",
     "edit": "Edit",
     "delete": "Delete",
     "deleteSuccess": "Grade deleted.",
     "deleteError": "Failed to delete grade.",
-    "loadError": "Failed to load grades."
+    "loadError": "Failed to load grades.",
+    "searchPlaceholder": "Search grades...",
+    "stageFilterLabel": "Stage",
+    "allStages": "All stages",
+    "deleteSelected": "Delete selected ({count})",
+    "confirmBulkDelete": "Delete {count} selected grade(s)? This cannot be undone.",
+    "bulkDeleteSuccess": "Selected grades deleted.",
+    "bulkDeleteError": "Failed to delete selected grades."
   },
   "GradeForm": {
     "stageLabel": "Stage",
@@ -170,6 +193,7 @@
     "editClassroom": "Edit classroom",
     "classroomsHeading": "Classrooms",
     "noClassrooms": "No classrooms yet.",
+    "noResults": "No classrooms match your filters.",
     "nameColumn": "Name",
     "gradeColumn": "Grade",
     "capacityColumn": "Capacity",
@@ -177,7 +201,16 @@
     "delete": "Delete",
     "deleteSuccess": "Classroom deleted.",
     "deleteError": "Failed to delete classroom.",
-    "loadError": "Failed to load classrooms."
+    "loadError": "Failed to load classrooms.",
+    "searchPlaceholder": "Search classrooms...",
+    "stageFilterLabel": "Stage",
+    "allStages": "All stages",
+    "gradeFilterLabel": "Grade",
+    "allGrades": "All grades",
+    "deleteSelected": "Delete selected ({count})",
+    "confirmBulkDelete": "Delete {count} selected classroom(s)? This cannot be undone.",
+    "bulkDeleteSuccess": "Selected classrooms deleted.",
+    "bulkDeleteError": "Failed to delete selected classrooms."
   },
   "ClassroomForm": {
     "gradeLabel": "Grade",

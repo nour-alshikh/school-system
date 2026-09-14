@@ -120,17 +120,32 @@
     "createdToast": "تم إنشاء المنشور.",
     "updatedToast": "تم تحديث المنشور."
   },
+  "Pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "pageInfo": "صفحة {page} من {lastPage}"
+  },
+  "Table": {
+    "selectAll": "تحديد الكل",
+    "selectRow": "تحديد الصف"
+  },
   "StagesPage": {
     "newStage": "مرحلة جديدة",
     "editStage": "تعديل المرحلة",
     "stagesHeading": "المراحل",
     "noStages": "لا توجد مراحل بعد.",
+    "noResults": "لا توجد مراحل مطابقة لبحثك.",
     "nameColumn": "الاسم",
     "edit": "تعديل",
     "delete": "حذف",
     "deleteSuccess": "تم حذف المرحلة.",
     "deleteError": "فشل حذف المرحلة.",
-    "loadError": "فشل تحميل المراحل."
+    "loadError": "فشل تحميل المراحل.",
+    "searchPlaceholder": "بحث عن مرحلة...",
+    "deleteSelected": "حذف المحدد ({count})",
+    "confirmBulkDelete": "حذف {count} مرحلة محددة؟ لا يمكن التراجع عن هذا.",
+    "bulkDeleteSuccess": "تم حذف المراحل المحددة.",
+    "bulkDeleteError": "فشل حذف المراحل المحددة."
   },
   "StageForm": {
     "nameEnLabel": "الاسم (إنجليزي)",
@@ -146,13 +161,21 @@
     "editGrade": "تعديل الصف",
     "gradesHeading": "الصفوف",
     "noGrades": "لا توجد صفوف بعد.",
+    "noResults": "لا توجد صفوف مطابقة لعوامل التصفية.",
     "nameColumn": "الاسم",
     "stageColumn": "المرحلة",
     "edit": "تعديل",
     "delete": "حذف",
     "deleteSuccess": "تم حذف الصف.",
     "deleteError": "فشل حذف الصف.",
-    "loadError": "فشل تحميل الصفوف."
+    "loadError": "فشل تحميل الصفوف.",
+    "searchPlaceholder": "بحث عن صف...",
+    "stageFilterLabel": "المرحلة",
+    "allStages": "كل المراحل",
+    "deleteSelected": "حذف المحدد ({count})",
+    "confirmBulkDelete": "حذف {count} صف محدد؟ لا يمكن التراجع عن هذا.",
+    "bulkDeleteSuccess": "تم حذف الصفوف المحددة.",
+    "bulkDeleteError": "فشل حذف الصفوف المحددة."
   },
   "GradeForm": {
     "stageLabel": "المرحلة",
@@ -170,6 +193,7 @@
     "editClassroom": "تعديل الفصل",
     "classroomsHeading": "الفصول",
     "noClassrooms": "لا توجد فصول بعد.",
+    "noResults": "لا توجد فصول مطابقة لعوامل التصفية.",
     "nameColumn": "الاسم",
     "gradeColumn": "الصف",
     "capacityColumn": "السعة",
@@ -177,7 +201,16 @@
     "delete": "حذف",
     "deleteSuccess": "تم حذف الفصل.",
     "deleteError": "فشل حذف الفصل.",
-    "loadError": "فشل تحميل الفصول."
+    "loadError": "فشل تحميل الفصول.",
+    "searchPlaceholder": "بحث عن فصل...",
+    "stageFilterLabel": "المرحلة",
+    "allStages": "كل المراحل",
+    "gradeFilterLabel": "الصف",
+    "allGrades": "كل الصفوف",
+    "deleteSelected": "حذف المحدد ({count})",
+    "confirmBulkDelete": "حذف {count} فصل محدد؟ لا يمكن التراجع عن هذا.",
+    "bulkDeleteSuccess": "تم حذف الفصول المحددة.",
+    "bulkDeleteError": "فشل حذف الفصول المحددة."
   },
   "ClassroomForm": {
     "gradeLabel": "الصف",
