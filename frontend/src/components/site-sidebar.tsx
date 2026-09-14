@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useTranslations } from "next-intl";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import {
+  GraduationCap,
+  LayoutDashboard,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Users,
+} from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
@@ -10,12 +16,30 @@ import { Button } from "@/components/ui/button";
 
 const STORAGE_KEY = "sidebar-collapsed";
 
+// SiteSidebar never renders real DOM during SSR — it returns null until
+// useAuth() resolves (well after hydration) — so reading localStorage in
+// this lazy initializer can't cause a hydration mismatch, and avoids the
+// setState-in-effect this project's lint rule flags for the usual
+// "sync from localStorage in an effect" pattern.
+function readStoredCollapsed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 function SidebarLink({
   href,
-  children,
+  icon: Icon,
+  label,
+  collapsed,
 }: {
   href: string;
-  children: React.ReactNode;
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  collapsed: boolean;
 }) {
   const pathname = usePathname();
   const isActive = pathname === href;
@@ -23,12 +47,15 @@ function SidebarLink({
   return (
     <Link
       href={href}
+      title={collapsed ? label : undefined}
       className={cn(
-        "truncate rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted",
+        "flex items-center gap-2 truncate rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted",
+        collapsed && "justify-center px-2",
         isActive && "bg-muted font-medium"
       )}
     >
-      {children}
+      <Icon className="size-4 shrink-0" />
+      {!collapsed && label}
     </Link>
   );
 }
@@ -36,17 +63,7 @@ function SidebarLink({
 export function SiteSidebar() {
   const t = useTranslations("Nav");
   const { user, isLoading, can } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
-
-  // Per-viewer UI preference only, not app state — read/write best-effort so
-  // a private window or blocked storage just falls back to always-expanded.
-  useEffect(() => {
-    try {
-      setCollapsed(localStorage.getItem(STORAGE_KEY) === "1");
-    } catch {
-      // ignore
-    }
-  }, []);
+  const [collapsed, setCollapsed] = useState(readStoredCollapsed);
 
   function toggle() {
     setCollapsed((prev) => {
@@ -86,15 +103,26 @@ export function SiteSidebar() {
         )}
       </Button>
 
-      {!collapsed && (
-        <>
-          <SidebarLink href="/dashboard">{t("dashboard")}</SidebarLink>
-          <SidebarLink href="/stages">{t("stages")}</SidebarLink>
+      <SidebarLink
+        href="/dashboard"
+        icon={LayoutDashboard}
+        label={t("dashboard")}
+        collapsed={collapsed}
+      />
+      <SidebarLink
+        href="/stages"
+        icon={GraduationCap}
+        label={t("stages")}
+        collapsed={collapsed}
+      />
 
-          {can("manage-users") && (
-            <SidebarLink href="/admin/users">{t("manageUsers")}</SidebarLink>
-          )}
-        </>
+      {can("manage-users") && (
+        <SidebarLink
+          href="/admin/users"
+          icon={Users}
+          label={t("manageUsers")}
+          collapsed={collapsed}
+        />
       )}
     </nav>
   );

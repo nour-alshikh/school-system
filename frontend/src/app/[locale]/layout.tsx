@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cairo, Geist_Mono } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -12,9 +12,11 @@ import { SiteSidebar } from "@/components/site-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import "../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Cairo covers both Latin and Arabic, so it's used for both locales instead
+// of switching fonts per-locale.
+const cairo = Cairo({
+  variable: "--font-cairo",
+  subsets: ["latin", "arabic"],
 });
 
 const geistMono = Geist_Mono({
@@ -47,7 +49,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${cairo.variable} ${geistMono.variable} h-full antialiased`}
       // next-themes sets the `dark` class via a blocking script before
       // hydration (see globals.css's `.dark` block) — this class attribute
       // is expected to differ from the server-rendered markup.
