@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,8 +9,8 @@ import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import {
+  createPostSchema,
   postCategoryOptions,
-  postSchema,
   postTagOptions,
   type PostFormInput,
   type PostFormValues,
@@ -39,32 +40,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const statusOptions = [
-  { value: "draft" as const, label: "Draft", description: "Only visible to you." },
-  { value: "published" as const, label: "Published", description: "Visible to everyone." },
-];
-
 const cardLabelClass = (selected: boolean) =>
   cn(
     "flex cursor-pointer items-start gap-3 rounded-lg border border-input p-3 text-sm transition-colors hover:bg-muted",
     selected && "border-primary bg-primary/5 hover:bg-primary/5"
   );
-
-const categoryLabels: Record<(typeof postCategoryOptions)[number], string> = {
-  general: "General",
-  tutorial: "Tutorial",
-  news: "News",
-  opinion: "Opinion",
-};
-
-const tagLabels: Record<(typeof postTagOptions)[number], string> = {
-  laravel: "Laravel",
-  nextjs: "Next.js",
-  typescript: "TypeScript",
-  react: "React",
-  php: "PHP",
-  testing: "Testing",
-};
 
 const defaultValues: PostFormInput = {
   title: "",
@@ -99,10 +79,44 @@ export function PostForm({
   post?: Post;
   onSuccess?: () => void;
 }) {
+  const t = useTranslations("PostForm");
+  const tValidation = useTranslations("Validation");
+  const tErrors = useTranslations("Errors");
   const queryClient = useQueryClient();
 
+  const statusOptions = [
+    {
+      value: "draft" as const,
+      label: t("statusDraftLabel"),
+      description: t("statusDraftDescription"),
+    },
+    {
+      value: "published" as const,
+      label: t("statusPublishedLabel"),
+      description: t("statusPublishedDescription"),
+    },
+  ];
+
+  const categoryLabels: Record<(typeof postCategoryOptions)[number], string> = {
+    general: t("categoryGeneral"),
+    tutorial: t("categoryTutorial"),
+    news: t("categoryNews"),
+    opinion: t("categoryOpinion"),
+  };
+
+  const tagLabels: Record<(typeof postTagOptions)[number], string> = {
+    laravel: t("tagLaravel"),
+    nextjs: t("tagNextjs"),
+    typescript: t("tagTypescript"),
+    react: t("tagReact"),
+    php: t("tagPhp"),
+    testing: t("tagTesting"),
+  };
+
+  const schema = useMemo(() => createPostSchema(tValidation), [tValidation]);
+
   const form = useForm<PostFormInput, unknown, PostFormValues>({
-    resolver: zodResolver(postSchema),
+    resolver: zodResolver(schema),
     defaultValues: post ? valuesFromPost(post) : defaultValues,
   });
 
@@ -129,22 +143,27 @@ export function PostForm({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      toast.success(post ? "Post updated." : "Post created.");
+      toast.success(post ? t("updatedToast") : t("createdToast"));
       if (!post) form.reset(defaultValues);
       onSuccess?.();
     },
     onError: (err) => {
-      const message = applyServerErrors(form, err, [
-        "title",
-        "body",
-        "status",
-        "category",
-        "tags",
-        "is_featured",
-        "reading_minutes",
-        "priority",
-        "published_at",
-      ]);
+      const message = applyServerErrors(
+        form,
+        err,
+        [
+          "title",
+          "body",
+          "status",
+          "category",
+          "tags",
+          "is_featured",
+          "reading_minutes",
+          "priority",
+          "published_at",
+        ],
+        tErrors("somethingWentWrong")
+      );
       if (message) toast.error(message);
     },
   });
@@ -160,7 +179,7 @@ export function PostForm({
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>{t("titleLabel")}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -174,7 +193,7 @@ export function PostForm({
           name="body"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Content</FormLabel>
+              <FormLabel>{t("contentLabel")}</FormLabel>
               <FormControl>
                 <Textarea rows={5} {...field} />
               </FormControl>
@@ -188,7 +207,7 @@ export function PostForm({
           name="status"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Status</FormLabel>
+              <FormLabel>{t("statusLabel")}</FormLabel>
               <FormControl>
                 <RadioGroup
                   value={field.value}
@@ -221,11 +240,11 @@ export function PostForm({
           name="category"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category</FormLabel>
+              <FormLabel>{t("categoryLabel")}</FormLabel>
               <Select value={field.value} onValueChange={field.onChange}>
                 <FormControl>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose a category" />
+                    <SelectValue placeholder={t("categoryPlaceholder")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -246,7 +265,7 @@ export function PostForm({
           name="tags"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tags</FormLabel>
+              <FormLabel>{t("tagsLabel")}</FormLabel>
               <FormControl>
                 <MultiSelect
                   options={postTagOptions.map((tag) => ({
@@ -255,7 +274,7 @@ export function PostForm({
                   }))}
                   value={field.value}
                   onValueChange={field.onChange}
-                  placeholder="Choose tags"
+                  placeholder={t("tagsPlaceholder")}
                 />
               </FormControl>
               <FormMessage />
@@ -276,9 +295,9 @@ export function PostForm({
                     className="mt-0.5"
                   />
                   <span className="flex flex-col">
-                    <span className="font-medium">Featured post</span>
+                    <span className="font-medium">{t("featuredLabel")}</span>
                     <span className="text-muted-foreground">
-                      Shown in the featured section on the homepage.
+                      {t("featuredDescription")}
                     </span>
                   </span>
                 </label>
@@ -292,7 +311,7 @@ export function PostForm({
           name="reading_minutes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Reading time (minutes)</FormLabel>
+              <FormLabel>{t("readingMinutesLabel")}</FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -312,7 +331,9 @@ export function PostForm({
           name="priority"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Priority: {field.value as number}</FormLabel>
+              <FormLabel>
+                {t("priorityLabel", { value: field.value as number })}
+              </FormLabel>
               <FormControl>
                 <Slider
                   min={1}
@@ -334,7 +355,7 @@ export function PostForm({
           name="published_at"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Publish date</FormLabel>
+              <FormLabel>{t("publishDateLabel")}</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -346,15 +367,15 @@ export function PostForm({
         <div className="flex gap-2">
           <Button type="submit" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting
-              ? "Saving…"
+              ? t("saving")
               : post
-                ? "Save changes"
-                : "Create post"}
+                ? t("saveChanges")
+                : t("createPost")}
           </Button>
 
           {post && onSuccess && (
             <Button type="button" variant="outline" onClick={onSuccess}>
-              Cancel
+              {t("cancel")}
             </Button>
           )}
         </div>

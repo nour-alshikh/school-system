@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import {
-  forgotPasswordSchema,
+  createForgotPasswordSchema,
   type ForgotPasswordPayload,
 } from "@/lib/schemas";
 import {
@@ -23,10 +24,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("ForgotPasswordPage");
+  const tValidation = useTranslations("Validation");
+  const tErrors = useTranslations("Errors");
   const [message, setMessage] = useState<string | null>(null);
 
+  const schema = useMemo(
+    () => createForgotPasswordSchema(tValidation),
+    [tValidation]
+  );
+
   const form = useForm<ForgotPasswordPayload>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(schema),
     defaultValues: { email: "" },
   });
 
@@ -41,7 +50,12 @@ export default function ForgotPasswordPage() {
       );
       setMessage(data.message);
     } catch (err) {
-      const message = applyServerErrors(form, err, ["email"]);
+      const message = applyServerErrors(
+        form,
+        err,
+        ["email"],
+        tErrors("somethingWentWrong")
+      );
       if (message) toast.error(message);
     }
   }
@@ -53,7 +67,7 @@ export default function ForgotPasswordPage() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full max-w-sm flex flex-col gap-4"
         >
-          <h1 className="text-xl font-semibold">Forgot password</h1>
+          <h1 className="text-xl font-semibold">{t("heading")}</h1>
 
           {message ? (
             <p className="text-sm text-muted-foreground">{message}</p>
@@ -64,7 +78,7 @@ export default function ForgotPasswordPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("emailLabel")}</FormLabel>
                     <FormControl>
                       <Input type="email" autoComplete="email" {...field} />
                     </FormControl>
@@ -74,14 +88,14 @@ export default function ForgotPasswordPage() {
               />
 
               <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Sending…" : "Send reset link"}
+                {form.formState.isSubmitting ? t("submitting") : t("submit")}
               </Button>
             </>
           )}
 
           <p className="text-sm text-center">
             <Link href="/login" className="underline">
-              Back to log in
+              {t("backToLogin")}
             </Link>
           </p>
         </form>

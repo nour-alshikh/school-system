@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { UserAvatar } from "@/components/user-avatar";
 import {
@@ -12,7 +12,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+function LocaleSwitcher() {
+  const t = useTranslations("Nav");
+  const locale = useLocale();
+  const pathname = usePathname();
+  const otherLocale = locale === "en" ? "ar" : "en";
+
+  return (
+    <Link href={pathname} locale={otherLocale} className="text-sm underline">
+      {otherLocale === "ar" ? t("switchToArabic") : t("switchToEnglish")}
+    </Link>
+  );
+}
+
 export function SiteHeader() {
+  const t = useTranslations("Nav");
   const { user, isLoading, can, logout } = useAuth();
   const router = useRouter();
 
@@ -26,53 +40,57 @@ export function SiteHeader() {
     <header className="border-b">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <Link href="/" className="text-sm font-semibold">
-          School System
+          {t("brand")}
         </Link>
 
-        {isLoading ? null : user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-2 text-sm">
-              <span className="h-7 w-7">
-                <UserAvatar
-                  name={user.name}
-                  avatarUrl={user.avatar_url}
-                  alt=""
-                  className="text-xs"
-                />
-              </span>
-              {user.name}
-            </DropdownMenuTrigger>
+        <div className="flex items-center gap-4">
+          {isLoading ? null : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-2 text-sm">
+                <span className="h-7 w-7">
+                  <UserAvatar
+                    name={user.name}
+                    avatarUrl={user.avatar_url}
+                    alt=""
+                    className="text-xs"
+                  />
+                </span>
+                {user.name}
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                Dashboard
-              </DropdownMenuItem>
-
-              {can("manage-users") && (
-                <DropdownMenuItem
-                  onClick={() => router.push("/admin/users")}
-                >
-                  Manage users
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                  {t("dashboard")}
                 </DropdownMenuItem>
-              )}
 
-              <DropdownMenuSeparator />
+                {can("manage-users") && (
+                  <DropdownMenuItem
+                    onClick={() => router.push("/admin/users")}
+                  >
+                    {t("manageUsers")}
+                  </DropdownMenuItem>
+                )}
 
-              <DropdownMenuItem onClick={handleLogout}>
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div className="flex items-center gap-4 text-sm">
-            <Link href="/login" className="underline">
-              Log in
-            </Link>
-            <Link href="/register" className="underline">
-              Register
-            </Link>
-          </div>
-        )}
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onClick={handleLogout}>
+                  {t("logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex items-center gap-4 text-sm">
+              <Link href="/login" className="underline">
+                {t("login")}
+              </Link>
+              <Link href="/register" className="underline">
+                {t("register")}
+              </Link>
+            </div>
+          )}
+
+          <LocaleSwitcher />
+        </div>
       </div>
     </header>
   );

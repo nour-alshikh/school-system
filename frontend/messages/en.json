@@ -1,0 +1,142 @@
+{
+  "Metadata": {
+    "title": "School System",
+    "description": "School System"
+  },
+  "Nav": {
+    "brand": "School System",
+    "dashboard": "Dashboard",
+    "manageUsers": "Manage users",
+    "logout": "Log out",
+    "login": "Log in",
+    "register": "Register",
+    "switchToArabic": "العربية",
+    "switchToEnglish": "English"
+  },
+  "Common": {
+    "loading": "Loading…"
+  },
+  "LoginPage": {
+    "heading": "Log in",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submit": "Log in",
+    "submitting": "Logging in…",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "No account?",
+    "registerLink": "Register"
+  },
+  "RegisterPage": {
+    "heading": "Create an account",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm password",
+    "submit": "Register",
+    "submitting": "Creating account…",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in"
+  },
+  "ForgotPasswordPage": {
+    "heading": "Forgot password",
+    "emailLabel": "Email",
+    "submit": "Send reset link",
+    "submitting": "Sending…",
+    "backToLogin": "Back to log in"
+  },
+  "ResetPasswordPage": {
+    "heading": "Reset password",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm new password",
+    "submit": "Reset password",
+    "submitting": "Resetting…",
+    "invalidLink": "This reset link is invalid or incomplete.",
+    "requestNew": "Request a new one"
+  },
+  "DashboardPage": {
+    "welcome": "Welcome, {name}"
+  },
+  "Avatar": {
+    "changeAvatar": "Change avatar",
+    "uploading": "Uploading…",
+    "remove": "Remove",
+    "removing": "Removing…",
+    "uploadSuccess": "Avatar updated.",
+    "uploadError": "Failed to upload avatar.",
+    "removeSuccess": "Avatar removed.",
+    "removeError": "Failed to remove avatar."
+  },
+  "PostsPage": {
+    "newPost": "New post",
+    "editPost": "Edit post",
+    "postsHeading": "Posts",
+    "loadingPosts": "Loading posts…",
+    "noPosts": "No posts yet.",
+    "titleColumn": "Title",
+    "statusColumn": "Status",
+    "categoryColumn": "Category",
+    "authorColumn": "Author",
+    "featured": "featured",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteSuccess": "Post deleted.",
+    "deleteError": "Failed to delete post.",
+    "loadError": "Failed to load posts."
+  },
+  "PostForm": {
+    "titleLabel": "Title",
+    "contentLabel": "Content",
+    "statusLabel": "Status",
+    "statusDraftLabel": "Draft",
+    "statusDraftDescription": "Only visible to you.",
+    "statusPublishedLabel": "Published",
+    "statusPublishedDescription": "Visible to everyone.",
+    "categoryLabel": "Category",
+    "categoryPlaceholder": "Choose a category",
+    "categoryGeneral": "General",
+    "categoryTutorial": "Tutorial",
+    "categoryNews": "News",
+    "categoryOpinion": "Opinion",
+    "tagsLabel": "Tags",
+    "tagsPlaceholder": "Choose tags",
+    "tagLaravel": "Laravel",
+    "tagNextjs": "Next.js",
+    "tagTypescript": "TypeScript",
+    "tagReact": "React",
+    "tagPhp": "PHP",
+    "tagTesting": "Testing",
+    "featuredLabel": "Featured post",
+    "featuredDescription": "Shown in the featured section on the homepage.",
+    "readingMinutesLabel": "Reading time (minutes)",
+    "priorityLabel": "Priority: {value}",
+    "publishDateLabel": "Publish date",
+    "saving": "Saving…",
+    "saveChanges": "Save changes",
+    "createPost": "Create post",
+    "cancel": "Cancel",
+    "createdToast": "Post created.",
+    "updatedToast": "Post updated."
+  },
+  "AdminUsersPage": {
+    "heading": "Users",
+    "loadingUsers": "Loading users…",
+    "loadError": "Couldn't load users.",
+    "nameColumn": "Name",
+    "emailColumn": "Email",
+    "rolesColumn": "Roles"
+  },
+  "Validation": {
+    "emailInvalid": "Enter a valid email address",
+    "passwordRequired": "Password is required",
+    "nameRequired": "Name is required",
+    "passwordMin": "Password must be at least 8 characters",
+    "passwordsDontMatch": "Passwords do not match",
+    "titleRequired": "Title is required",
+    "contentRequired": "Content is required",
+    "readingMinutesMin": "Must be at least 1 minute",
+    "readingMinutesMax": "Must be 180 minutes or less"
+  },
+  "Errors": {
+    "somethingWentWrong": "Something went wrong."
+  }
+}

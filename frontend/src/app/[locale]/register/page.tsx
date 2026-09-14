@@ -1,13 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { applyServerErrors } from "@/lib/form-errors";
-import { registerSchema, type RegisterPayload } from "@/lib/schemas";
+import { createRegisterSchema, type RegisterPayload } from "@/lib/schemas";
 import {
   Form,
   FormControl,
@@ -20,11 +21,19 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
+  const t = useTranslations("RegisterPage");
+  const tValidation = useTranslations("Validation");
+  const tErrors = useTranslations("Errors");
   const { register: registerUser } = useAuth();
   const router = useRouter();
 
+  const schema = useMemo(
+    () => createRegisterSchema(tValidation),
+    [tValidation]
+  );
+
   const form = useForm<RegisterPayload>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       email: "",
@@ -39,12 +48,12 @@ export default function RegisterPage() {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      const message = applyServerErrors(form, err, [
-        "name",
-        "email",
-        "password",
-        "password_confirmation",
-      ]);
+      const message = applyServerErrors(
+        form,
+        err,
+        ["name", "email", "password", "password_confirmation"],
+        tErrors("somethingWentWrong")
+      );
       if (message) toast.error(message);
     }
   }
@@ -56,14 +65,14 @@ export default function RegisterPage() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full max-w-sm flex flex-col gap-4"
         >
-          <h1 className="text-xl font-semibold">Create an account</h1>
+          <h1 className="text-xl font-semibold">{t("heading")}</h1>
 
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("nameLabel")}</FormLabel>
                 <FormControl>
                   <Input type="text" autoComplete="name" {...field} />
                 </FormControl>
@@ -77,7 +86,7 @@ export default function RegisterPage() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t("emailLabel")}</FormLabel>
                 <FormControl>
                   <Input type="email" autoComplete="email" {...field} />
                 </FormControl>
@@ -91,7 +100,7 @@ export default function RegisterPage() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{t("passwordLabel")}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -109,7 +118,7 @@ export default function RegisterPage() {
             name="password_confirmation"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Confirm password</FormLabel>
+                <FormLabel>{t("confirmPasswordLabel")}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -123,13 +132,13 @@ export default function RegisterPage() {
           />
 
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? "Creating account…" : "Register"}
+            {form.formState.isSubmitting ? t("submitting") : t("submit")}
           </Button>
 
           <p className="text-sm text-center">
-            Already have an account?{" "}
+            {t("haveAccount")}{" "}
             <Link href="/login" className="underline">
-              Log in
+              {t("loginLink")}
             </Link>
           </p>
         </form>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
@@ -19,6 +20,8 @@ import {
 } from "@/components/ui/table";
 
 export default function PostsPage() {
+  const t = useTranslations("PostsPage");
+  const tCommon = useTranslations("Common");
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -45,27 +48,27 @@ export default function PostsPage() {
     if (!postsError) return;
 
     toast.error(
-      postsError instanceof ApiError ? postsError.message : "Failed to load posts."
+      postsError instanceof ApiError ? postsError.message : t("loadError")
     );
-  }, [postsError]);
+  }, [postsError, t]);
 
   const deleteMutation = useMutation({
     mutationFn: (post: Post) =>
       apiFetch<void>(`/api/posts/${post.id}`, { method: "DELETE" }),
     onSuccess: (_data, post) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      toast.success("Post deleted.");
+      toast.success(t("deleteSuccess"));
       if (editingPost?.id === post.id) setEditingPost(null);
     },
     onError: (err) => {
-      toast.error(err instanceof ApiError ? err.message : "Failed to delete post.");
+      toast.error(err instanceof ApiError ? err.message : t("deleteError"));
     },
   });
 
   if (isAuthLoading || !user) {
     return (
       <main className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
       </main>
     );
   }
@@ -74,7 +77,7 @@ export default function PostsPage() {
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 p-6">
       <section className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold">
-          {editingPost ? "Edit post" : "New post"}
+          {editingPost ? t("editPost") : t("newPost")}
         </h1>
         <PostForm
           key={editingPost?.id ?? "new"}
@@ -84,20 +87,20 @@ export default function PostsPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">Posts</h2>
+        <h2 className="text-lg font-semibold">{t("postsHeading")}</h2>
 
         {isLoadingPosts ? (
-          <p className="text-sm text-muted-foreground">Loading posts…</p>
+          <p className="text-sm text-muted-foreground">{t("loadingPosts")}</p>
         ) : posts.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No posts yet.</p>
+          <p className="text-sm text-muted-foreground">{t("noPosts")}</p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Author</TableHead>
+                <TableHead>{t("titleColumn")}</TableHead>
+                <TableHead>{t("statusColumn")}</TableHead>
+                <TableHead>{t("categoryColumn")}</TableHead>
+                <TableHead>{t("authorColumn")}</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -111,7 +114,7 @@ export default function PostsPage() {
                       {post.title}
                       {post.is_featured && (
                         <span className="ml-2 text-xs text-muted-foreground">
-                          ★ featured
+                          ★ {t("featured")}
                         </span>
                       )}
                     </TableCell>
@@ -127,7 +130,7 @@ export default function PostsPage() {
                             size="sm"
                             onClick={() => setEditingPost(post)}
                           >
-                            Edit
+                            {t("edit")}
                           </Button>
                           <Button
                             type="button"
@@ -136,7 +139,7 @@ export default function PostsPage() {
                             disabled={deleteMutation.isPending}
                             onClick={() => deleteMutation.mutate(post)}
                           >
-                            Delete
+                            {t("delete")}
                           </Button>
                         </div>
                       )}

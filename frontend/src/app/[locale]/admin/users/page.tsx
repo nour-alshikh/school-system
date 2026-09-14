@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
@@ -17,6 +18,8 @@ import {
 } from "@/components/ui/table";
 
 export default function AdminUsersPage() {
+  const t = useTranslations("AdminUsersPage");
+  const tCommon = useTranslations("Common");
   const { user, isLoading: isAuthLoading, can } = useAuth();
   const router = useRouter();
 
@@ -48,35 +51,33 @@ export default function AdminUsersPage() {
     if (!usersError) return;
 
     toast.error(
-      usersError instanceof ApiError
-        ? usersError.message
-        : "Failed to load users."
+      usersError instanceof ApiError ? usersError.message : t("loadError")
     );
-  }, [usersError]);
+  }, [usersError, t]);
 
   if (isAuthLoading || !user || !isAuthorized) {
     return (
       <main className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
       </main>
     );
   }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-6">
-      <h1 className="text-xl font-semibold">Users</h1>
+      <h1 className="text-xl font-semibold">{t("heading")}</h1>
 
       {isLoadingUsers ? (
-        <p className="text-sm text-muted-foreground">Loading users…</p>
+        <p className="text-sm text-muted-foreground">{t("loadingUsers")}</p>
       ) : usersError ? (
-        <p className="text-sm text-muted-foreground">Couldn&apos;t load users.</p>
+        <p className="text-sm text-muted-foreground">{t("loadError")}</p>
       ) : (
         <Table className="max-w-2xl">
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Roles</TableHead>
+              <TableHead>{t("nameColumn")}</TableHead>
+              <TableHead>{t("emailColumn")}</TableHead>
+              <TableHead>{t("rolesColumn")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

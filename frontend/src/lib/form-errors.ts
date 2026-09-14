@@ -20,7 +20,8 @@ import { ApiError } from "@/lib/api";
 export function applyServerErrors<T extends FieldValues>(
   form: UseFormReturn<T>,
   error: unknown,
-  knownFields: readonly Path<T>[]
+  knownFields: readonly Path<T>[],
+  fallbackMessage: string
 ): string | null {
   if (error instanceof ApiError && error.errors) {
     const unmapped: string[] = [];
@@ -39,5 +40,5 @@ export function applyServerErrors<T extends FieldValues>(
     return unmapped.length > 0 ? unmapped.join(" ") : null;
   }
 
-  return error instanceof ApiError ? error.message : "Something went wrong.";
+  return error instanceof ApiError ? error.message : fallbackMessage;
 }

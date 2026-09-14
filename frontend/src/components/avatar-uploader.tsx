@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { ApiError } from "@/lib/api";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
 
 export function AvatarUploader() {
+  const t = useTranslations("Avatar");
   const { user, uploadAvatar, removeAvatar } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -23,12 +25,12 @@ export function AvatarUploader() {
 
     try {
       await uploadAvatar(file);
-      toast.success("Avatar updated.");
+      toast.success(t("uploadSuccess"));
     } catch (err) {
       toast.error(
         err instanceof ApiError
           ? (err.errors?.avatar?.[0] ?? err.message)
-          : "Failed to upload avatar."
+          : t("uploadError")
       );
     } finally {
       setIsUploading(false);
@@ -40,11 +42,9 @@ export function AvatarUploader() {
 
     try {
       await removeAvatar();
-      toast.success("Avatar removed.");
+      toast.success(t("removeSuccess"));
     } catch (err) {
-      toast.error(
-        err instanceof ApiError ? err.message : "Failed to remove avatar."
-      );
+      toast.error(err instanceof ApiError ? err.message : t("removeError"));
     } finally {
       setIsRemoving(false);
     }
@@ -70,7 +70,7 @@ export function AvatarUploader() {
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
         >
-          {isUploading ? "Uploading…" : "Change avatar"}
+          {isUploading ? t("uploading") : t("changeAvatar")}
         </Button>
 
         {user.avatar_url && (
@@ -81,7 +81,7 @@ export function AvatarUploader() {
             onClick={handleRemove}
             disabled={isRemoving}
           >
-            {isRemoving ? "Removing…" : "Remove"}
+            {isRemoving ? t("removing") : t("remove")}
           </Button>
         )}
       </div>

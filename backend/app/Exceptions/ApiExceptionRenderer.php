@@ -29,13 +29,13 @@ class ApiExceptionRenderer
     {
         return match (true) {
             $e instanceof ValidationException => $this->validation($e),
-            $e instanceof AuthenticationException => $this->json('Unauthenticated.', 401),
-            $e instanceof AuthorizationException => $this->json($e->getMessage() ?: 'This action is unauthorized.', 403),
+            $e instanceof AuthenticationException => $this->json(__('api.unauthenticated'), 401),
+            $e instanceof AuthorizationException => $this->json($e->getMessage() ?: __('api.unauthorized'), 403),
             $e instanceof PermissionUnauthorizedException => $this->json($e->getMessage(), 403),
-            $e instanceof ModelNotFoundException => $this->json('Resource not found.', 404),
-            $e instanceof NotFoundHttpException => $this->json('Resource not found.', 404),
-            $e instanceof ThrottleRequestsException => $this->json('Too many requests.', 429, $e->getHeaders()),
-            $e instanceof HttpExceptionInterface => $this->json($e->getMessage() ?: 'Request failed.', $e->getStatusCode(), $e->getHeaders()),
+            $e instanceof ModelNotFoundException => $this->json(__('api.not_found'), 404),
+            $e instanceof NotFoundHttpException => $this->json(__('api.not_found'), 404),
+            $e instanceof ThrottleRequestsException => $this->json(__('api.too_many_requests'), 429, $e->getHeaders()),
+            $e instanceof HttpExceptionInterface => $this->json($e->getMessage() ?: __('api.request_failed'), $e->getStatusCode(), $e->getHeaders()),
             default => $this->serverError($e),
         };
     }
@@ -52,7 +52,7 @@ class ApiExceptionRenderer
         Log::error($e->getMessage(), ['exception' => $e]);
 
         if (! config('app.debug')) {
-            return $this->json('Server error.', 500);
+            return $this->json(__('api.server_error'), 500);
         }
 
         return $this->json($e->getMessage(), 500, [], [

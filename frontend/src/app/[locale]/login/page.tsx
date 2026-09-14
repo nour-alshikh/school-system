@@ -1,14 +1,15 @@
 "use client";
 
-import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { applyServerErrors } from "@/lib/form-errors";
-import { loginSchema, type LoginPayload } from "@/lib/schemas";
+import { createLoginSchema, type LoginPayload } from "@/lib/schemas";
 import {
   Form,
   FormControl,
@@ -21,12 +22,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 function LoginForm() {
+  const t = useTranslations("LoginPage");
+  const tValidation = useTranslations("Validation");
+  const tErrors = useTranslations("Errors");
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const schema = useMemo(() => createLoginSchema(tValidation), [tValidation]);
+
   const form = useForm<LoginPayload>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(schema),
     defaultValues: { email: "", password: "" },
   });
 
@@ -36,7 +42,12 @@ function LoginForm() {
       router.push(searchParams.get("redirect") ?? "/dashboard");
       router.refresh();
     } catch (err) {
-      const message = applyServerErrors(form, err, ["email", "password"]);
+      const message = applyServerErrors(
+        form,
+        err,
+        ["email", "password"],
+        tErrors("somethingWentWrong")
+      );
       if (message) toast.error(message);
     }
   }
@@ -47,14 +58,14 @@ function LoginForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full max-w-sm flex flex-col gap-4"
       >
-        <h1 className="text-xl font-semibold">Log in</h1>
+        <h1 className="text-xl font-semibold">{t("heading")}</h1>
 
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t("emailLabel")}</FormLabel>
               <FormControl>
                 <Input type="email" autoComplete="email" {...field} />
               </FormControl>
@@ -68,7 +79,7 @@ function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{t("passwordLabel")}</FormLabel>
               <FormControl>
                 <Input
                   type="password"
@@ -82,19 +93,19 @@ function LoginForm() {
         />
 
         <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Logging in…" : "Log in"}
+          {form.formState.isSubmitting ? t("submitting") : t("submit")}
         </Button>
 
         <p className="text-sm text-center">
           <Link href="/forgot-password" className="underline">
-            Forgot password?
+            {t("forgotPassword")}
           </Link>
         </p>
 
         <p className="text-sm text-center">
-          No account?{" "}
+          {t("noAccount")}{" "}
           <Link href="/register" className="underline">
-            Register
+            {t("registerLink")}
           </Link>
         </p>
       </form>

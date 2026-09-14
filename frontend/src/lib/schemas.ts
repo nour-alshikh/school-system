@@ -19,74 +19,93 @@ export const postTagOptions = [
   "testing",
 ] as const satisfies readonly PostTag[];
 
-export const loginSchema = z.object({
-  email: z.email("Enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-});
+// Validation messages come from the caller's `useTranslations("Validation")`
+// so they follow the active locale — these schemas are built inside
+// components (see createXSchema usages), not imported as static constants.
+type Translate = (key: string) => string;
 
-export type LoginPayload = z.infer<typeof loginSchema>;
-
-export const registerSchema = z
-  .object({
-    name: z.string().min(1, "Name is required").max(255),
-    email: z.email("Enter a valid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    password_confirmation: z.string(),
-  })
-  .refine((data) => data.password === data.password_confirmation, {
-    message: "Passwords do not match",
-    path: ["password_confirmation"],
+export function createLoginSchema(t: Translate) {
+  return z.object({
+    email: z.email(t("emailInvalid")),
+    password: z.string().min(1, t("passwordRequired")),
   });
+}
 
-export type RegisterPayload = z.infer<typeof registerSchema>;
+export type LoginPayload = z.infer<ReturnType<typeof createLoginSchema>>;
 
-export const forgotPasswordSchema = z.object({
-  email: z.email("Enter a valid email address"),
-});
+export function createRegisterSchema(t: Translate) {
+  return z
+    .object({
+      name: z.string().min(1, t("nameRequired")).max(255),
+      email: z.email(t("emailInvalid")),
+      password: z.string().min(8, t("passwordMin")),
+      password_confirmation: z.string(),
+    })
+    .refine((data) => data.password === data.password_confirmation, {
+      message: t("passwordsDontMatch"),
+      path: ["password_confirmation"],
+    });
+}
 
-export type ForgotPasswordPayload = z.infer<typeof forgotPasswordSchema>;
+export type RegisterPayload = z.infer<ReturnType<typeof createRegisterSchema>>;
+
+export function createForgotPasswordSchema(t: Translate) {
+  return z.object({
+    email: z.email(t("emailInvalid")),
+  });
+}
+
+export type ForgotPasswordPayload = z.infer<
+  ReturnType<typeof createForgotPasswordSchema>
+>;
 
 // token/email aren't user-editable form fields (they come from the reset
 // link's URL), so they're merged in at submit time rather than being part of
 // the schema react-hook-form validates against.
-export const resetPasswordFormSchema = z
-  .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    password_confirmation: z.string(),
-  })
-  .refine((data) => data.password === data.password_confirmation, {
-    message: "Passwords do not match",
-    path: ["password_confirmation"],
-  });
+export function createResetPasswordFormSchema(t: Translate) {
+  return z
+    .object({
+      password: z.string().min(8, t("passwordMin")),
+      password_confirmation: z.string(),
+    })
+    .refine((data) => data.password === data.password_confirmation, {
+      message: t("passwordsDontMatch"),
+      path: ["password_confirmation"],
+    });
+}
 
-export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;
+export type ResetPasswordFormValues = z.infer<
+  ReturnType<typeof createResetPasswordFormSchema>
+>;
 
 export interface ResetPasswordPayload extends ResetPasswordFormValues {
   token: string;
   email: string;
 }
 
-export const postSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255),
-  body: z.string().min(1, "Content is required"),
-  status: z.enum(postStatusOptions),
-  category: z.enum(postCategoryOptions),
-  tags: z.array(z.enum(postTagOptions)),
-  is_featured: z.boolean(),
-  reading_minutes: z.coerce
-    .number()
-    .int()
-    .min(1, "Must be at least 1 minute")
-    .max(180, "Must be 180 minutes or less"),
-  priority: z.coerce.number().int().min(1).max(5),
-  // Empty string means "no publish date yet" — converted to null at submit
-  // time (see PostForm), since a native date input can't hold null itself.
-  published_at: z.string(),
-});
+export function createPostSchema(t: Translate) {
+  return z.object({
+    title: z.string().min(1, t("titleRequired")).max(255),
+    body: z.string().min(1, t("contentRequired")),
+    status: z.enum(postStatusOptions),
+    category: z.enum(postCategoryOptions),
+    tags: z.array(z.enum(postTagOptions)),
+    is_featured: z.boolean(),
+    reading_minutes: z.coerce
+      .number()
+      .int()
+      .min(1, t("readingMinutesMin"))
+      .max(180, t("readingMinutesMax")),
+    priority: z.coerce.number().int().min(1).max(5),
+    // Empty string means "no publish date yet" — converted to null at submit
+    // time (see PostForm), since a native date input can't hold null itself.
+    published_at: z.string(),
+  });
+}
 
 // reading_minutes/priority use z.coerce, so the schema's input type (raw
 // form state, pre-coercion) and output type (after validation) differ —
 // PostFormInput feeds useForm/defaultValues, PostFormValues is what
 // handleSubmit hands to the submit callback.
-export type PostFormInput = z.input<typeof postSchema>;
-export type PostFormValues = z.output<typeof postSchema>;
+export type PostFormInput = z.input<ReturnType<typeof createPostSchema>>;
+export type PostFormValues = z.output<ReturnType<typeof createPostSchema>>;

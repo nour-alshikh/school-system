@@ -1,0 +1,142 @@
+{
+  "Metadata": {
+    "title": "نظام المدرسة",
+    "description": "نظام المدرسة"
+  },
+  "Nav": {
+    "brand": "نظام المدرسة",
+    "dashboard": "لوحة التحكم",
+    "manageUsers": "إدارة المستخدمين",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "switchToArabic": "العربية",
+    "switchToEnglish": "English"
+  },
+  "Common": {
+    "loading": "جارٍ التحميل…"
+  },
+  "LoginPage": {
+    "heading": "تسجيل الدخول",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "submitting": "جارٍ تسجيل الدخول…",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "registerLink": "إنشاء حساب"
+  },
+  "RegisterPage": {
+    "heading": "إنشاء حساب",
+    "nameLabel": "الاسم",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "submit": "إنشاء حساب",
+    "submitting": "جارٍ إنشاء الحساب…",
+    "haveAccount": "لديك حساب بالفعل؟",
+    "loginLink": "تسجيل الدخول"
+  },
+  "ForgotPasswordPage": {
+    "heading": "نسيت كلمة المرور",
+    "emailLabel": "البريد الإلكتروني",
+    "submit": "إرسال رابط إعادة التعيين",
+    "submitting": "جارٍ الإرسال…",
+    "backToLogin": "العودة لتسجيل الدخول"
+  },
+  "ResetPasswordPage": {
+    "heading": "إعادة تعيين كلمة المرور",
+    "newPasswordLabel": "كلمة المرور الجديدة",
+    "confirmPasswordLabel": "تأكيد كلمة المرور الجديدة",
+    "submit": "إعادة تعيين كلمة المرور",
+    "submitting": "جارٍ إعادة التعيين…",
+    "invalidLink": "رابط إعادة التعيين غير صالح أو غير مكتمل.",
+    "requestNew": "طلب رابط جديد"
+  },
+  "DashboardPage": {
+    "welcome": "مرحبًا، {name}"
+  },
+  "Avatar": {
+    "changeAvatar": "تغيير الصورة الرمزية",
+    "uploading": "جارٍ الرفع…",
+    "remove": "إزالة",
+    "removing": "جارٍ الإزالة…",
+    "uploadSuccess": "تم تحديث الصورة الرمزية.",
+    "uploadError": "فشل رفع الصورة الرمزية.",
+    "removeSuccess": "تمت إزالة الصورة الرمزية.",
+    "removeError": "فشلت إزالة الصورة الرمزية."
+  },
+  "PostsPage": {
+    "newPost": "منشور جديد",
+    "editPost": "تعديل المنشور",
+    "postsHeading": "المنشورات",
+    "loadingPosts": "جارٍ تحميل المنشورات…",
+    "noPosts": "لا توجد منشورات بعد.",
+    "titleColumn": "العنوان",
+    "statusColumn": "الحالة",
+    "categoryColumn": "التصنيف",
+    "authorColumn": "الكاتب",
+    "featured": "مميز",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteSuccess": "تم حذف المنشور.",
+    "deleteError": "فشل حذف المنشور.",
+    "loadError": "فشل تحميل المنشورات."
+  },
+  "PostForm": {
+    "titleLabel": "العنوان",
+    "contentLabel": "المحتوى",
+    "statusLabel": "الحالة",
+    "statusDraftLabel": "مسودة",
+    "statusDraftDescription": "مرئية لك فقط.",
+    "statusPublishedLabel": "منشور",
+    "statusPublishedDescription": "مرئي للجميع.",
+    "categoryLabel": "التصنيف",
+    "categoryPlaceholder": "اختر تصنيفًا",
+    "categoryGeneral": "عام",
+    "categoryTutorial": "شرح",
+    "categoryNews": "أخبار",
+    "categoryOpinion": "رأي",
+    "tagsLabel": "الوسوم",
+    "tagsPlaceholder": "اختر الوسوم",
+    "tagLaravel": "Laravel",
+    "tagNextjs": "Next.js",
+    "tagTypescript": "TypeScript",
+    "tagReact": "React",
+    "tagPhp": "PHP",
+    "tagTesting": "اختبار",
+    "featuredLabel": "منشور مميز",
+    "featuredDescription": "يظهر في قسم المميز على الصفحة الرئيسية.",
+    "readingMinutesLabel": "مدة القراءة (بالدقائق)",
+    "priorityLabel": "الأولوية: {value}",
+    "publishDateLabel": "تاريخ النشر",
+    "saving": "جارٍ الحفظ…",
+    "saveChanges": "حفظ التغييرات",
+    "createPost": "إنشاء منشور",
+    "cancel": "إلغاء",
+    "createdToast": "تم إنشاء المنشور.",
+    "updatedToast": "تم تحديث المنشور."
+  },
+  "AdminUsersPage": {
+    "heading": "المستخدمون",
+    "loadingUsers": "جارٍ تحميل المستخدمين…",
+    "loadError": "تعذّر تحميل المستخدمين.",
+    "nameColumn": "الاسم",
+    "emailColumn": "البريد الإلكتروني",
+    "rolesColumn": "الأدوار"
+  },
+  "Validation": {
+    "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "nameRequired": "الاسم مطلوب",
+    "passwordMin": "يجب ألا تقل كلمة المرور عن 8 أحرف",
+    "passwordsDontMatch": "كلمتا المرور غير متطابقتين",
+    "titleRequired": "العنوان مطلوب",
+    "contentRequired": "المحتوى مطلوب",
+    "readingMinutesMin": "يجب ألا تقل عن دقيقة واحدة",
+    "readingMinutesMax": "يجب ألا تزيد عن 180 دقيقة"
+  },
+  "Errors": {
+    "somethingWentWrong": "حدث خطأ ما."
+  }
+}

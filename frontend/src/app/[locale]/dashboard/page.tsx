@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { AvatarUploader } from "@/components/avatar-uploader";
 
 export default function DashboardPage() {
+  const t = useTranslations("DashboardPage");
+  const tCommon = useTranslations("Common");
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
@@ -18,7 +21,7 @@ export default function DashboardPage() {
   if (isLoading || !user) {
     return (
       <main className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
       </main>
     );
   }
@@ -26,7 +29,9 @@ export default function DashboardPage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
       <AvatarUploader />
-      <h1 className="text-xl font-semibold">Welcome, {user.name}</h1>
+      <h1 className="text-xl font-semibold">
+        {t("welcome", { name: user.name })}
+      </h1>
       <p className="text-sm text-muted-foreground">{user.email}</p>
     </main>
   );

@@ -40,6 +40,11 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
   const token = request.cookies.get(TOKEN_COOKIE)?.value;
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
+  // Set by the next-intl proxy from the active locale segment — forwarded so
+  // Laravel returns validation/error messages in the same language.
+  const locale = request.cookies.get("NEXT_LOCALE")?.value;
+  if (locale) headers.set("Accept-Language", locale);
+
   const laravelResponse = await fetch(targetUrl, {
     method,
     headers,

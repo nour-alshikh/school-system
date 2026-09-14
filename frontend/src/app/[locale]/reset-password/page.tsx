@@ -1,15 +1,16 @@
 "use client";
 
-import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import {
-  resetPasswordFormSchema,
+  createResetPasswordFormSchema,
   type ResetPasswordFormValues,
   type ResetPasswordPayload,
 } from "@/lib/schemas";
@@ -25,13 +26,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 function ResetPasswordForm() {
+  const t = useTranslations("ResetPasswordPage");
+  const tValidation = useTranslations("Validation");
+  const tErrors = useTranslations("Errors");
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const email = searchParams.get("email") ?? "";
 
+  const schema = useMemo(
+    () => createResetPasswordFormSchema(tValidation),
+    [tValidation]
+  );
+
   const form = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: { password: "", password_confirmation: "" },
   });
 
@@ -47,10 +56,12 @@ function ResetPasswordForm() {
       });
       router.push("/login");
     } catch (err) {
-      const message = applyServerErrors(form, err, [
-        "password",
-        "password_confirmation",
-      ]);
+      const message = applyServerErrors(
+        form,
+        err,
+        ["password", "password_confirmation"],
+        tErrors("somethingWentWrong")
+      );
       if (message) toast.error(message);
     }
   }
@@ -58,9 +69,9 @@ function ResetPasswordForm() {
   if (!token || !email) {
     return (
       <p className="text-sm text-destructive">
-        This reset link is invalid or incomplete.{" "}
+        {t("invalidLink")}{" "}
         <Link href="/forgot-password" className="underline">
-          Request a new one
+          {t("requestNew")}
         </Link>
         .
       </p>
@@ -73,7 +84,7 @@ function ResetPasswordForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full max-w-sm flex flex-col gap-4"
       >
-        <h1 className="text-xl font-semibold">Reset password</h1>
+        <h1 className="text-xl font-semibold">{t("heading")}</h1>
         <p className="text-sm text-muted-foreground">{email}</p>
 
         <FormField
@@ -81,7 +92,7 @@ function ResetPasswordForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>New password</FormLabel>
+              <FormLabel>{t("newPasswordLabel")}</FormLabel>
               <FormControl>
                 <Input type="password" autoComplete="new-password" {...field} />
               </FormControl>
@@ -95,7 +106,7 @@ function ResetPasswordForm() {
           name="password_confirmation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm new password</FormLabel>
+              <FormLabel>{t("confirmPasswordLabel")}</FormLabel>
               <FormControl>
                 <Input type="password" autoComplete="new-password" {...field} />
               </FormControl>
@@ -105,7 +116,7 @@ function ResetPasswordForm() {
         />
 
         <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Resetting…" : "Reset password"}
+          {form.formState.isSubmitting ? t("submitting") : t("submit")}
         </Button>
       </form>
     </Form>
