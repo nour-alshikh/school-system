@@ -61,13 +61,13 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col gap-4 p-6">
+    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 p-6">
       <h1 className="text-xl font-semibold">{t("heading")}</h1>
 
       {usersError ? (
         <p className="text-sm text-muted-foreground">{t("loadError")}</p>
       ) : (
-        <Table className="max-w-2xl">
+        <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t("nameColumn")}</TableHead>
