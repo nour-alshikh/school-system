@@ -92,3 +92,14 @@ For anything that changes server state, use `useMutation` and either
 `queryClient.setQueryData()` (cheap, when the mutation response already has the
 new data — see `AuthProvider` above) or `queryClient.invalidateQueries()` (when
 it doesn't, and a refetch is the simplest way to get the new state).
+
+## Loading state UI: skeletons, not "Loading…" text
+
+Every page's `isLoading` branch renders a skeleton, not a text string — see
+`src/components/page-skeleton.tsx` (`PageSkeleton`, for the outer
+auth-resolving gate every authenticated page has) and
+`src/components/table-skeleton.tsx` (`TableSkeletonRows`, for a table body
+while its own query loads — keep the real `TableHeader` mounted around it so
+columns don't jump once data arrives). `dashboard`, `posts`, `stages`, and
+`admin/users` all follow this; copy them for a new page instead of writing a
+`<p>{t("loading...")}</p>` fallback.
