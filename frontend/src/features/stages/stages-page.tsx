@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ import type { Stage } from "./types";
 
 export function StagesPage() {
   const t = useTranslations("StagesPage");
+  const locale = useLocale();
   const { user, isLoading: isAuthLoading, can } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -97,19 +98,19 @@ export function StagesPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("nameEnColumn")}</TableHead>
-                <TableHead>{t("nameArColumn")}</TableHead>
+                <TableHead>{t("nameColumn")}</TableHead>
                 {canManage && <TableHead />}
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoadingStages ? (
-                <TableSkeletonRows columns={canManage ? 3 : 2} />
+                <TableSkeletonRows columns={canManage ? 2 : 1} />
               ) : (
                 stages.map((stage) => (
                   <TableRow key={stage.id}>
-                    <TableCell>{stage.name_en}</TableCell>
-                    <TableCell dir="rtl">{stage.name_ar}</TableCell>
+                    <TableCell>
+                      {locale === "ar" ? stage.name_ar : stage.name_en}
+                    </TableCell>
                     {canManage && (
                       <TableCell>
                         <div className="flex justify-end gap-2">

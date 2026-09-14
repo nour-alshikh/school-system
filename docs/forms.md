@@ -138,3 +138,17 @@ form.handleSubmit(
 ```
 
 Copy this for any new bilingual field (grades/classrooms' names included).
+
+### Displaying it in a list
+
+A list view shows one column with whichever locale matches the current UI
+language, not both `_en`/`_ar` side by side — see `stages-page.tsx`:
+
+```tsx
+const locale = useLocale();
+...
+<TableCell>{locale === "ar" ? stage.name_ar : stage.name_en}</TableCell>
+```
+
+No `dir` override needed on the cell — the page's own `dir` (set from the
+locale in the root layout) already matches whichever name is shown.
