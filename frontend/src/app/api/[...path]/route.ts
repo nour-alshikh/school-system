@@ -61,7 +61,17 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
 
   const body = await laravelResponse.arrayBuffer();
 
-  return new NextResponse(body, {
+  // A 204/205/304 response must have a null body per the Fetch spec — an
+  // empty ArrayBuffer still counts as "has a body" and throws constructing
+  // the Response, which was surfacing as a 500 (and a misleading "Request
+  // failed" toast) on every successful delete, even though Laravel's
+  // response()->noContent() had already done its job.
+  const NULL_BODY_STATUSES = new Set([204, 205, 304]);
+  const responseBody = NULL_BODY_STATUSES.has(laravelResponse.status)
+    ? null
+    : body;
+
+  return new NextResponse(responseBody, {
     status: laravelResponse.status,
     headers: {
       "Content-Type":
