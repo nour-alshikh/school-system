@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -138,22 +138,26 @@ export function StagesPage() {
                           <Button
                             type="button"
                             variant="outline"
-                            size="sm"
+                            size="icon-sm"
+                            aria-label={t("edit")}
+                            title={t("edit")}
                             onClick={() => openEditDialog(stage)}
                           >
-                            {t("edit")}
+                            <Pencil className="size-4" />
                           </Button>
                           <Button
                             type="button"
                             variant="destructive"
-                            size="sm"
+                            size="icon-sm"
+                            aria-label={t("delete")}
+                            title={t("delete")}
                             disabled={deletingId === stage.id}
                             onClick={() => deleteMutation.mutate(stage)}
                           >
                             {deletingId === stage.id ? (
                               <Loader2 className="size-4 animate-spin" />
                             ) : (
-                              t("delete")
+                              <Trash2 className="size-4" />
                             )}
                           </Button>
                         </div>
