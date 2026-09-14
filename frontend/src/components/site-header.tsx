@@ -8,7 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -27,7 +26,7 @@ function LocaleSwitcher() {
 
 export function SiteHeader() {
   const t = useTranslations("Nav");
-  const { user, isLoading, can, logout } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const router = useRouter();
 
   async function handleLogout() {
@@ -59,24 +58,6 @@ export function SiteHeader() {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                  {t("dashboard")}
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={() => router.push("/stages")}>
-                  {t("stages")}
-                </DropdownMenuItem>
-
-                {can("manage-users") && (
-                  <DropdownMenuItem
-                    onClick={() => router.push("/admin/users")}
-                  >
-                    {t("manageUsers")}
-                  </DropdownMenuItem>
-                )}
-
-                <DropdownMenuSeparator />
-
                 <DropdownMenuItem onClick={handleLogout}>
                   {t("logout")}
                 </DropdownMenuItem>

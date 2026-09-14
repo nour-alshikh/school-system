@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { SiteHeader } from "@/components/site-header";
+import { SiteSidebar } from "@/components/site-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import "../globals.css";
 
@@ -52,7 +53,10 @@ export default async function RootLayout({
           <QueryProvider>
             <AuthProvider>
               <SiteHeader />
-              {children}
+              <div className="flex flex-1">
+                <SiteSidebar />
+                <div className="flex flex-1 flex-col">{children}</div>
+              </div>
               <Toaster />
             </AuthProvider>
           </QueryProvider>
