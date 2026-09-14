@@ -113,21 +113,22 @@ export function StageForm({
         )}
         className="flex flex-col gap-4"
       >
-        <LocaleTabs
-          value={activeLocale}
-          onChange={setActiveLocale}
-          errors={{
-            en: !!form.formState.errors.name_en,
-            ar: !!form.formState.errors.name_ar,
-          }}
-        />
-
         <FormField
           control={form.control}
           name="name_en"
           render={({ field }) => (
             <FormItem className={cn(activeLocale !== "en" && "hidden")}>
-              <FormLabel>{t("nameEnLabel")}</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>{t("nameEnLabel")}</FormLabel>
+                <LocaleTabs
+                  value={activeLocale}
+                  onChange={setActiveLocale}
+                  errors={{
+                    en: !!form.formState.errors.name_en,
+                    ar: !!form.formState.errors.name_ar,
+                  }}
+                />
+              </div>
               <FormControl>
                 <Input {...field} dir="ltr" className="h-10" />
               </FormControl>
@@ -141,7 +142,17 @@ export function StageForm({
           name="name_ar"
           render={({ field }) => (
             <FormItem className={cn(activeLocale !== "ar" && "hidden")}>
-              <FormLabel>{t("nameArLabel")}</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>{t("nameArLabel")}</FormLabel>
+                <LocaleTabs
+                  value={activeLocale}
+                  onChange={setActiveLocale}
+                  errors={{
+                    en: !!form.formState.errors.name_en,
+                    ar: !!form.formState.errors.name_ar,
+                  }}
+                />
+              </div>
               <FormControl>
                 <Input {...field} dir="rtl" className="h-10" />
               </FormControl>

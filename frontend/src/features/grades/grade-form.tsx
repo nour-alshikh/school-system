@@ -138,7 +138,14 @@ export function GradeForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t("stageLabel")}</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                items={stages.map((stage) => ({
+                  value: String(stage.id),
+                  label: locale === "ar" ? stage.name_ar : stage.name_en,
+                }))}
+                value={field.value}
+                onValueChange={field.onChange}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={t("stagePlaceholder")} />
@@ -157,21 +164,22 @@ export function GradeForm({
           )}
         />
 
-        <LocaleTabs
-          value={activeLocale}
-          onChange={setActiveLocale}
-          errors={{
-            en: !!form.formState.errors.name_en,
-            ar: !!form.formState.errors.name_ar,
-          }}
-        />
-
         <FormField
           control={form.control}
           name="name_en"
           render={({ field }) => (
             <FormItem className={cn(activeLocale !== "en" && "hidden")}>
-              <FormLabel>{t("nameEnLabel")}</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>{t("nameEnLabel")}</FormLabel>
+                <LocaleTabs
+                  value={activeLocale}
+                  onChange={setActiveLocale}
+                  errors={{
+                    en: !!form.formState.errors.name_en,
+                    ar: !!form.formState.errors.name_ar,
+                  }}
+                />
+              </div>
               <FormControl>
                 <Input {...field} dir="ltr" className="h-10" />
               </FormControl>
@@ -185,7 +193,17 @@ export function GradeForm({
           name="name_ar"
           render={({ field }) => (
             <FormItem className={cn(activeLocale !== "ar" && "hidden")}>
-              <FormLabel>{t("nameArLabel")}</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>{t("nameArLabel")}</FormLabel>
+                <LocaleTabs
+                  value={activeLocale}
+                  onChange={setActiveLocale}
+                  errors={{
+                    en: !!form.formState.errors.name_en,
+                    ar: !!form.formState.errors.name_ar,
+                  }}
+                />
+              </div>
               <FormControl>
                 <Input {...field} dir="rtl" className="h-10" />
               </FormControl>
