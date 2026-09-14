@@ -16,9 +16,6 @@
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar"
   },
-  "Common": {
-    "loading": "Loading…"
-  },
   "LoginPage": {
     "heading": "Log in",
     "emailLabel": "Email",
@@ -73,7 +70,6 @@
     "newPost": "New post",
     "editPost": "Edit post",
     "postsHeading": "Posts",
-    "loadingPosts": "Loading posts…",
     "noPosts": "No posts yet.",
     "titleColumn": "Title",
     "statusColumn": "Status",
@@ -124,7 +120,6 @@
     "newStage": "New stage",
     "editStage": "Edit stage",
     "stagesHeading": "Stages",
-    "loadingStages": "Loading stages…",
     "noStages": "No stages yet.",
     "nameEnColumn": "Name (English)",
     "nameArColumn": "Name (Arabic)",
@@ -146,7 +141,6 @@
   },
   "AdminUsersPage": {
     "heading": "Users",
-    "loadingUsers": "Loading users…",
     "loadError": "Couldn't load users.",
     "nameColumn": "Name",
     "emailColumn": "Email",

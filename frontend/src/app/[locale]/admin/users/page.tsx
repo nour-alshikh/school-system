@@ -16,10 +16,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageSkeleton } from "@/components/page-skeleton";
+import { TableSkeletonRows } from "@/components/table-skeleton";
 
 export default function AdminUsersPage() {
   const t = useTranslations("AdminUsersPage");
-  const tCommon = useTranslations("Common");
   const { user, isLoading: isAuthLoading, can } = useAuth();
   const router = useRouter();
 
@@ -56,20 +57,14 @@ export default function AdminUsersPage() {
   }, [usersError, t]);
 
   if (isAuthLoading || !user || !isAuthorized) {
-    return (
-      <main className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
-      </main>
-    );
+    return <PageSkeleton />;
   }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-6">
       <h1 className="text-xl font-semibold">{t("heading")}</h1>
 
-      {isLoadingUsers ? (
-        <p className="text-sm text-muted-foreground">{t("loadingUsers")}</p>
-      ) : usersError ? (
+      {usersError ? (
         <p className="text-sm text-muted-foreground">{t("loadError")}</p>
       ) : (
         <Table className="max-w-2xl">
@@ -81,15 +76,19 @@ export default function AdminUsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((u) => (
-              <TableRow key={u.id}>
-                <TableCell>{u.name}</TableCell>
-                <TableCell>{u.email}</TableCell>
-                <TableCell>
-                  {u.roles.map((role) => role.name).join(", ")}
-                </TableCell>
-              </TableRow>
-            ))}
+            {isLoadingUsers ? (
+              <TableSkeletonRows columns={3} />
+            ) : (
+              users.map((u) => (
+                <TableRow key={u.id}>
+                  <TableCell>{u.name}</TableCell>
+                  <TableCell>{u.email}</TableCell>
+                  <TableCell>
+                    {u.roles.map((role) => role.name).join(", ")}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       )}

@@ -16,12 +16,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageSkeleton } from "@/components/page-skeleton";
+import { TableSkeletonRows } from "@/components/table-skeleton";
 import { StageForm } from "./stage-form";
 import type { Stage } from "./types";
 
 export function StagesPage() {
   const t = useTranslations("StagesPage");
-  const tCommon = useTranslations("Common");
   const { user, isLoading: isAuthLoading, can } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -69,11 +70,7 @@ export function StagesPage() {
   });
 
   if (isAuthLoading || !user) {
-    return (
-      <main className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
-      </main>
-    );
+    return <PageSkeleton />;
   }
 
   return (
@@ -94,9 +91,7 @@ export function StagesPage() {
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{t("stagesHeading")}</h2>
 
-        {isLoadingStages ? (
-          <p className="text-sm text-muted-foreground">{t("loadingStages")}</p>
-        ) : stages.length === 0 ? (
+        {!isLoadingStages && stages.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("noStages")}</p>
         ) : (
           <Table>
@@ -108,35 +103,39 @@ export function StagesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {stages.map((stage) => (
-                <TableRow key={stage.id}>
-                  <TableCell>{stage.name_en}</TableCell>
-                  <TableCell dir="rtl">{stage.name_ar}</TableCell>
-                  {canManage && (
-                    <TableCell>
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditingStage(stage)}
-                        >
-                          {t("edit")}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          disabled={deleteMutation.isPending}
-                          onClick={() => deleteMutation.mutate(stage)}
-                        >
-                          {t("delete")}
-                        </Button>
-                      </div>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
+              {isLoadingStages ? (
+                <TableSkeletonRows columns={canManage ? 3 : 2} />
+              ) : (
+                stages.map((stage) => (
+                  <TableRow key={stage.id}>
+                    <TableCell>{stage.name_en}</TableCell>
+                    <TableCell dir="rtl">{stage.name_ar}</TableCell>
+                    {canManage && (
+                      <TableCell>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingStage(stage)}
+                          >
+                            {t("edit")}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            disabled={deleteMutation.isPending}
+                            onClick={() => deleteMutation.mutate(stage)}
+                          >
+                            {t("delete")}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         )}

@@ -18,10 +18,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageSkeleton } from "@/components/page-skeleton";
+import { TableSkeletonRows } from "@/components/table-skeleton";
 
 export default function PostsPage() {
   const t = useTranslations("PostsPage");
-  const tCommon = useTranslations("Common");
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -66,11 +67,7 @@ export default function PostsPage() {
   });
 
   if (isAuthLoading || !user) {
-    return (
-      <main className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
-      </main>
-    );
+    return <PageSkeleton />;
   }
 
   return (
@@ -89,9 +86,7 @@ export default function PostsPage() {
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{t("postsHeading")}</h2>
 
-        {isLoadingPosts ? (
-          <p className="text-sm text-muted-foreground">{t("loadingPosts")}</p>
-        ) : posts.length === 0 ? (
+        {!isLoadingPosts && posts.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("noPosts")}</p>
         ) : (
           <Table>
@@ -105,48 +100,52 @@ export default function PostsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {posts.map((post) => {
-                const isOwner = post.user.id === user.id;
+              {isLoadingPosts ? (
+                <TableSkeletonRows columns={5} />
+              ) : (
+                posts.map((post) => {
+                  const isOwner = post.user.id === user.id;
 
-                return (
-                  <TableRow key={post.id}>
-                    <TableCell>
-                      {post.title}
-                      {post.is_featured && (
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          ★ {t("featured")}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="capitalize">{post.status}</TableCell>
-                    <TableCell className="capitalize">{post.category}</TableCell>
-                    <TableCell>{post.user.name}</TableCell>
-                    <TableCell>
-                      {isOwner && (
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setEditingPost(post)}
-                          >
-                            {t("edit")}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            disabled={deleteMutation.isPending}
-                            onClick={() => deleteMutation.mutate(post)}
-                          >
-                            {t("delete")}
-                          </Button>
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                  return (
+                    <TableRow key={post.id}>
+                      <TableCell>
+                        {post.title}
+                        {post.is_featured && (
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ★ {t("featured")}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="capitalize">{post.status}</TableCell>
+                      <TableCell className="capitalize">{post.category}</TableCell>
+                      <TableCell>{post.user.name}</TableCell>
+                      <TableCell>
+                        {isOwner && (
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setEditingPost(post)}
+                            >
+                              {t("edit")}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              disabled={deleteMutation.isPending}
+                              onClick={() => deleteMutation.mutate(post)}
+                            >
+                              {t("delete")}
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         )}

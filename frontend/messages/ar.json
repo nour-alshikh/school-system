@@ -16,9 +16,6 @@
     "collapseSidebar": "طي الشريط الجانبي",
     "expandSidebar": "توسيع الشريط الجانبي"
   },
-  "Common": {
-    "loading": "جارٍ التحميل…"
-  },
   "LoginPage": {
     "heading": "تسجيل الدخول",
     "emailLabel": "البريد الإلكتروني",
@@ -73,7 +70,6 @@
     "newPost": "منشور جديد",
     "editPost": "تعديل المنشور",
     "postsHeading": "المنشورات",
-    "loadingPosts": "جارٍ تحميل المنشورات…",
     "noPosts": "لا توجد منشورات بعد.",
     "titleColumn": "العنوان",
     "statusColumn": "الحالة",
@@ -124,7 +120,6 @@
     "newStage": "مرحلة جديدة",
     "editStage": "تعديل المرحلة",
     "stagesHeading": "المراحل",
-    "loadingStages": "جارٍ تحميل المراحل…",
     "noStages": "لا توجد مراحل بعد.",
     "nameEnColumn": "الاسم (إنجليزي)",
     "nameArColumn": "الاسم (عربي)",
@@ -146,7 +141,6 @@
   },
   "AdminUsersPage": {
     "heading": "المستخدمون",
-    "loadingUsers": "جارٍ تحميل المستخدمين…",
     "loadError": "تعذّر تحميل المستخدمين.",
     "nameColumn": "الاسم",
     "emailColumn": "البريد الإلكتروني",

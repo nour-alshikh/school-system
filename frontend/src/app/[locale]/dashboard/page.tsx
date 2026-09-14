@@ -5,10 +5,10 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { AvatarUploader } from "@/components/avatar-uploader";
+import { PageSkeleton } from "@/components/page-skeleton";
 
 export default function DashboardPage() {
   const t = useTranslations("DashboardPage");
-  const tCommon = useTranslations("Common");
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
@@ -19,11 +19,7 @@ export default function DashboardPage() {
   }, [isLoading, user, router]);
 
   if (isLoading || !user) {
-    return (
-      <main className="flex flex-1 items-center justify-center p-6">
-        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
-      </main>
-    );
+    return <PageSkeleton />;
   }
 
   return (
