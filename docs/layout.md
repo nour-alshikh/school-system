@@ -14,10 +14,14 @@ page needing to render it itself.
 - **Loading** (`isLoading === true`): renders nothing. The alternative —
   a skeleton — wasn't worth it for how briefly this state is visible in
   practice; revisit if that stops being true.
-- **Authenticated**: an avatar-or-initial + name button that opens a small
-  dropdown menu containing just `Log out`. Everything else that used to
-  live here (`Dashboard`, `Manage users`) moved to `SiteSidebar` — see
+- **Authenticated**: an icon-only avatar-or-initial button (`aria-label`/
+  `title` carry the user's name, since there's no visible text) that opens a
+  small dropdown menu containing just `Log out`. Everything else that used
+  to live here (`Dashboard`, `Manage users`) moved to `SiteSidebar` — see
   below.
+- The theme toggle and locale switcher are icon-only too (`ThemeToggle`,
+  `LocaleSwitcher` — both `size="icon"` `Button`s with `aria-label`/`title`,
+  no visible text), for a consistent icon-only topbar.
 
 ## `SiteSidebar`
 

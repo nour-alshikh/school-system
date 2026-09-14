@@ -1,10 +1,12 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { Languages } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { UserAvatar } from "@/components/user-avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,11 +19,19 @@ function LocaleSwitcher() {
   const locale = useLocale();
   const pathname = usePathname();
   const otherLocale = locale === "en" ? "ar" : "en";
+  const label =
+    otherLocale === "ar" ? t("switchToArabic") : t("switchToEnglish");
 
   return (
-    <Link href={pathname} locale={otherLocale} className="text-sm underline">
-      {otherLocale === "ar" ? t("switchToArabic") : t("switchToEnglish")}
-    </Link>
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={label}
+      title={label}
+      render={<Link href={pathname} locale={otherLocale} />}
+    >
+      <Languages className="size-4" />
+    </Button>
   );
 }
 
@@ -46,16 +56,17 @@ export function SiteHeader() {
         <div className="flex items-center gap-4">
           {isLoading ? null : user ? (
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 text-sm">
-                <span className="h-7 w-7">
-                  <UserAvatar
-                    name={user.name}
-                    avatarUrl={user.avatar_url}
-                    alt=""
-                    className="text-xs"
-                  />
-                </span>
-                {user.name}
+              <DropdownMenuTrigger
+                className="size-7 rounded-full"
+                aria-label={user.name}
+                title={user.name}
+              >
+                <UserAvatar
+                  name={user.name}
+                  avatarUrl={user.avatar_url}
+                  alt=""
+                  className="text-xs"
+                />
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end">
