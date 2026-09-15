@@ -50,7 +50,11 @@ export function proxy(request: NextRequest) {
 
   if (isProtected && !hasSession) {
     const loginUrl = new URL(`/${locale}/login`, request.url);
-    loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    // `rest` has the locale prefix stripped — the login page's redirect
+    // push goes through next-intl's locale-aware router, which adds the
+    // prefix back on its own. Storing the already-prefixed pathname here
+    // used to double it up (e.g. /en/dashboard -> /en/en/dashboard).
+    loginUrl.searchParams.set("redirect", rest);
     return NextResponse.redirect(loginUrl);
   }
 
