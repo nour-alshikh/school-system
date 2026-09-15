@@ -8,12 +8,20 @@ type UseStaggerInOptions = {
   y?: number;
   stagger?: number;
   duration?: number;
+  /** Re-run the animation whenever one of these changes (e.g. `[data]`). */
+  deps?: unknown[];
 };
 
 export function useStaggerIn<T extends HTMLElement>(
   options: UseStaggerInOptions,
 ): RefObject<T | null> {
-  const { selector, y = 16, stagger = STAGGER, duration = DURATION.base } = options;
+  const {
+    selector,
+    y = 16,
+    stagger = STAGGER,
+    duration = DURATION.base,
+    deps = [],
+  } = options;
   const ref = useRef<T>(null);
 
   useGSAP(
@@ -27,7 +35,7 @@ export function useStaggerIn<T extends HTMLElement>(
         ease: EASE,
       });
     },
-    { scope: ref },
+    { scope: ref, dependencies: deps },
   );
 
   return ref;

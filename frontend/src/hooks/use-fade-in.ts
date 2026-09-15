@@ -7,12 +7,14 @@ type UseFadeInOptions = {
   y?: number;
   delay?: number;
   duration?: number;
+  /** Re-run the animation whenever one of these changes (e.g. `[isOpen]`). */
+  deps?: unknown[];
 };
 
 export function useFadeIn<T extends HTMLElement>(
   options: UseFadeInOptions = {},
 ): RefObject<T | null> {
-  const { y = 16, delay = 0, duration = DURATION.base } = options;
+  const { y = 16, delay = 0, duration = DURATION.base, deps = [] } = options;
   const ref = useRef<T>(null);
 
   useGSAP(
@@ -20,7 +22,7 @@ export function useFadeIn<T extends HTMLElement>(
       if (!ref.current) return;
       gsap.from(ref.current, { opacity: 0, y, delay, duration, ease: EASE });
     },
-    { scope: ref },
+    { scope: ref, dependencies: deps },
   );
 
   return ref;

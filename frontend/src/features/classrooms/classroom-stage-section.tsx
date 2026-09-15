@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useFadeIn } from "@/hooks/use-fade-in";
+import { useStaggerIn } from "@/hooks/use-stagger-in";
 import {
   Table,
   TableBody,
@@ -166,8 +168,14 @@ export function ClassroomStageSection({
   const allSelected =
     classrooms.length > 0 && classrooms.every((c) => selectedIds.has(c.id));
 
+  const contentRef = useFadeIn<HTMLDivElement>({ y: -8, deps: [isOpen] });
+  const rowsRef = useStaggerIn<HTMLDivElement>({
+    selector: "[data-slot='table-body'] [data-slot='table-row']",
+    deps: [classrooms.length, page, search, isLoading],
+  });
+
   return (
-    <div className="rounded-lg border">
+    <div data-animate="stage-section" className="rounded-lg border">
       <Button
         type="button"
         variant="ghost"
@@ -185,7 +193,7 @@ export function ClassroomStageSection({
       </Button>
 
       {isOpen && (
-        <div className="flex flex-col gap-4 border-t p-4">
+        <div ref={contentRef} className="flex flex-col gap-4 border-t p-4">
           {error ? (
             <p className="text-sm text-destructive">
               {error instanceof ApiError ? error.message : t("loadError")}
@@ -216,84 +224,86 @@ export function ClassroomStageSection({
                   {search ? t("noResults") : t("noClassrooms")}
                 </p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {canManage && (
-                        <TableHead className="w-10">
-                          <Checkbox
-                            aria-label={tTable("selectAll")}
-                            checked={allSelected}
-                            onCheckedChange={toggleAll}
-                          />
-                        </TableHead>
-                      )}
-                      <TableHead>{t("nameColumn")}</TableHead>
-                      <TableHead>{t("gradeColumn")}</TableHead>
-                      <TableHead>{t("capacityColumn")}</TableHead>
-                      {canManage && <TableHead />}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {isLoading ? (
-                      <TableSkeletonRows columns={canManage ? 5 : 3} />
-                    ) : (
-                      classrooms.map((classroom) => (
-                        <TableRow key={classroom.id}>
-                          {canManage && (
-                            <TableCell>
-                              <Checkbox
-                                aria-label={tTable("selectRow")}
-                                checked={selectedIds.has(classroom.id)}
-                                onCheckedChange={(checked) =>
-                                  toggleRow(classroom.id, checked)
-                                }
-                              />
-                            </TableCell>
-                          )}
-                          <TableCell>{classroom.name}</TableCell>
-                          <TableCell>
-                            {gradeNameById.get(classroom.grade_id) ?? "—"}
-                          </TableCell>
-                          <TableCell>{classroom.capacity ?? "—"}</TableCell>
-                          {canManage && (
-                            <TableCell>
-                              <div className="flex justify-end gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon-sm"
-                                  aria-label={t("edit")}
-                                  title={t("edit")}
-                                  onClick={() => onEdit(classroom)}
-                                >
-                                  <Pencil className="size-4" />
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="icon-sm"
-                                  aria-label={t("delete")}
-                                  title={t("delete")}
-                                  disabled={deletingId === classroom.id}
-                                  onClick={() =>
-                                    setDeletingClassroom(classroom)
+                <div ref={rowsRef}>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {canManage && (
+                          <TableHead className="w-10">
+                            <Checkbox
+                              aria-label={tTable("selectAll")}
+                              checked={allSelected}
+                              onCheckedChange={toggleAll}
+                            />
+                          </TableHead>
+                        )}
+                        <TableHead>{t("nameColumn")}</TableHead>
+                        <TableHead>{t("gradeColumn")}</TableHead>
+                        <TableHead>{t("capacityColumn")}</TableHead>
+                        {canManage && <TableHead />}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {isLoading ? (
+                        <TableSkeletonRows columns={canManage ? 5 : 3} />
+                      ) : (
+                        classrooms.map((classroom) => (
+                          <TableRow key={classroom.id}>
+                            {canManage && (
+                              <TableCell>
+                                <Checkbox
+                                  aria-label={tTable("selectRow")}
+                                  checked={selectedIds.has(classroom.id)}
+                                  onCheckedChange={(checked) =>
+                                    toggleRow(classroom.id, checked)
                                   }
-                                >
-                                  {deletingId === classroom.id ? (
-                                    <Loader2 className="size-4 animate-spin" />
-                                  ) : (
-                                    <Trash2 className="size-4" />
-                                  )}
-                                </Button>
-                              </div>
+                                />
+                              </TableCell>
+                            )}
+                            <TableCell>{classroom.name}</TableCell>
+                            <TableCell>
+                              {gradeNameById.get(classroom.grade_id) ?? "—"}
                             </TableCell>
-                          )}
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                            <TableCell>{classroom.capacity ?? "—"}</TableCell>
+                            {canManage && (
+                              <TableCell>
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon-sm"
+                                    aria-label={t("edit")}
+                                    title={t("edit")}
+                                    onClick={() => onEdit(classroom)}
+                                  >
+                                    <Pencil className="size-4" />
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon-sm"
+                                    aria-label={t("delete")}
+                                    title={t("delete")}
+                                    disabled={deletingId === classroom.id}
+                                    onClick={() =>
+                                      setDeletingClassroom(classroom)
+                                    }
+                                  >
+                                    {deletingId === classroom.id ? (
+                                      <Loader2 className="size-4 animate-spin" />
+                                    ) : (
+                                      <Trash2 className="size-4" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
 
               {meta && (

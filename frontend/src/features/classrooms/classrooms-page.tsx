@@ -9,6 +9,7 @@ import { Plus } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -64,6 +65,11 @@ export function ClassroomsPage() {
     enabled: !isAuthLoading && !!user,
   });
 
+  const stageListRef = useStaggerIn<HTMLDivElement>({
+    selector: "[data-animate='stage-section']",
+    deps: [stages.length],
+  });
+
   const gradeNameById = new Map(
     grades.map((grade) => [
       grade.id,
@@ -109,7 +115,7 @@ export function ClassroomsPage() {
         {!isLoadingStages && stages.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("noStagesYet")}</p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div ref={stageListRef} className="flex flex-col gap-2">
             {stages.map((stage) => (
               <ClassroomStageSection
                 key={stage.id}
