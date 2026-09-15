@@ -214,8 +214,8 @@ export function GradeForm({
         />
 
         <div className="flex gap-2">
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting && (
+          <Button type="submit" disabled={mutation.isPending}>
+            {mutation.isPending && (
               <Loader2 className="size-4 animate-spin" />
             )}
             {grade ? t("saveChanges") : t("createGrade")}
