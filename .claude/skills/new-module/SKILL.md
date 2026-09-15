@@ -136,6 +136,17 @@ copy that part of them).
   (`can:update,<model>`) on the backend; `useAuth().can("<permission>")` on
   the frontend for UI gating only — the backend is the real authority. See
   [`docs/authorization.md`](../../docs/authorization.md).
+- **Animation**: GSAP, through the shared hooks — never a raw `gsap.from`
+  call or a new plugin registration inside a feature. `src/lib/gsap.ts`
+  registers plugins once and exports shared `EASE`/`DURATION`/`STAGGER`
+  constants. `useFadeIn` (`src/hooks/use-fade-in.ts`) fades+rises a single
+  ref in on mount; `useStaggerIn` (`src/hooks/use-stagger-in.ts`) staggers
+  a ref's matching children in, targeting `[data-slot='table-row']` for a
+  table body. Both take an optional `deps` array to re-run on a state
+  change (e.g. `deps: [page, search, isLoading]` to restagger table rows
+  on refetch, `deps: [isOpen]` for an accordion's content). See
+  `stages-page.tsx` (list stagger) and `classroom-stage-section.tsx`
+  (accordion + list stagger) for reference.
 
 **Checklist:**
 - ✅ Backend: Migration, Model, FormRequests, Resource, TypeScript type,
@@ -146,3 +157,4 @@ copy that part of them).
 - ✅ Loading states use `PageLoader`/`TableSkeletonRows`, not text
 - ✅ Delete and bulk delete confirm via `ConfirmDialog`, not `window.confirm`
 - ✅ Nav link added only if the module is meant to be user-facing
+- ✅ List entrance uses `useStaggerIn`/`useFadeIn`, not a raw `gsap.from`
