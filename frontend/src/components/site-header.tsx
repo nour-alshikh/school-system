@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Languages } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { useFadeIn } from "@/hooks/use-fade-in";
 import { UserAvatar } from "@/components/user-avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ export function SiteHeader() {
   const t = useTranslations("Nav");
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
+  const ref = useFadeIn<HTMLElement>({ y: -12 });
 
   async function handleLogout() {
     await logout();
@@ -47,7 +49,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="border-b">
+    <header ref={ref} className="border-b">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <Link href="/" className="text-sm font-semibold">
           {t("brand")}

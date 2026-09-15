@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -50,6 +51,7 @@ function SidebarLink({
     <Link
       href={href}
       title={collapsed ? label : undefined}
+      data-animate="sidebar-link"
       className={cn(
         "flex items-center gap-2 truncate rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted",
         collapsed && "justify-center px-2",
@@ -66,6 +68,7 @@ export function SiteSidebar() {
   const t = useTranslations("Nav");
   const { user, isLoading, can } = useAuth();
   const [collapsed, setCollapsed] = useState(readStoredCollapsed);
+  const ref = useStaggerIn<HTMLElement>({ selector: "[data-animate='sidebar-link']" });
 
   function toggle() {
     setCollapsed((prev) => {
@@ -85,6 +88,7 @@ export function SiteSidebar() {
 
   return (
     <nav
+      ref={ref}
       className={cn(
         "hidden shrink-0 flex-col gap-1 border-e p-2 transition-[width] duration-150 md:flex",
         collapsed ? "w-12 items-center" : "w-48 p-4"

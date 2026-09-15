@@ -9,6 +9,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { SiteHeader } from "@/components/site-header";
 import { SiteSidebar } from "@/components/site-sidebar";
+import { PageTransition } from "@/components/page-transition";
 import { Toaster } from "@/components/ui/sonner";
 import "../globals.css";
 
@@ -69,7 +70,7 @@ export default async function RootLayout({
                 <SiteHeader />
                 <div className="flex flex-1">
                   <SiteSidebar />
-                  <div className="flex flex-1 flex-col">{children}</div>
+                  <PageTransition>{children}</PageTransition>
                 </div>
                 <Toaster />
               </AuthProvider>
