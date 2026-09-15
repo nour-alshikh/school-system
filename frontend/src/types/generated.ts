@@ -1,5 +1,6 @@
 export type AcademicYearType = {
 readonly id: number,
+readonly year: number,
 readonly name_en: string,
 readonly name_ar: string,
 readonly is_current: boolean,

@@ -101,6 +101,8 @@ export const STEP_FIELDS: Record<number, Path<StudentWizardValues>[]> = {
     "father.blood_type_id",
     "father.religion_id",
     "father.address",
+  ],
+  5: [
     "mother.name",
     "mother.job",
     "mother.national_id",
@@ -113,7 +115,7 @@ export const STEP_FIELDS: Record<number, Path<StudentWizardValues>[]> = {
   ],
 };
 
-export const TOTAL_STEPS = 5;
+export const TOTAL_STEPS = 6;
 
 export const defaultStudentWizardValues: StudentWizardValues = {
   student: {

@@ -18,10 +18,7 @@ class AcademicYearController extends Controller
         $query = AcademicYear::orderBy('id');
 
         if ($search = $request->query('search')) {
-            // name is a JSON-encoded {en, ar} string (see
-            // AcademicYear::$translatable), so a plain LIKE against the raw
-            // column also matches whichever locale the term appears in.
-            $query->where('name', 'like', '%'.addcslashes($search, '%_\\').'%');
+            $query->where('year', 'like', '%'.addcslashes($search, '%_\\').'%');
         }
 
         if (! $request->has('page')) {

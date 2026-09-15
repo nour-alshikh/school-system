@@ -1,16 +1,16 @@
 <?php
 
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\BloodTypeController;
-use App\Http\Controllers\PostController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\NationalityController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
@@ -71,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('permission:manage-students')->group(function () {
+        Route::get('/students', [StudentController::class, 'index']);
         Route::post('/students', [StudentController::class, 'store']);
     });
 

@@ -1,15 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Control, FieldPath } from "react-hook-form";
 import { useTranslations, useLocale } from "next-intl";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
+import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
@@ -19,6 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LocaleTabs } from "@/components/locale-tabs";
 import {
   createStudentWizardSchema,
   defaultStudentWizardValues,
@@ -49,6 +52,23 @@ import type {
 } from "@/types/generated";
 
 type Option = { value: string; label: string };
+
+// A step's fields grouped under a heading — "structured", not a flat stack
+// of inputs. Only visual grouping, no separate form/validation scope.
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-4 rounded-lg border p-4">
+      <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
+      <div className="flex flex-col gap-4">{children}</div>
+    </div>
+  );
+}
 
 function SelectField({
   control,
@@ -126,7 +146,6 @@ function GuardianFields({
   bloodTypes,
   religions,
   governorateOptions,
-  onNationalityChange,
 }: {
   control: Control<StudentWizardValues>;
   prefix: "father" | "mother";
@@ -134,111 +153,113 @@ function GuardianFields({
   bloodTypes: Option[];
   religions: Option[];
   governorateOptions: Option[];
-  onNationalityChange: (value: string) => void;
 }) {
   const t = useTranslations("StudentWizard");
-  const nationalityId = useWatch({
-    control,
-    name: `${prefix}.nationality_id`,
-  }) as string;
 
   return (
-    <div className="flex flex-col gap-4">
-      <FormField
-        control={control}
-        name={`${prefix}.name`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t("guardianNameLabel")}</FormLabel>
-            <FormControl>
-              <Input {...field} className="h-10" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name={`${prefix}.job`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t("guardianJobLabel")}</FormLabel>
-            <FormControl>
-              <Input {...field} className="h-10" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name={`${prefix}.national_id`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t("guardianNationalIdLabel")}</FormLabel>
-            <FormControl>
-              <Input {...field} className="h-10" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name={`${prefix}.phone`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t("guardianPhoneLabel")}</FormLabel>
-            <FormControl>
-              <Input {...field} className="h-10" dir="ltr" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <SelectField
-        control={control}
-        name={`${prefix}.nationality_id`}
-        label={t("guardianNationalityLabel")}
-        placeholder={t("guardianNationalityPlaceholder")}
-        options={nationalities}
-        onSelect={onNationalityChange}
-      />
-      <SelectField
-        control={control}
-        name={`${prefix}.governorate_id`}
-        label={t("guardianGovernorateLabel")}
-        placeholder={t("guardianGovernoratePlaceholder")}
-        options={governorateOptions}
-        disabled={!nationalityId}
-      />
-      <SelectField
-        control={control}
-        name={`${prefix}.blood_type_id`}
-        label={t("guardianBloodTypeLabel")}
-        placeholder={t("guardianBloodTypePlaceholder")}
-        options={bloodTypes}
-      />
-      <SelectField
-        control={control}
-        name={`${prefix}.religion_id`}
-        label={t("guardianReligionLabel")}
-        placeholder={t("guardianReligionPlaceholder")}
-        options={religions}
-      />
-      <FormField
-        control={control}
-        name={`${prefix}.address`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t("guardianAddressLabel")}</FormLabel>
-            <FormControl>
-              <Textarea {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+    <div className="flex flex-col gap-6">
+      <Section title={t("sectionPersonalInfo")}>
+        <FormField
+          control={control}
+          name={`${prefix}.name`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("guardianNameLabel")}</FormLabel>
+              <FormControl>
+                <Input {...field} className="h-10" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name={`${prefix}.job`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("guardianJobLabel")}</FormLabel>
+              <FormControl>
+                <Input {...field} className="h-10" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name={`${prefix}.national_id`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("guardianNationalIdLabel")}</FormLabel>
+              <FormControl>
+                <Input {...field} className="h-10" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name={`${prefix}.phone`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("guardianPhoneLabel")}</FormLabel>
+              <FormControl>
+                <Input {...field} className="h-10" dir="ltr" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </Section>
+
+      <Section title={t("sectionLocation")}>
+        <SelectField
+          control={control}
+          name={`${prefix}.nationality_id`}
+          label={t("guardianNationalityLabel")}
+          placeholder={t("guardianNationalityPlaceholder")}
+          options={nationalities}
+          disabled
+        />
+        <SelectField
+          control={control}
+          name={`${prefix}.governorate_id`}
+          label={t("guardianGovernorateLabel")}
+          placeholder={t("guardianGovernoratePlaceholder")}
+          options={governorateOptions}
+        />
+        <SelectField
+          control={control}
+          name={`${prefix}.blood_type_id`}
+          label={t("guardianBloodTypeLabel")}
+          placeholder={t("guardianBloodTypePlaceholder")}
+          options={bloodTypes}
+        />
+        <SelectField
+          control={control}
+          name={`${prefix}.religion_id`}
+          label={t("guardianReligionLabel")}
+          placeholder={t("guardianReligionPlaceholder")}
+          options={religions}
+        />
+      </Section>
+
+      <Section title={t("sectionAddress")}>
+        <FormField
+          control={control}
+          name={`${prefix}.address`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("guardianAddressLabel")}</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </Section>
     </div>
   );
 }
@@ -250,6 +271,7 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
   const locale = useLocale();
 
   const [step, setStep] = useState(1);
+  const [activeNameLocale, setActiveNameLocale] = useState<"en" | "ar">("en");
 
   const schema = useMemo(
     () => createStudentWizardSchema(tValidation),
@@ -277,6 +299,28 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
       ),
   });
   const nationalities = nationalitiesData ?? [];
+
+  // Only one nationality is seeded today (Egyptian) — default every
+  // nationality field to it and lock the select, rather than making the
+  // admin pick the only option that exists.
+  useEffect(() => {
+    if (!nationalitiesData || nationalitiesData.length === 0) return;
+
+    const defaultNationality =
+      nationalitiesData.find((n) => n.name_en === "Egyptian") ??
+      nationalitiesData[0];
+    const id = String(defaultNationality.id);
+
+    (
+      [
+        "student.nationality_id",
+        "father.nationality_id",
+        "mother.nationality_id",
+      ] as const
+    ).forEach((path) => {
+      if (!form.getValues(path)) form.setValue(path, id);
+    });
+  }, [nationalitiesData, form]);
 
   const { data: bloodTypesData } = useQuery({
     queryKey: ["blood-types"],
@@ -417,6 +461,18 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
   });
 
   function jumpToFirstErrorStep() {
+    if (
+      form.getFieldState("student.name_en", form.formState).invalid &&
+      activeNameLocale !== "en"
+    ) {
+      setActiveNameLocale("en");
+    } else if (
+      form.getFieldState("student.name_ar", form.formState).invalid &&
+      activeNameLocale !== "ar"
+    ) {
+      setActiveNameLocale("ar");
+    }
+
     for (const [stepNumber, fields] of Object.entries(STEP_FIELDS)) {
       const hasError = fields.some(
         (field) => form.getFieldState(field, form.formState).invalid
@@ -432,6 +488,12 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
     const fields = STEP_FIELDS[step];
     const valid = await form.trigger(fields);
     if (valid) setStep((s) => s + 1);
+    else if (step === 1) {
+      if (form.getFieldState("student.name_en", form.formState).invalid)
+        setActiveNameLocale("en");
+      else if (form.getFieldState("student.name_ar", form.formState).invalid)
+        setActiveNameLocale("ar");
+    }
   }
 
   function goBack() {
@@ -448,7 +510,8 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
     t("stepPersonal"),
     t("stepAcademic"),
     t("stepParentAccount"),
-    t("stepGuardians"),
+    t("stepFather"),
+    t("stepMother"),
     t("stepConfirm"),
   ];
 
@@ -469,112 +532,140 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
         </div>
 
         {step === 1 && (
-          <div className="flex flex-col gap-4">
-            <FormField
-              control={control}
-              name="student.name_en"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("studentNameEnLabel")}</FormLabel>
-                  <FormControl>
-                    <Input {...field} dir="ltr" className="h-10" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="student.name_ar"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("studentNameArLabel")}</FormLabel>
-                  <FormControl>
-                    <Input {...field} dir="rtl" className="h-10" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="student.email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("studentEmailLabel")}</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="email" dir="ltr" className="h-10" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="student.password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("studentPasswordLabel")}</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="password" className="h-10" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="student.password_confirmation"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t("studentPasswordConfirmationLabel")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input {...field} type="password" className="h-10" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <SelectField
-              control={control}
-              name="student.gender"
-              label={t("genderLabel")}
-              placeholder={t("genderPlaceholder")}
-              options={[
-                { value: "male", label: t("genderMale") },
-                { value: "female", label: t("genderFemale") },
-              ]}
-            />
-            <SelectField
-              control={control}
-              name="student.nationality_id"
-              label={t("nationalityLabel")}
-              placeholder={t("nationalityPlaceholder")}
-              options={nationalityOptions}
-              onSelect={() => form.setValue("student.governorate_id", "")}
-            />
-            <SelectField
-              control={control}
-              name="student.governorate_id"
-              label={t("governorateLabel")}
-              placeholder={t("governoratePlaceholder")}
-              options={toOptions(studentGovernorates)}
-              disabled={!studentNationalityId}
-            />
-            <SelectField
-              control={control}
-              name="student.blood_type_id"
-              label={t("bloodTypeLabel")}
-              placeholder={t("bloodTypePlaceholder")}
-              options={bloodTypeOptions}
-            />
+          <div className="flex flex-col gap-6">
+            <Section title={t("sectionPersonalInfo")}>
+              <FormField
+                control={control}
+                name="student.name_en"
+                render={({ field }) => (
+                  <FormItem className={cn(activeNameLocale !== "en" && "hidden")}>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>{t("studentNameEnLabel")}</FormLabel>
+                      <LocaleTabs
+                        value={activeNameLocale}
+                        onChange={setActiveNameLocale}
+                        errors={{
+                          en: !!form.formState.errors.student?.name_en,
+                          ar: !!form.formState.errors.student?.name_ar,
+                        }}
+                      />
+                    </div>
+                    <FormControl>
+                      <Input {...field} dir="ltr" className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="student.name_ar"
+                render={({ field }) => (
+                  <FormItem className={cn(activeNameLocale !== "ar" && "hidden")}>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>{t("studentNameArLabel")}</FormLabel>
+                      <LocaleTabs
+                        value={activeNameLocale}
+                        onChange={setActiveNameLocale}
+                        errors={{
+                          en: !!form.formState.errors.student?.name_en,
+                          ar: !!form.formState.errors.student?.name_ar,
+                        }}
+                      />
+                    </div>
+                    <FormControl>
+                      <Input {...field} dir="rtl" className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <SelectField
+                control={control}
+                name="student.gender"
+                label={t("genderLabel")}
+                placeholder={t("genderPlaceholder")}
+                options={[
+                  { value: "male", label: t("genderMale") },
+                  { value: "female", label: t("genderFemale") },
+                ]}
+              />
+            </Section>
+
+            <Section title={t("sectionLocation")}>
+              <SelectField
+                control={control}
+                name="student.nationality_id"
+                label={t("nationalityLabel")}
+                placeholder={t("nationalityPlaceholder")}
+                options={nationalityOptions}
+                disabled
+              />
+              <SelectField
+                control={control}
+                name="student.governorate_id"
+                label={t("governorateLabel")}
+                placeholder={t("governoratePlaceholder")}
+                options={toOptions(studentGovernorates)}
+                disabled={!studentNationalityId}
+              />
+              <SelectField
+                control={control}
+                name="student.blood_type_id"
+                label={t("bloodTypeLabel")}
+                placeholder={t("bloodTypePlaceholder")}
+                options={bloodTypeOptions}
+              />
+            </Section>
+
+            <Section title={t("sectionAccount")}>
+              <FormField
+                control={control}
+                name="student.email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("studentEmailLabel")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" dir="ltr" className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="student.password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("studentPasswordLabel")}</FormLabel>
+                    <FormControl>
+                      <PasswordInput {...field} className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="student.password_confirmation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      {t("studentPasswordConfirmationLabel")}
+                    </FormLabel>
+                    <FormControl>
+                      <PasswordInput {...field} className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Section>
           </div>
         )}
 
         {step === 2 && (
-          <div className="flex flex-col gap-4">
+          <Section title={t("sectionAcademicAssignment")}>
             <SelectField
               control={control}
               name="student.stage_id"
@@ -610,11 +701,11 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
               placeholder={t("academicYearPlaceholder")}
               options={academicYearOptions}
             />
-          </div>
+          </Section>
         )}
 
         {step === 3 && (
-          <div className="flex flex-col gap-4">
+          <Section title={t("sectionAccount")}>
             <FormField
               control={control}
               name="parent.email"
@@ -635,7 +726,7 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
                 <FormItem>
                   <FormLabel>{t("parentPasswordLabel")}</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" className="h-10" />
+                    <PasswordInput {...field} className="h-10" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -650,49 +741,38 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
                     {t("parentPasswordConfirmationLabel")}
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" className="h-10" />
+                    <PasswordInput {...field} className="h-10" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
+          </Section>
         )}
 
         {step === 4 && (
-          <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-4">
-              <h3 className="font-medium">{t("fatherHeading")}</h3>
-              <GuardianFields
-                control={control}
-                prefix="father"
-                nationalities={nationalityOptions}
-                bloodTypes={bloodTypeOptions}
-                religions={religionOptions}
-                governorateOptions={toOptions(fatherGovernorates)}
-                onNationalityChange={() =>
-                  form.setValue("father.governorate_id", "")
-                }
-              />
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="font-medium">{t("motherHeading")}</h3>
-              <GuardianFields
-                control={control}
-                prefix="mother"
-                nationalities={nationalityOptions}
-                bloodTypes={bloodTypeOptions}
-                religions={religionOptions}
-                governorateOptions={toOptions(motherGovernorates)}
-                onNationalityChange={() =>
-                  form.setValue("mother.governorate_id", "")
-                }
-              />
-            </div>
-          </div>
+          <GuardianFields
+            control={control}
+            prefix="father"
+            nationalities={nationalityOptions}
+            bloodTypes={bloodTypeOptions}
+            religions={religionOptions}
+            governorateOptions={toOptions(fatherGovernorates)}
+          />
         )}
 
         {step === 5 && (
+          <GuardianFields
+            control={control}
+            prefix="mother"
+            nationalities={nationalityOptions}
+            bloodTypes={bloodTypeOptions}
+            religions={religionOptions}
+            governorateOptions={toOptions(motherGovernorates)}
+          />
+        )}
+
+        {step === 6 && (
           <div className="flex flex-col gap-6">
             <p className="text-sm text-muted-foreground">
               {t("confirmDescription")}

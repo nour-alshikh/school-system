@@ -1,15 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { apiFetch, ApiError } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
-import { cn } from "@/lib/utils";
 import {
   Form,
   FormControl,
@@ -21,7 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { LocaleTabs } from "@/components/locale-tabs";
 import {
   createAcademicYearSchema,
   type AcademicYearFormValues,
@@ -29,8 +27,7 @@ import {
 import type { AcademicYear } from "./types";
 
 const defaultValues: AcademicYearFormValues = {
-  name_en: "",
-  name_ar: "",
+  year: "",
   is_current: false,
 };
 
@@ -38,8 +35,7 @@ function valuesFromAcademicYear(
   academicYear: AcademicYear
 ): AcademicYearFormValues {
   return {
-    name_en: academicYear.name_en,
-    name_ar: academicYear.name_ar,
+    year: String(academicYear.year),
     is_current: academicYear.is_current,
   };
 }
@@ -55,7 +51,6 @@ export function AcademicYearForm({
   const tValidation = useTranslations("Validation");
   const tErrors = useTranslations("Errors");
   const queryClient = useQueryClient();
-  const [activeLocale, setActiveLocale] = useState<"en" | "ar">("en");
 
   const schema = useMemo(
     () => createAcademicYearSchema(tValidation),
@@ -72,7 +67,7 @@ export function AcademicYearForm({
   const mutation = useMutation({
     mutationFn: (values: AcademicYearFormValues) => {
       const payload = {
-        name: { en: values.name_en, ar: values.name_ar },
+        year: Number(values.year),
         is_current: values.is_current,
       };
 
@@ -93,24 +88,10 @@ export function AcademicYearForm({
       onSuccess?.();
     },
     onError: (err) => {
-      // The backend validates the nested "name.en"/"name.ar" keys (they
-      // mirror the request payload's shape); remap them to this form's flat
-      // field names before handing off to applyServerErrors.
-      const remapped =
-        err instanceof ApiError && err.errors
-          ? new ApiError(err.status, err.message, {
-              ...(err.errors["name.en"] && { name_en: err.errors["name.en"] }),
-              ...(err.errors["name.ar"] && { name_ar: err.errors["name.ar"] }),
-              ...(err.errors["is_current"] && {
-                is_current: err.errors["is_current"],
-              }),
-            })
-          : err;
-
       const message = applyServerErrors(
         form,
-        remapped,
-        ["name_en", "name_ar", "is_current"],
+        err,
+        ["year", "is_current"],
         tErrors("somethingWentWrong")
       );
       if (message) toast.error(message);
@@ -120,60 +101,24 @@ export function AcademicYearForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(
-          (values) => mutation.mutate(values),
-          // A hidden tab's own error would otherwise render invisibly —
-          // jump to whichever locale actually failed validation.
-          (errors) => {
-            if (errors.name_en && activeLocale !== "en") setActiveLocale("en");
-            else if (errors.name_ar && activeLocale !== "ar")
-              setActiveLocale("ar");
-          }
-        )}
+        onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         className="flex flex-col gap-4"
       >
         <FormField
           control={form.control}
-          name="name_en"
+          name="year"
           render={({ field }) => (
-            <FormItem className={cn(activeLocale !== "en" && "hidden")}>
-              <div className="flex items-center justify-between">
-                <FormLabel>{t("nameEnLabel")}</FormLabel>
-                <LocaleTabs
-                  value={activeLocale}
-                  onChange={setActiveLocale}
-                  errors={{
-                    en: !!form.formState.errors.name_en,
-                    ar: !!form.formState.errors.name_ar,
-                  }}
-                />
-              </div>
+            <FormItem>
+              <FormLabel>{t("yearLabel")}</FormLabel>
               <FormControl>
-                <Input {...field} dir="ltr" className="h-10" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="name_ar"
-          render={({ field }) => (
-            <FormItem className={cn(activeLocale !== "ar" && "hidden")}>
-              <div className="flex items-center justify-between">
-                <FormLabel>{t("nameArLabel")}</FormLabel>
-                <LocaleTabs
-                  value={activeLocale}
-                  onChange={setActiveLocale}
-                  errors={{
-                    en: !!form.formState.errors.name_en,
-                    ar: !!form.formState.errors.name_ar,
-                  }}
+                <Input
+                  {...field}
+                  type="number"
+                  inputMode="numeric"
+                  placeholder={t("yearPlaceholder")}
+                  dir="ltr"
+                  className="h-10"
                 />
-              </div>
-              <FormControl>
-                <Input {...field} dir="rtl" className="h-10" />
               </FormControl>
               <FormMessage />
             </FormItem>

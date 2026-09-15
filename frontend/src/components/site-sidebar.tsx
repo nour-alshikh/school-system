@@ -4,12 +4,15 @@ import { useState, type ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import {
   CalendarRange,
+  ChevronDown,
   DoorOpen,
   GraduationCap,
   LayoutDashboard,
   Layers,
+  List,
   PanelLeftClose,
   PanelLeftOpen,
+  Plus,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -33,6 +36,82 @@ function readStoredCollapsed(): boolean {
   } catch {
     return false;
   }
+}
+
+function readStoredGroupOpen(key: string, fallback: boolean): boolean {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value === "1";
+  } catch {
+    return fallback;
+  }
+}
+
+// Groups an index page + its create page under one collapsible entry
+// (e.g. "Students" -> "All students" / "Add student") instead of two flat
+// top-level links. Collapses to a single link to `fallbackHref` when the
+// whole sidebar itself is icon-only, since there's no room to nest there.
+function SidebarGroup({
+  icon: Icon,
+  label,
+  collapsed,
+  storageKey,
+  fallbackHref,
+  children,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  collapsed: boolean;
+  storageKey: string;
+  fallbackHref: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(() => readStoredGroupOpen(storageKey, true));
+
+  if (collapsed) {
+    return (
+      <SidebarLink
+        href={fallbackHref}
+        icon={Icon}
+        label={label}
+        collapsed={collapsed}
+      />
+    );
+  }
+
+  function toggle() {
+    setOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(storageKey, next ? "1" : "0");
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }
+
+  return (
+    <div className="flex flex-col gap-1" data-animate="sidebar-link">
+      <button
+        type="button"
+        onClick={toggle}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted"
+      >
+        <Icon className="size-4 shrink-0" />
+        <span className="flex-1 truncate text-start">{label}</span>
+        <ChevronDown
+          className={cn(
+            "size-4 shrink-0 text-muted-foreground transition-transform",
+            open && "rotate-180"
+          )}
+        />
+      </button>
+      {open && <div className="flex flex-col gap-1 ps-4">{children}</div>}
+    </div>
+  );
 }
 
 function SidebarLink({
@@ -143,12 +222,26 @@ export function SiteSidebar() {
       />
 
       {can("manage-students") && (
-        <SidebarLink
-          href="/students"
+        <SidebarGroup
           icon={UserPlus}
           label={t("students")}
           collapsed={collapsed}
-        />
+          storageKey="sidebar-students-group-open"
+          fallbackHref="/students"
+        >
+          <SidebarLink
+            href="/students"
+            icon={List}
+            label={t("allStudents")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/students/new"
+            icon={Plus}
+            label={t("addStudent")}
+            collapsed={false}
+          />
+        </SidebarGroup>
       )}
 
       {can("manage-users") && (

@@ -1,37 +1,190 @@
 "use client";
 
-import { useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { apiFetch, ApiError } from "@/lib/api";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useStaggerIn } from "@/hooks/use-stagger-in";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PageLoader } from "@/components/page-loader";
-import { StudentWizard } from "./student-wizard";
+import { TableSkeletonRows } from "@/components/table-skeleton";
+import { SearchInput } from "@/components/search-input";
+import type { Student } from "./types";
+import type { StageType, GradeType, ClassroomType } from "@/types/generated";
+
+function nameOf(locale: string, item: { name_en: string; name_ar: string }) {
+  return locale === "ar" ? item.name_ar : item.name_en;
+}
 
 export function StudentsPage() {
   const t = useTranslations("StudentsPage");
-  const { user, isLoading, can } = useAuth();
+  const locale = useLocale();
+  const { user, isLoading: isAuthLoading, can } = useAuth();
   const router = useRouter();
 
+  const canManage = can("manage-students");
+
+  const [searchInput, setSearchInput] = useState("");
+  const search = useDebouncedValue(searchInput, 300);
+
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isAuthLoading && !user) {
       router.replace("/login?redirect=/students");
     }
-  }, [isLoading, user, router]);
+  }, [isAuthLoading, user, router]);
 
   useEffect(() => {
-    if (!isLoading && user && !can("manage-students")) {
+    if (!isAuthLoading && user && !canManage) {
       router.replace("/dashboard");
     }
-  }, [isLoading, user, can, router]);
+  }, [isAuthLoading, user, canManage, router]);
 
-  if (isLoading || !user || !can("manage-students")) {
+  const {
+    data: studentsData,
+    isLoading: isLoadingStudents,
+    error: studentsError,
+  } = useQuery({
+    queryKey: ["students"],
+    queryFn: () =>
+      apiFetch<{ students: Student[] }>("/api/students").then(
+        (d) => d.students
+      ),
+    enabled: !isAuthLoading && !!user && canManage,
+  });
+  const students = studentsData ?? [];
+
+  const { data: stagesData } = useQuery({
+    queryKey: ["stages"],
+    queryFn: () =>
+      apiFetch<{ stages: StageType[] }>("/api/stages").then((d) => d.stages),
+    enabled: !isAuthLoading && !!user && canManage,
+  });
+  const stageNameById = new Map(
+    (stagesData ?? []).map((s) => [s.id, nameOf(locale, s)])
+  );
+
+  const { data: gradesData } = useQuery({
+    queryKey: ["grades"],
+    queryFn: () =>
+      apiFetch<{ grades: GradeType[] }>("/api/grades").then((d) => d.grades),
+    enabled: !isAuthLoading && !!user && canManage,
+  });
+  const gradeNameById = new Map(
+    (gradesData ?? []).map((g) => [g.id, nameOf(locale, g)])
+  );
+
+  const { data: classroomsData } = useQuery({
+    queryKey: ["classrooms"],
+    queryFn: () =>
+      apiFetch<{ classrooms: ClassroomType[] }>("/api/classrooms").then(
+        (d) => d.classrooms
+      ),
+    enabled: !isAuthLoading && !!user && canManage,
+  });
+  const classroomNameById = new Map(
+    (classroomsData ?? []).map((c) => [c.id, c.name])
+  );
+
+  useEffect(() => {
+    if (!studentsError) return;
+    toast.error(
+      studentsError instanceof ApiError ? studentsError.message : t("loadError")
+    );
+  }, [studentsError, t]);
+
+  const filtered = search
+    ? students.filter((s) => {
+        const q = search.toLowerCase();
+        return (
+          s.name_en.toLowerCase().includes(q) ||
+          s.name_ar.toLowerCase().includes(q) ||
+          s.email.toLowerCase().includes(q)
+        );
+      })
+    : students;
+
+  const rowsRef = useStaggerIn<HTMLDivElement>({
+    selector: "[data-slot='table-body'] [data-slot='table-row']",
+    deps: [filtered.length, isLoadingStudents],
+  });
+
+  if (isAuthLoading || !user || !canManage) {
     return <PageLoader />;
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 p-6">
-      <h1 className="text-lg font-semibold">{t("heading")}</h1>
-      <StudentWizard />
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold">{t("indexHeading")}</h1>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => router.push("/students/new")}
+        >
+          <Plus className="size-4" />
+          {t("newStudent")}
+        </Button>
+      </div>
+
+      <SearchInput
+        value={searchInput}
+        onChange={setSearchInput}
+        placeholder={t("searchPlaceholder")}
+      />
+
+      {!isLoadingStudents && filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          {search ? t("noResults") : t("noStudents")}
+        </p>
+      ) : (
+        <div ref={rowsRef}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("nameColumn")}</TableHead>
+                <TableHead>{t("emailColumn")}</TableHead>
+                <TableHead>{t("classColumn")}</TableHead>
+                <TableHead>{t("parentEmailColumn")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoadingStudents ? (
+                <TableSkeletonRows columns={4} />
+              ) : (
+                filtered.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell>
+                      {locale === "ar" ? student.name_ar : student.name_en}
+                    </TableCell>
+                    <TableCell>{student.email}</TableCell>
+                    <TableCell>
+                      {stageNameById.get(student.stage_id) ?? "—"}
+                      {" / "}
+                      {gradeNameById.get(student.grade_id) ?? "—"}
+                      {" / "}
+                      {classroomNameById.get(student.classroom_id) ?? "—"}
+                    </TableCell>
+                    <TableCell>{student.parent_email}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </main>
   );
 }

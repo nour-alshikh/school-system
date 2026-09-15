@@ -7,8 +7,10 @@ type Translate = (key: string) => string;
 
 export function createAcademicYearSchema(t: Translate) {
   return z.object({
-    name_en: z.string().min(1, t("academicYearNameEnRequired")).max(255),
-    name_ar: z.string().min(1, t("academicYearNameArRequired")).max(255),
+    year: z
+      .string()
+      .min(1, t("academicYearYearRequired"))
+      .regex(/^\d{4}$/, t("academicYearYearInvalid")),
     is_current: z.boolean(),
   });
 }
