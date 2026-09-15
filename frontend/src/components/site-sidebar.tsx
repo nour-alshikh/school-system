@@ -3,12 +3,14 @@
 import { useState, type ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import {
+  CalendarRange,
   DoorOpen,
   GraduationCap,
   LayoutDashboard,
   Layers,
   PanelLeftClose,
   PanelLeftOpen,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
@@ -133,6 +135,21 @@ export function SiteSidebar() {
         label={t("classrooms")}
         collapsed={collapsed}
       />
+      <SidebarLink
+        href="/academic-years"
+        icon={CalendarRange}
+        label={t("academicYears")}
+        collapsed={collapsed}
+      />
+
+      {can("manage-students") && (
+        <SidebarLink
+          href="/students"
+          icon={UserPlus}
+          label={t("students")}
+          collapsed={collapsed}
+        />
+      )}
 
       {can("manage-users") && (
         <SidebarLink

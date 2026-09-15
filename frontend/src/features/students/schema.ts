@@ -1,0 +1,199 @@
+import { z } from "zod";
+import type { Path } from "react-hook-form";
+
+// Validation messages come from the caller's `useTranslations("Validation")`
+// so they follow the active locale — see lib/schemas.ts for the same
+// convention on the other (non-feature-foldered) forms.
+type Translate = (key: string) => string;
+
+const GENDERS = ["male", "female"] satisfies readonly z.infer<
+  ReturnType<typeof genderSchema>
+>[];
+
+function genderSchema() {
+  return z.enum(["male", "female"]);
+}
+
+function guardianSchema(t: Translate) {
+  return z.object({
+    name: z.string().min(1, t("guardianNameRequired")).max(255),
+    job: z.string().min(1, t("guardianJobRequired")).max(255),
+    national_id: z.string().min(1, t("guardianNationalIdRequired")).max(255),
+    phone: z.string().min(1, t("guardianPhoneRequired")).max(255),
+    nationality_id: z.string().min(1, t("nationalityRequired")),
+    governorate_id: z.string().min(1, t("governorateRequired")),
+    blood_type_id: z.string().min(1, t("bloodTypeRequired")),
+    religion_id: z.string().min(1, t("religionRequired")),
+    address: z.string().min(1, t("guardianAddressRequired")),
+  });
+}
+
+export function createStudentWizardSchema(t: Translate) {
+  return z.object({
+    student: z
+      .object({
+        name_en: z.string().min(1, t("studentNameEnRequired")).max(255),
+        name_ar: z.string().min(1, t("studentNameArRequired")).max(255),
+        email: z.string().min(1, t("passwordRequired")).email(t("emailInvalid")),
+        password: z.string().min(8, t("passwordMin")),
+        password_confirmation: z.string().min(1, t("passwordRequired")),
+        gender: genderSchema(),
+        nationality_id: z.string().min(1, t("nationalityRequired")),
+        governorate_id: z.string().min(1, t("governorateRequired")),
+        blood_type_id: z.string().min(1, t("bloodTypeRequired")),
+        stage_id: z.string().min(1, t("stageRequired")),
+        grade_id: z.string().min(1, t("gradeRequired")),
+        classroom_id: z.string().min(1, t("classroomRequired")),
+        academic_year_id: z.string().min(1, t("academicYearRequired")),
+      })
+      .refine((s) => s.password === s.password_confirmation, {
+        message: t("passwordsDontMatch"),
+        path: ["password_confirmation"],
+      }),
+    parent: z
+      .object({
+        email: z.string().min(1, t("passwordRequired")).email(t("emailInvalid")),
+        password: z.string().min(8, t("passwordMin")),
+        password_confirmation: z.string().min(1, t("passwordRequired")),
+      })
+      .refine((p) => p.password === p.password_confirmation, {
+        message: t("passwordsDontMatch"),
+        path: ["password_confirmation"],
+      }),
+    father: guardianSchema(t),
+    mother: guardianSchema(t),
+  });
+}
+
+export type StudentWizardValues = z.infer<
+  ReturnType<typeof createStudentWizardSchema>
+>;
+
+export type Gender = (typeof GENDERS)[number];
+export { GENDERS };
+
+export const STEP_FIELDS: Record<number, Path<StudentWizardValues>[]> = {
+  1: [
+    "student.name_en",
+    "student.name_ar",
+    "student.email",
+    "student.password",
+    "student.password_confirmation",
+    "student.gender",
+    "student.nationality_id",
+    "student.governorate_id",
+    "student.blood_type_id",
+  ],
+  2: [
+    "student.stage_id",
+    "student.grade_id",
+    "student.classroom_id",
+    "student.academic_year_id",
+  ],
+  3: ["parent.email", "parent.password", "parent.password_confirmation"],
+  4: [
+    "father.name",
+    "father.job",
+    "father.national_id",
+    "father.phone",
+    "father.nationality_id",
+    "father.governorate_id",
+    "father.blood_type_id",
+    "father.religion_id",
+    "father.address",
+    "mother.name",
+    "mother.job",
+    "mother.national_id",
+    "mother.phone",
+    "mother.nationality_id",
+    "mother.governorate_id",
+    "mother.blood_type_id",
+    "mother.religion_id",
+    "mother.address",
+  ],
+};
+
+export const TOTAL_STEPS = 5;
+
+export const defaultStudentWizardValues: StudentWizardValues = {
+  student: {
+    name_en: "",
+    name_ar: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+    gender: "male",
+    nationality_id: "",
+    governorate_id: "",
+    blood_type_id: "",
+    stage_id: "",
+    grade_id: "",
+    classroom_id: "",
+    academic_year_id: "",
+  },
+  parent: {
+    email: "",
+    password: "",
+    password_confirmation: "",
+  },
+  father: {
+    name: "",
+    job: "",
+    national_id: "",
+    phone: "",
+    nationality_id: "",
+    governorate_id: "",
+    blood_type_id: "",
+    religion_id: "",
+    address: "",
+  },
+  mother: {
+    name: "",
+    job: "",
+    national_id: "",
+    phone: "",
+    nationality_id: "",
+    governorate_id: "",
+    blood_type_id: "",
+    religion_id: "",
+    address: "",
+  },
+};
+
+export function toApiPayload(values: StudentWizardValues) {
+  return {
+    student: {
+      name: { en: values.student.name_en, ar: values.student.name_ar },
+      email: values.student.email,
+      password: values.student.password,
+      password_confirmation: values.student.password_confirmation,
+      gender: values.student.gender,
+      nationality_id: Number(values.student.nationality_id),
+      governorate_id: Number(values.student.governorate_id),
+      blood_type_id: Number(values.student.blood_type_id),
+      stage_id: Number(values.student.stage_id),
+      grade_id: Number(values.student.grade_id),
+      classroom_id: Number(values.student.classroom_id),
+      academic_year_id: Number(values.student.academic_year_id),
+    },
+    parent: {
+      email: values.parent.email,
+      password: values.parent.password,
+      password_confirmation: values.parent.password_confirmation,
+    },
+    father: {
+      ...values.father,
+      nationality_id: Number(values.father.nationality_id),
+      governorate_id: Number(values.father.governorate_id),
+      blood_type_id: Number(values.father.blood_type_id),
+      religion_id: Number(values.father.religion_id),
+    },
+    mother: {
+      ...values.mother,
+      nationality_id: Number(values.mother.nationality_id),
+      governorate_id: Number(values.mother.governorate_id),
+      blood_type_id: Number(values.mother.blood_type_id),
+      religion_id: Number(values.mother.religion_id),
+    },
+  };
+}
