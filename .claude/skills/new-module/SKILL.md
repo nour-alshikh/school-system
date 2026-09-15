@@ -93,7 +93,11 @@ copy that part of them).
    "Edit") opens it via `dialogOpen`/`editingStage` state (`null` = create, a
    record = edit); the form's `onSuccess` closes the dialog. See
    `stages-page.tsx` (not `Post`, which predates this and still renders its
-   form inline). Gate on
+   form inline). Both single-row delete and bulk delete must confirm through
+   `src/components/confirm-dialog.tsx`'s `ConfirmDialog` (never
+   `window.confirm`, never deleting straight from the click handler) — keep
+   the pending record/selection in state, open the dialog, and call
+   `mutate()` from its `onConfirm`; see `stages-page.tsx`. Gate on
    `useAuth()`'s `user`/`isLoading` the same way `dashboard/page.tsx` does,
    rendering `<PageLoader />` (a centered spinner, not "Loading…" text)
    while that resolves; the list's own `isLoading` renders
@@ -140,4 +144,5 @@ copy that part of them).
 - ✅ Frontend: `features/<model>/` (types, schema, form, page) + thin
   `app/[locale]/<model>s/page.tsx` re-export
 - ✅ Loading states use `PageLoader`/`TableSkeletonRows`, not text
+- ✅ Delete and bulk delete confirm via `ConfirmDialog`, not `window.confirm`
 - ✅ Nav link added only if the module is meant to be user-facing
