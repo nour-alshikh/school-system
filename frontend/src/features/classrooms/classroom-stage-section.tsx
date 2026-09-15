@@ -9,6 +9,7 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   Table,
   TableBody,
@@ -45,6 +46,10 @@ export function ClassroomStageSection({
   const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [deletingClassroom, setDeletingClassroom] = useState<Classroom | null>(
+    null
+  );
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
 
   // A search change should jump this section back to page 1 and drop any
   // selection made on the previous result set — done here (during render,
@@ -96,6 +101,7 @@ export function ClassroomStageSection({
         exact: false,
       });
       toast.success(t("deleteSuccess"));
+      setDeletingClassroom(null);
     },
     onError: (err) => {
       toast.error(err instanceof ApiError ? err.message : t("deleteError"));
@@ -132,12 +138,14 @@ export function ClassroomStageSection({
   });
 
   function handleBulkDelete() {
-    const ids = Array.from(selectedIds);
-    if (ids.length === 0) return;
-    if (!window.confirm(t("confirmBulkDelete", { count: ids.length }))) {
-      return;
-    }
-    bulkDeleteMutation.mutate(ids);
+    if (selectedIds.size === 0) return;
+    setBulkDeleteConfirmOpen(true);
+  }
+
+  function handleConfirmBulkDelete() {
+    bulkDeleteMutation.mutate(Array.from(selectedIds), {
+      onSuccess: () => setBulkDeleteConfirmOpen(false),
+    });
   }
 
   function toggleRow(id: number, checked: boolean) {
@@ -269,7 +277,7 @@ export function ClassroomStageSection({
                                   title={t("delete")}
                                   disabled={deletingId === classroom.id}
                                   onClick={() =>
-                                    deleteMutation.mutate(classroom)
+                                    setDeletingClassroom(classroom)
                                   }
                                 >
                                   {deletingId === classroom.id ? (
@@ -295,6 +303,32 @@ export function ClassroomStageSection({
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deletingClassroom}
+        onOpenChange={(open) => !open && setDeletingClassroom(null)}
+        title={t("confirmDeleteTitle")}
+        description={t("confirmDeleteDescription", {
+          name: deletingClassroom?.name ?? "",
+        })}
+        confirmLabel={t("delete")}
+        cancelLabel={t("cancel")}
+        isLoading={deleteMutation.isPending}
+        onConfirm={() =>
+          deletingClassroom && deleteMutation.mutate(deletingClassroom)
+        }
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteConfirmOpen}
+        onOpenChange={setBulkDeleteConfirmOpen}
+        title={t("confirmBulkDeleteTitle")}
+        description={t("confirmBulkDelete", { count: selectedIds.size })}
+        confirmLabel={t("delete")}
+        cancelLabel={t("cancel")}
+        isLoading={bulkDeleteMutation.isPending}
+        onConfirm={handleConfirmBulkDelete}
+      />
     </div>
   );
 }

@@ -145,7 +145,11 @@
     "deleteSelected": "Delete selected ({count})",
     "confirmBulkDelete": "Delete {count} selected stage(s)? This cannot be undone.",
     "bulkDeleteSuccess": "Selected stages deleted.",
-    "bulkDeleteError": "Failed to delete selected stages."
+    "bulkDeleteError": "Failed to delete selected stages.",
+    "cancel": "Cancel",
+    "confirmDeleteTitle": "Delete stage?",
+    "confirmDeleteDescription": "This will permanently delete \"{name}\". This cannot be undone.",
+    "confirmBulkDeleteTitle": "Delete selected stages?"
   },
   "StageForm": {
     "nameEnLabel": "Name (English)",
@@ -175,7 +179,11 @@
     "deleteSelected": "Delete selected ({count})",
     "confirmBulkDelete": "Delete {count} selected grade(s)? This cannot be undone.",
     "bulkDeleteSuccess": "Selected grades deleted.",
-    "bulkDeleteError": "Failed to delete selected grades."
+    "bulkDeleteError": "Failed to delete selected grades.",
+    "cancel": "Cancel",
+    "confirmDeleteTitle": "Delete grade?",
+    "confirmDeleteDescription": "This will permanently delete \"{name}\". This cannot be undone.",
+    "confirmBulkDeleteTitle": "Delete selected grades?"
   },
   "GradeForm": {
     "stageLabel": "Stage",
@@ -207,7 +215,11 @@
     "deleteSelected": "Delete selected ({count})",
     "confirmBulkDelete": "Delete {count} selected classroom(s)? This cannot be undone.",
     "bulkDeleteSuccess": "Selected classrooms deleted.",
-    "bulkDeleteError": "Failed to delete selected classrooms."
+    "bulkDeleteError": "Failed to delete selected classrooms.",
+    "cancel": "Cancel",
+    "confirmDeleteTitle": "Delete classroom?",
+    "confirmDeleteDescription": "This will permanently delete \"{name}\". This cannot be undone.",
+    "confirmBulkDeleteTitle": "Delete selected classrooms?"
   },
   "ClassroomForm": {
     "gradeLabel": "Grade",

@@ -145,7 +145,11 @@
     "deleteSelected": "حذف المحدد ({count})",
     "confirmBulkDelete": "حذف {count} مرحلة محددة؟ لا يمكن التراجع عن هذا.",
     "bulkDeleteSuccess": "تم حذف المراحل المحددة.",
-    "bulkDeleteError": "فشل حذف المراحل المحددة."
+    "bulkDeleteError": "فشل حذف المراحل المحددة.",
+    "cancel": "إلغاء",
+    "confirmDeleteTitle": "حذف المرحلة؟",
+    "confirmDeleteDescription": "سيؤدي هذا إلى حذف \"{name}\" نهائيًا. لا يمكن التراجع عن هذا.",
+    "confirmBulkDeleteTitle": "حذف المراحل المحددة؟"
   },
   "StageForm": {
     "nameEnLabel": "الاسم (إنجليزي)",
@@ -175,7 +179,11 @@
     "deleteSelected": "حذف المحدد ({count})",
     "confirmBulkDelete": "حذف {count} صف محدد؟ لا يمكن التراجع عن هذا.",
     "bulkDeleteSuccess": "تم حذف الصفوف المحددة.",
-    "bulkDeleteError": "فشل حذف الصفوف المحددة."
+    "bulkDeleteError": "فشل حذف الصفوف المحددة.",
+    "cancel": "إلغاء",
+    "confirmDeleteTitle": "حذف الصف؟",
+    "confirmDeleteDescription": "سيؤدي هذا إلى حذف \"{name}\" نهائيًا. لا يمكن التراجع عن هذا.",
+    "confirmBulkDeleteTitle": "حذف الصفوف المحددة؟"
   },
   "GradeForm": {
     "stageLabel": "المرحلة",
@@ -207,7 +215,11 @@
     "deleteSelected": "حذف المحدد ({count})",
     "confirmBulkDelete": "حذف {count} فصل محدد؟ لا يمكن التراجع عن هذا.",
     "bulkDeleteSuccess": "تم حذف الفصول المحددة.",
-    "bulkDeleteError": "فشل حذف الفصول المحددة."
+    "bulkDeleteError": "فشل حذف الفصول المحددة.",
+    "cancel": "إلغاء",
+    "confirmDeleteTitle": "حذف الفصل؟",
+    "confirmDeleteDescription": "سيؤدي هذا إلى حذف \"{name}\" نهائيًا. لا يمكن التراجع عن هذا.",
+    "confirmBulkDeleteTitle": "حذف الفصول المحددة؟"
   },
   "ClassroomForm": {
     "gradeLabel": "الصف",

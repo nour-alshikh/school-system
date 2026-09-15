@@ -11,6 +11,7 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   Dialog,
   DialogContent,
@@ -60,6 +61,8 @@ export function GradesPage() {
   const search = useDebouncedValue(searchInput, 300);
   const [stageFilter, setStageFilter] = useState<string>(ALL_STAGES);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [deletingGrade, setDeletingGrade] = useState<Grade | null>(null);
+  const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
 
   function openCreateDialog() {
     setEditingGrade(null);
@@ -161,6 +164,7 @@ export function GradesPage() {
       queryClient.invalidateQueries({ queryKey: ["grades"], exact: false });
       toast.success(t("deleteSuccess"));
       if (editingGrade?.id === grade.id) setDialogOpen(false);
+      setDeletingGrade(null);
     },
     onError: (err) => {
       toast.error(err instanceof ApiError ? err.message : t("deleteError"));
@@ -194,12 +198,14 @@ export function GradesPage() {
   });
 
   function handleBulkDelete() {
-    const ids = Array.from(selectedIds);
-    if (ids.length === 0) return;
-    if (!window.confirm(t("confirmBulkDelete", { count: ids.length }))) {
-      return;
-    }
-    bulkDeleteMutation.mutate(ids);
+    if (selectedIds.size === 0) return;
+    setBulkDeleteConfirmOpen(true);
+  }
+
+  function handleConfirmBulkDelete() {
+    bulkDeleteMutation.mutate(Array.from(selectedIds), {
+      onSuccess: () => setBulkDeleteConfirmOpen(false),
+    });
   }
 
   function toggleRow(id: number, checked: boolean) {
@@ -344,7 +350,7 @@ export function GradesPage() {
                             aria-label={t("delete")}
                             title={t("delete")}
                             disabled={deletingId === grade.id}
-                            onClick={() => deleteMutation.mutate(grade)}
+                            onClick={() => setDeletingGrade(grade)}
                           >
                             {deletingId === grade.id ? (
                               <Loader2 className="size-4 animate-spin" />
@@ -381,6 +387,34 @@ export function GradesPage() {
           </DialogContent>
         </Dialog>
       )}
+
+      <ConfirmDialog
+        open={!!deletingGrade}
+        onOpenChange={(open) => !open && setDeletingGrade(null)}
+        title={t("confirmDeleteTitle")}
+        description={t("confirmDeleteDescription", {
+          name: deletingGrade
+            ? locale === "ar"
+              ? deletingGrade.name_ar
+              : deletingGrade.name_en
+            : "",
+        })}
+        confirmLabel={t("delete")}
+        cancelLabel={t("cancel")}
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => deletingGrade && deleteMutation.mutate(deletingGrade)}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteConfirmOpen}
+        onOpenChange={setBulkDeleteConfirmOpen}
+        title={t("confirmBulkDeleteTitle")}
+        description={t("confirmBulkDelete", { count: selectedIds.size })}
+        confirmLabel={t("delete")}
+        cancelLabel={t("cancel")}
+        isLoading={bulkDeleteMutation.isPending}
+        onConfirm={handleConfirmBulkDelete}
+      />
     </main>
   );
 }
