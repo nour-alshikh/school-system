@@ -32,5 +32,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $user->assignRole('user');
+        $user->assignRole('admin');
     }
 }
