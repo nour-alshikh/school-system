@@ -9,6 +9,7 @@ import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -189,6 +190,11 @@ export function StagesPage() {
   const allSelected =
     stages.length > 0 && stages.every((s) => selectedIds.has(s.id));
 
+  const rowsRef = useStaggerIn<HTMLDivElement>({
+    selector: "[data-slot='table-body'] [data-slot='table-row']",
+    deps: [stages.length, page, search, isLoadingStages],
+  });
+
   if (isAuthLoading || !user) {
     return <PageLoader />;
   }
@@ -235,78 +241,80 @@ export function StagesPage() {
             {search ? t("noResults") : t("noStages")}
           </p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {canManage && (
-                  <TableHead className="w-10">
-                    <Checkbox
-                      aria-label={tTable("selectAll")}
-                      checked={allSelected}
-                      onCheckedChange={(checked) => toggleAll(!!checked)}
-                    />
-                  </TableHead>
+          <div ref={rowsRef}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {canManage && (
+                    <TableHead className="w-10">
+                      <Checkbox
+                        aria-label={tTable("selectAll")}
+                        checked={allSelected}
+                        onCheckedChange={(checked) => toggleAll(!!checked)}
+                      />
+                    </TableHead>
+                  )}
+                  <TableHead>{t("nameColumn")}</TableHead>
+                  {canManage && <TableHead />}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoadingStages ? (
+                  <TableSkeletonRows columns={canManage ? 3 : 1} />
+                ) : (
+                  stages.map((stage) => (
+                    <TableRow key={stage.id}>
+                      {canManage && (
+                        <TableCell>
+                          <Checkbox
+                            aria-label={tTable("selectRow")}
+                            checked={selectedIds.has(stage.id)}
+                            onCheckedChange={(checked) =>
+                              toggleRow(stage.id, !!checked)
+                            }
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        {locale === "ar" ? stage.name_ar : stage.name_en}
+                      </TableCell>
+                      {canManage && (
+                        <TableCell>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon-sm"
+                              aria-label={t("edit")}
+                              title={t("edit")}
+                              onClick={() => openEditDialog(stage)}
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon-sm"
+                              aria-label={t("delete")}
+                              title={t("delete")}
+                              disabled={deletingId === stage.id}
+                              onClick={() => setDeletingStage(stage)}
+                            >
+                              {deletingId === stage.id ? (
+                                <Loader2 className="size-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="size-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
                 )}
-                <TableHead>{t("nameColumn")}</TableHead>
-                {canManage && <TableHead />}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoadingStages ? (
-                <TableSkeletonRows columns={canManage ? 3 : 1} />
-              ) : (
-                stages.map((stage) => (
-                  <TableRow key={stage.id}>
-                    {canManage && (
-                      <TableCell>
-                        <Checkbox
-                          aria-label={tTable("selectRow")}
-                          checked={selectedIds.has(stage.id)}
-                          onCheckedChange={(checked) =>
-                            toggleRow(stage.id, !!checked)
-                          }
-                        />
-                      </TableCell>
-                    )}
-                    <TableCell>
-                      {locale === "ar" ? stage.name_ar : stage.name_en}
-                    </TableCell>
-                    {canManage && (
-                      <TableCell>
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon-sm"
-                            aria-label={t("edit")}
-                            title={t("edit")}
-                            onClick={() => openEditDialog(stage)}
-                          >
-                            <Pencil className="size-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon-sm"
-                            aria-label={t("delete")}
-                            title={t("delete")}
-                            disabled={deletingId === stage.id}
-                            onClick={() => setDeletingStage(stage)}
-                          >
-                            {deletingId === stage.id ? (
-                              <Loader2 className="size-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="size-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </div>
         )}
 
         {meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
