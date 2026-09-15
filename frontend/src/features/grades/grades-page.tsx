@@ -9,6 +9,7 @@ import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -224,6 +225,11 @@ export function GradesPage() {
   const allSelected =
     grades.length > 0 && grades.every((g) => selectedIds.has(g.id));
 
+  const rowsRef = useStaggerIn<HTMLDivElement>({
+    selector: "[data-slot='table-body'] [data-slot='table-row']",
+    deps: [grades.length, page, search, stageFilter, isLoadingGrades],
+  });
+
   if (isAuthLoading || !user) {
     return <PageLoader />;
   }
@@ -290,82 +296,84 @@ export function GradesPage() {
               : t("noGrades")}
           </p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {canManage && (
-                  <TableHead className="w-10">
-                    <Checkbox
-                      aria-label={tTable("selectAll")}
-                      checked={allSelected}
-                      onCheckedChange={toggleAll}
-                    />
-                  </TableHead>
+          <div ref={rowsRef}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {canManage && (
+                    <TableHead className="w-10">
+                      <Checkbox
+                        aria-label={tTable("selectAll")}
+                        checked={allSelected}
+                        onCheckedChange={toggleAll}
+                      />
+                    </TableHead>
+                  )}
+                  <TableHead>{t("nameColumn")}</TableHead>
+                  <TableHead>{t("stageColumn")}</TableHead>
+                  {canManage && <TableHead />}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoadingGrades ? (
+                  <TableSkeletonRows columns={canManage ? 4 : 2} />
+                ) : (
+                  grades.map((grade) => (
+                    <TableRow key={grade.id}>
+                      {canManage && (
+                        <TableCell>
+                          <Checkbox
+                            aria-label={tTable("selectRow")}
+                            checked={selectedIds.has(grade.id)}
+                            onCheckedChange={(checked) =>
+                              toggleRow(grade.id, checked)
+                            }
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        {locale === "ar" ? grade.name_ar : grade.name_en}
+                      </TableCell>
+                      <TableCell>
+                        {stageNameById.get(grade.stage_id) ?? "—"}
+                      </TableCell>
+                      {canManage && (
+                        <TableCell>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon-sm"
+                              aria-label={t("edit")}
+                              title={t("edit")}
+                              onClick={() => openEditDialog(grade)}
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon-sm"
+                              aria-label={t("delete")}
+                              title={t("delete")}
+                              disabled={deletingId === grade.id}
+                              onClick={() => setDeletingGrade(grade)}
+                            >
+                              {deletingId === grade.id ? (
+                                <Loader2 className="size-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="size-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))
                 )}
-                <TableHead>{t("nameColumn")}</TableHead>
-                <TableHead>{t("stageColumn")}</TableHead>
-                {canManage && <TableHead />}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoadingGrades ? (
-                <TableSkeletonRows columns={canManage ? 4 : 2} />
-              ) : (
-                grades.map((grade) => (
-                  <TableRow key={grade.id}>
-                    {canManage && (
-                      <TableCell>
-                        <Checkbox
-                          aria-label={tTable("selectRow")}
-                          checked={selectedIds.has(grade.id)}
-                          onCheckedChange={(checked) =>
-                            toggleRow(grade.id, checked)
-                          }
-                        />
-                      </TableCell>
-                    )}
-                    <TableCell>
-                      {locale === "ar" ? grade.name_ar : grade.name_en}
-                    </TableCell>
-                    <TableCell>
-                      {stageNameById.get(grade.stage_id) ?? "—"}
-                    </TableCell>
-                    {canManage && (
-                      <TableCell>
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon-sm"
-                            aria-label={t("edit")}
-                            title={t("edit")}
-                            onClick={() => openEditDialog(grade)}
-                          >
-                            <Pencil className="size-4" />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="icon-sm"
-                            aria-label={t("delete")}
-                            title={t("delete")}
-                            disabled={deletingId === grade.id}
-                            onClick={() => setDeletingGrade(grade)}
-                          >
-                            {deletingId === grade.id ? (
-                              <Loader2 className="size-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="size-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </div>
         )}
 
         {meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
