@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
         $this->call(StageSeeder::class);
         $this->call(GradeSeeder::class);
         $this->call(ClassroomSeeder::class);
+        $this->call(BloodTypeSeeder::class);
+        $this->call(ReligionSeeder::class);
+        $this->call(NationalitySeeder::class);
+        $this->call(GovernorateSeeder::class);
 
         // User::factory(10)->create();
 
