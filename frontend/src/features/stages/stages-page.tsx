@@ -322,7 +322,7 @@ export function StagesPage() {
 
       {canManage && (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
+          <DialogContent className="max-h-[85vh] sm:max-w-lg overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingStage ? t("editStage") : t("newStage")}

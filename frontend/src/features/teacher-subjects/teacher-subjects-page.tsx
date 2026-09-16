@@ -181,7 +181,7 @@ export function TeacherSubjectsPage() {
           open={!!assigningTeacher}
           onOpenChange={(open) => !open && setAssigningTeacher(null)}
         >
-          <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
+          <DialogContent className="max-h-[85vh] sm:max-w-lg overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {t("assignDialogTitle", { name: assigningTeacher?.name ?? "" })}

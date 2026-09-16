@@ -345,7 +345,7 @@ export function SubjectsPage() {
 
       {canManage && (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto">
+          <DialogContent className="max-h-[85vh] sm:max-w-xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingSubject ? t("editSubject") : t("newSubject")}
