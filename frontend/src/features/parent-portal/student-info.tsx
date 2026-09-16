@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageLoader } from "@/components/page-loader";
 import { Section, GuardianFields, type Option } from "@/features/students/guardian-fields";
 import {
@@ -35,6 +36,8 @@ const KNOWN_FIELDS = [
   "mother.nationality_id", "mother.governorate_id", "mother.blood_type_id",
   "mother.religion_id", "mother.address",
 ] as const;
+
+type TabValue = "overview" | "father" | "mother";
 
 function bilingual(locale: string, item: { name_en: string; name_ar: string }) {
   return locale === "ar" ? item.name_ar : item.name_en;
@@ -89,12 +92,13 @@ function ReadOnlyStudentSummary({ student }: { student: Student }) {
   );
 }
 
-function GuardiansForm({ student }: { student: Student }) {
+function StudentPanel({ student }: { student: Student }) {
   const t = useTranslations("ParentPortal");
   const tWizard = useTranslations("StudentWizard");
   const tValidation = useTranslations("Validation");
   const locale = useLocale();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<TabValue>("overview");
 
   const schema = useMemo(
     () => createStudentGuardiansSchema(tValidation),
@@ -170,35 +174,57 @@ function GuardiansForm({ student }: { student: Student }) {
     },
   });
 
+  function onInvalid() {
+    for (const field of KNOWN_FIELDS) {
+      if (form.getFieldState(field, form.formState).invalid) {
+        setActiveTab(field.startsWith("father.") ? "father" : "mother");
+        return;
+      }
+    }
+  }
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
+        onSubmit={form.handleSubmit((v) => mutation.mutate(v), onInvalid)}
         className="flex flex-col gap-6"
       >
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold">{tWizard("stepFather")}</h3>
-          <GuardianFields
-            control={form.control}
-            prefix="father"
-            nationalities={nationalityOptions}
-            bloodTypes={bloodTypeOptions}
-            religions={religionOptions}
-            governorateOptions={toOptions(locale, fatherGovernorates)}
-          />
-        </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as TabValue)}
+        >
+          <TabsList>
+            <TabsTrigger value="overview">{t("overviewTab")}</TabsTrigger>
+            <TabsTrigger value="father">{tWizard("stepFather")}</TabsTrigger>
+            <TabsTrigger value="mother">{tWizard("stepMother")}</TabsTrigger>
+          </TabsList>
 
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-semibold">{tWizard("stepMother")}</h3>
-          <GuardianFields
-            control={form.control}
-            prefix="mother"
-            nationalities={nationalityOptions}
-            bloodTypes={bloodTypeOptions}
-            religions={religionOptions}
-            governorateOptions={toOptions(locale, motherGovernorates)}
-          />
-        </div>
+          <TabsContent value="overview">
+            <ReadOnlyStudentSummary student={student} />
+          </TabsContent>
+
+          <TabsContent value="father">
+            <GuardianFields
+              control={form.control}
+              prefix="father"
+              nationalities={nationalityOptions}
+              bloodTypes={bloodTypeOptions}
+              religions={religionOptions}
+              governorateOptions={toOptions(locale, fatherGovernorates)}
+            />
+          </TabsContent>
+
+          <TabsContent value="mother">
+            <GuardianFields
+              control={form.control}
+              prefix="mother"
+              nationalities={nationalityOptions}
+              bloodTypes={bloodTypeOptions}
+              religions={religionOptions}
+              governorateOptions={toOptions(locale, motherGovernorates)}
+            />
+          </TabsContent>
+        </Tabs>
 
         <Button type="submit" disabled={mutation.isPending} className="self-start">
           {mutation.isPending && <Loader2 className="size-4 animate-spin" />}
@@ -228,10 +254,5 @@ export function StudentInfo() {
   if (isLoading) return <PageLoader />;
   if (!data) return null;
 
-  return (
-    <div className="flex flex-col gap-6">
-      <ReadOnlyStudentSummary student={data} />
-      <GuardiansForm student={data} />
-    </div>
-  );
+  return <StudentPanel student={data} />;
 }

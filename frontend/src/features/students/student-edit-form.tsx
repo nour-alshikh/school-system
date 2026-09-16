@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Section, SelectField, GuardianFields, type Option } from "./guardian-fields";
 import {
   createEditStudentSchema,
@@ -63,6 +64,25 @@ function toOptions(
   }));
 }
 
+type TabValue = "student" | "academic" | "parent" | "father" | "mother";
+
+// Where a field's error surfaces so an invalid submit can flip to the right
+// tab — otherwise the message renders on a panel the admin isn't looking at.
+function tabForField(field: (typeof KNOWN_FIELDS)[number]): TabValue {
+  if (field.startsWith("parent.")) return "parent";
+  if (field.startsWith("father.")) return "father";
+  if (field.startsWith("mother.")) return "mother";
+  if (
+    field === "student.stage_id" ||
+    field === "student.grade_id" ||
+    field === "student.classroom_id" ||
+    field === "student.academic_year_id"
+  ) {
+    return "academic";
+  }
+  return "student";
+}
+
 export function StudentEditForm({
   student,
   onSuccess,
@@ -75,6 +95,7 @@ export function StudentEditForm({
   const tPage = useTranslations("StudentsPage");
   const locale = useLocale();
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<TabValue>("student");
 
   const schema = useMemo(() => createEditStudentSchema(tValidation), [tValidation]);
 
@@ -184,227 +205,253 @@ export function StudentEditForm({
     },
   });
 
+  function onInvalid() {
+    for (const field of KNOWN_FIELDS) {
+      if (form.getFieldState(field, form.formState).invalid) {
+        setActiveTab(tabForField(field));
+        return;
+      }
+    }
+  }
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
+        onSubmit={form.handleSubmit((v) => mutation.mutate(v), onInvalid)}
         className="flex flex-col gap-6"
       >
-        <Section title={t("sectionPersonalInfo")}>
-          <FormField
-            control={control}
-            name="student.name_en"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("studentNameEnLabel")}</FormLabel>
-                <FormControl>
-                  <Input {...field} dir="ltr" className="h-10" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="student.name_ar"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("studentNameArLabel")}</FormLabel>
-                <FormControl>
-                  <Input {...field} dir="rtl" className="h-10" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <SelectField
-            control={control}
-            name="student.gender"
-            label={t("genderLabel")}
-            placeholder={t("genderPlaceholder")}
-            options={[
-              { value: "male", label: t("genderMale") },
-              { value: "female", label: t("genderFemale") },
-            ]}
-          />
-        </Section>
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as TabValue)}
+        >
+          <TabsList>
+            <TabsTrigger value="student">{t("stepPersonal")}</TabsTrigger>
+            <TabsTrigger value="academic">{t("stepAcademic")}</TabsTrigger>
+            <TabsTrigger value="parent">{t("stepParentAccount")}</TabsTrigger>
+            <TabsTrigger value="father">{t("stepFather")}</TabsTrigger>
+            <TabsTrigger value="mother">{t("stepMother")}</TabsTrigger>
+          </TabsList>
 
-        <Section title={t("sectionLocation")}>
-          <SelectField
-            control={control}
-            name="student.nationality_id"
-            label={t("nationalityLabel")}
-            placeholder={t("nationalityPlaceholder")}
-            options={nationalityOptions}
-            disabled
-          />
-          <SelectField
-            control={control}
-            name="student.governorate_id"
-            label={t("governorateLabel")}
-            placeholder={t("governoratePlaceholder")}
-            options={toOptions(locale, studentGovernorates)}
-          />
-          <SelectField
-            control={control}
-            name="student.blood_type_id"
-            label={t("bloodTypeLabel")}
-            placeholder={t("bloodTypePlaceholder")}
-            options={bloodTypeOptions}
-          />
-        </Section>
+          <TabsContent value="student">
+            <Section title={t("sectionPersonalInfo")}>
+              <FormField
+                control={control}
+                name="student.name_en"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("studentNameEnLabel")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} dir="ltr" className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="student.name_ar"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("studentNameArLabel")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} dir="rtl" className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <SelectField
+                control={control}
+                name="student.gender"
+                label={t("genderLabel")}
+                placeholder={t("genderPlaceholder")}
+                options={[
+                  { value: "male", label: t("genderMale") },
+                  { value: "female", label: t("genderFemale") },
+                ]}
+              />
+            </Section>
 
-        <Section title={t("sectionAccount")}>
-          <FormField
-            control={control}
-            name="student.email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("studentEmailLabel")}</FormLabel>
-                <FormControl>
-                  <Input {...field} type="email" dir="ltr" className="h-10" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="student.password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{tPage("newPasswordLabel")}</FormLabel>
-                <FormControl>
-                  <PasswordInput {...field} className="h-10" />
-                </FormControl>
-                <p className="text-xs text-muted-foreground">
-                  {tPage("newPasswordHint")}
-                </p>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="student.password_confirmation"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("studentPasswordConfirmationLabel")}</FormLabel>
-                <FormControl>
-                  <PasswordInput {...field} className="h-10" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </Section>
+            <Section title={t("sectionLocation")}>
+              <SelectField
+                control={control}
+                name="student.nationality_id"
+                label={t("nationalityLabel")}
+                placeholder={t("nationalityPlaceholder")}
+                options={nationalityOptions}
+                disabled
+              />
+              <SelectField
+                control={control}
+                name="student.governorate_id"
+                label={t("governorateLabel")}
+                placeholder={t("governoratePlaceholder")}
+                options={toOptions(locale, studentGovernorates)}
+              />
+              <SelectField
+                control={control}
+                name="student.blood_type_id"
+                label={t("bloodTypeLabel")}
+                placeholder={t("bloodTypePlaceholder")}
+                options={bloodTypeOptions}
+              />
+            </Section>
 
-        <Section title={t("sectionAcademicAssignment")}>
-          <SelectField
-            control={control}
-            name="student.stage_id"
-            label={t("stageLabel")}
-            placeholder={t("stagePlaceholder")}
-            options={stageOptions}
-            onSelect={() => {
-              form.setValue("student.grade_id", "");
-              form.setValue("student.classroom_id", "");
-            }}
-          />
-          <SelectField
-            control={control}
-            name="student.grade_id"
-            label={t("gradeLabel")}
-            placeholder={t("gradePlaceholder")}
-            options={gradeOptions}
-            disabled={!stageId}
-            onSelect={() => form.setValue("student.classroom_id", "")}
-          />
-          <SelectField
-            control={control}
-            name="student.classroom_id"
-            label={t("classroomLabel")}
-            placeholder={t("classroomPlaceholder")}
-            options={classroomOptions}
-            disabled={!gradeId}
-          />
-          <SelectField
-            control={control}
-            name="student.academic_year_id"
-            label={t("academicYearLabel")}
-            placeholder={t("academicYearPlaceholder")}
-            options={academicYearOptions}
-          />
-        </Section>
+            <Section title={t("sectionAccount")}>
+              <FormField
+                control={control}
+                name="student.email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("studentEmailLabel")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" dir="ltr" className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="student.password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{tPage("newPasswordLabel")}</FormLabel>
+                    <FormControl>
+                      <PasswordInput {...field} className="h-10" />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      {tPage("newPasswordHint")}
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="student.password_confirmation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("studentPasswordConfirmationLabel")}</FormLabel>
+                    <FormControl>
+                      <PasswordInput {...field} className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Section>
+          </TabsContent>
 
-        <Section title={t("sectionAccount")}>
-          <FormField
-            control={control}
-            name="parent.email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("parentEmailLabel")}</FormLabel>
-                <FormControl>
-                  <Input {...field} type="email" dir="ltr" className="h-10" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="parent.password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{tPage("newPasswordLabel")}</FormLabel>
-                <FormControl>
-                  <PasswordInput {...field} className="h-10" />
-                </FormControl>
-                <p className="text-xs text-muted-foreground">
-                  {tPage("newPasswordHint")}
-                </p>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="parent.password_confirmation"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("parentPasswordConfirmationLabel")}</FormLabel>
-                <FormControl>
-                  <PasswordInput {...field} className="h-10" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </Section>
+          <TabsContent value="academic">
+            <Section title={t("sectionAcademicAssignment")}>
+              <SelectField
+                control={control}
+                name="student.stage_id"
+                label={t("stageLabel")}
+                placeholder={t("stagePlaceholder")}
+                options={stageOptions}
+                onSelect={() => {
+                  form.setValue("student.grade_id", "");
+                  form.setValue("student.classroom_id", "");
+                }}
+              />
+              <SelectField
+                control={control}
+                name="student.grade_id"
+                label={t("gradeLabel")}
+                placeholder={t("gradePlaceholder")}
+                options={gradeOptions}
+                disabled={!stageId}
+                onSelect={() => form.setValue("student.classroom_id", "")}
+              />
+              <SelectField
+                control={control}
+                name="student.classroom_id"
+                label={t("classroomLabel")}
+                placeholder={t("classroomPlaceholder")}
+                options={classroomOptions}
+                disabled={!gradeId}
+              />
+              <SelectField
+                control={control}
+                name="student.academic_year_id"
+                label={t("academicYearLabel")}
+                placeholder={t("academicYearPlaceholder")}
+                options={academicYearOptions}
+              />
+            </Section>
+          </TabsContent>
 
-        <div className="flex flex-col gap-2">
-          <h3 className="text-lg font-semibold">{t("stepFather")}</h3>
-          <GuardianFields
-            control={control}
-            prefix="father"
-            nationalities={nationalityOptions}
-            bloodTypes={bloodTypeOptions}
-            religions={religionOptions}
-            governorateOptions={toOptions(locale, fatherGovernorates)}
-          />
-        </div>
+          <TabsContent value="parent">
+            <Section title={t("sectionAccount")}>
+              <FormField
+                control={control}
+                name="parent.email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("parentEmailLabel")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" dir="ltr" className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="parent.password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{tPage("newPasswordLabel")}</FormLabel>
+                    <FormControl>
+                      <PasswordInput {...field} className="h-10" />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      {tPage("newPasswordHint")}
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={control}
+                name="parent.password_confirmation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("parentPasswordConfirmationLabel")}</FormLabel>
+                    <FormControl>
+                      <PasswordInput {...field} className="h-10" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Section>
+          </TabsContent>
 
-        <div className="flex flex-col gap-2">
-          <h3 className="text-lg font-semibold">{t("stepMother")}</h3>
-          <GuardianFields
-            control={control}
-            prefix="mother"
-            nationalities={nationalityOptions}
-            bloodTypes={bloodTypeOptions}
-            religions={religionOptions}
-            governorateOptions={toOptions(locale, motherGovernorates)}
-          />
-        </div>
+          <TabsContent value="father">
+            <GuardianFields
+              control={control}
+              prefix="father"
+              nationalities={nationalityOptions}
+              bloodTypes={bloodTypeOptions}
+              religions={religionOptions}
+              governorateOptions={toOptions(locale, fatherGovernorates)}
+            />
+          </TabsContent>
+
+          <TabsContent value="mother">
+            <GuardianFields
+              control={control}
+              prefix="mother"
+              nationalities={nationalityOptions}
+              bloodTypes={bloodTypeOptions}
+              religions={religionOptions}
+              governorateOptions={toOptions(locale, motherGovernorates)}
+            />
+          </TabsContent>
+        </Tabs>
 
         <Button type="submit" disabled={mutation.isPending} className="self-start">
           {mutation.isPending && <Loader2 className="size-4 animate-spin" />}

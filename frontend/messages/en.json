@@ -454,6 +454,7 @@
     "profileUpdateError": "Couldn't update your info.",
 
     "studentHeading": "My student",
+    "overviewTab": "Overview",
     "loadError": "Couldn't load your student's info.",
     "saveGuardians": "Save changes",
     "guardiansUpdated": "Updated.",
