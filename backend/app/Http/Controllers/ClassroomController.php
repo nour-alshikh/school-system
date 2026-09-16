@@ -51,11 +51,12 @@ class ClassroomController extends Controller
 
     public function store(StoreClassroomRequest $request)
     {
-        $subjectTeachers = $request->validated('subject_teachers', []);
-
-        $classrooms = DB::transaction(function () use ($request, $subjectTeachers) {
+        $classrooms = DB::transaction(function () use ($request) {
             return collect($request->validated('classrooms'))
-                ->map(function (array $row) use ($subjectTeachers) {
+                ->map(function (array $row) {
+                    $subjectTeachers = $row['subject_teachers'] ?? [];
+                    unset($row['subject_teachers']);
+
                     $classroom = Classroom::create($row);
                     $classroom->subjectTeachers()->createMany($subjectTeachers);
 

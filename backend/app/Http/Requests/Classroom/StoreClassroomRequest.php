@@ -9,9 +9,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * Bulk create — the form lets an admin add several classrooms (same grade,
  * different names) in one submit, so this validates a `classrooms` array
- * rather than a single record. `subject_teachers`, when given, is the same
- * subject/teacher assignment applied to every classroom created in this
- * batch (they all share one grade already).
+ * rather than a single record. Each classroom carries its own
+ * `subject_teachers` — they share a grade, but not a teacher roster.
  */
 class StoreClassroomRequest extends FormRequest
 {
@@ -27,35 +26,51 @@ class StoreClassroomRequest extends FormRequest
             'classrooms.*.grade_id' => ['required', 'integer', 'exists:grades,id'],
             'classrooms.*.name' => ['required', 'string', 'max:255'],
             'classrooms.*.capacity' => ['nullable', 'integer', 'min:1'],
-            'subject_teachers' => ['array'],
-            'subject_teachers.*.subject_id' => ['required', 'integer', 'distinct', 'exists:subjects,id'],
-            'subject_teachers.*.teacher_id' => ['required', 'integer', 'exists:teachers,id'],
+            'classrooms.*.subject_teachers' => ['array'],
+            'classrooms.*.subject_teachers.*.subject_id' => ['required', 'integer', 'exists:subjects,id'],
+            'classrooms.*.subject_teachers.*.teacher_id' => ['required', 'integer', 'exists:teachers,id'],
         ];
     }
 
     /**
-     * A teacher can only be assigned to a subject they are actually set up
-     * to teach (Teacher::subjects) — see the matching guard on
-     * UpdateClassroomSubjectTeachersRequest.
+     * Two checks per classroom's subject_teachers: no subject assigned twice
+     * in the same classroom, and a teacher can only be assigned to a subject
+     * they're actually set up to teach (Teacher::subjects) — see the
+     * matching guard on UpdateClassroomSubjectTeachersRequest. Done here
+     * (instead of a `distinct` rule) because `distinct` on a doubly-nested
+     * wildcard like `classrooms.*.subject_teachers.*.subject_id` checks
+     * uniqueness across every classroom, not within each one.
      */
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
-            foreach ($this->input('subject_teachers', []) as $index => $row) {
-                if (! isset($row['subject_id'], $row['teacher_id'])) {
-                    continue;
-                }
+            foreach ($this->input('classrooms', []) as $classroomIndex => $classroom) {
+                $seenSubjectIds = [];
 
-                $teachesSubject = DB::table('subject_teacher')
-                    ->where('subject_id', $row['subject_id'])
-                    ->where('teacher_id', $row['teacher_id'])
-                    ->exists();
+                foreach ($classroom['subject_teachers'] ?? [] as $rowIndex => $row) {
+                    if (! isset($row['subject_id'], $row['teacher_id'])) {
+                        continue;
+                    }
 
-                if (! $teachesSubject) {
-                    $validator->errors()->add(
-                        "subject_teachers.$index.teacher_id",
-                        'The selected teacher does not teach this subject.'
-                    );
+                    if (in_array($row['subject_id'], $seenSubjectIds, true)) {
+                        $validator->errors()->add(
+                            "classrooms.$classroomIndex.subject_teachers.$rowIndex.subject_id",
+                            'Each subject can only be assigned once per classroom.'
+                        );
+                    }
+                    $seenSubjectIds[] = $row['subject_id'];
+
+                    $teachesSubject = DB::table('subject_teacher')
+                        ->where('subject_id', $row['subject_id'])
+                        ->where('teacher_id', $row['teacher_id'])
+                        ->exists();
+
+                    if (! $teachesSubject) {
+                        $validator->errors()->add(
+                            "classrooms.$classroomIndex.subject_teachers.$rowIndex.teacher_id",
+                            'The selected teacher does not teach this subject.'
+                        );
+                    }
                 }
             }
         });

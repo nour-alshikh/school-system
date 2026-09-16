@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,7 +42,9 @@ const defaultValues: ClassroomsFormValues = {
 // The backend validates each row as "classrooms.<index>.<field>" (it mirrors
 // the request payload's shape); remap that onto this form's "rows.<index>.<field>"
 // field names, and fold any per-row grade_id error onto the single shared
-// grade_id field, before handing off to applyServerErrors.
+// grade_id field, before handing off to applyServerErrors. subject_teachers
+// errors ("classrooms.<index>.subject_teachers.<row>.<field>") have no
+// matching form field, so they're left unmapped and fold into the toast.
 function remapErrors(err: unknown): unknown {
   if (!(err instanceof ApiError) || !err.errors) return err;
 
@@ -50,7 +52,10 @@ function remapErrors(err: unknown): unknown {
 
   for (const [field, messages] of Object.entries(err.errors)) {
     const match = field.match(/^classrooms\.(\d+)\.(name|capacity|grade_id)$/);
-    if (!match) continue;
+    if (!match) {
+      remapped[field] = messages;
+      continue;
+    }
 
     const [, index, key] = match;
     const target = key === "grade_id" ? "grade_id" : `rows.${index}.${key}`;
@@ -87,25 +92,43 @@ export function ClassroomsBulkForm({ onSuccess }: { onSuccess?: () => void }) {
 
   const gradeId = form.watch("grade_id");
 
-  // Every classroom in this batch shares one grade, so one set of subject
-  // assignments applies to all of them — reset it whenever that grade
-  // changes since the previous grade's subjects no longer apply.
-  const [assignments, setAssignments] = useState<SubjectTeacherAssignment[]>(
-    []
-  );
+  // Each classroom in this batch gets its own subject/teacher assignment —
+  // they share a grade, not a teacher roster — kept as plain state (not RHF
+  // fields) indexed in step with `fields`, since it's not user-typed input.
+  const [rowAssignments, setRowAssignments] = useState<
+    SubjectTeacherAssignment[][]
+  >([[]]);
+
+  // Switching to a different grade invalidates every row's subjects, but
+  // not on the initial render (there's nothing to clear yet).
+  const isFirstGradeRender = useRef(true);
   useEffect(() => {
-    setAssignments([]);
+    if (isFirstGradeRender.current) {
+      isFirstGradeRender.current = false;
+      return;
+    }
+    setRowAssignments((prev) => prev.map(() => []));
   }, [gradeId]);
+
+  function handleAppendRow() {
+    append({ name: "", capacity: "" });
+    setRowAssignments((prev) => [...prev, []]);
+  }
+
+  function handleRemoveRow(index: number) {
+    remove(index);
+    setRowAssignments((prev) => prev.filter((_, i) => i !== index));
+  }
 
   const mutation = useMutation({
     mutationFn: (values: ClassroomsFormValues) => {
       const payload = {
-        classrooms: values.rows.map((row) => ({
+        classrooms: values.rows.map((row, index) => ({
           grade_id: Number(values.grade_id),
           name: row.name,
           capacity: row.capacity ? Number(row.capacity) : null,
+          subject_teachers: rowAssignments[index] ?? [],
         })),
-        subject_teachers: assignments,
       };
 
       return apiFetch<{ classrooms: Classroom[] }>("/api/classrooms", {
@@ -117,7 +140,7 @@ export function ClassroomsBulkForm({ onSuccess }: { onSuccess?: () => void }) {
       queryClient.invalidateQueries({ queryKey: ["classrooms"] });
       toast.success(t("createdToast", { count: data.classrooms.length }));
       form.reset(defaultValues);
-      setAssignments([]);
+      setRowAssignments([[]]);
       onSuccess?.();
     },
     onError: (err) => {
@@ -173,70 +196,79 @@ export function ClassroomsBulkForm({ onSuccess }: { onSuccess?: () => void }) {
           )}
         />
 
-        {gradeId && (
-          <div className="flex flex-col gap-2">
-            <FormLabel>{t("subjectTeachersLabel")}</FormLabel>
-            <ClassroomSubjectTeachers
-              gradeId={gradeId}
-              value={assignments}
-              onChange={setAssignments}
-            />
-          </div>
-        )}
-
         <div className="flex flex-col gap-3">
           {fields.map((rowField, index) => (
-            <div key={rowField.id} className="flex items-start gap-2">
-              <FormField
-                control={form.control}
-                name={`rows.${index}.name`}
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    {index === 0 && <FormLabel>{t("nameLabel")}</FormLabel>}
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className="h-10"
-                        placeholder={t("namePlaceholder")}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div
+              key={rowField.id}
+              className="flex flex-col gap-3 rounded-lg border p-3"
+            >
+              <div className="flex items-start gap-2">
+                <FormField
+                  control={form.control}
+                  name={`rows.${index}.name`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>{t("nameLabel")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          className="h-10"
+                          placeholder={t("namePlaceholder")}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name={`rows.${index}.capacity`}
-                render={({ field }) => (
-                  <FormItem className="w-28">
-                    {index === 0 && <FormLabel>{t("capacityLabel")}</FormLabel>}
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        min={1}
-                        className="h-10"
-                        placeholder={t("capacityPlaceholder")}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name={`rows.${index}.capacity`}
+                  render={({ field }) => (
+                    <FormItem className="w-28">
+                      <FormLabel>{t("capacityLabel")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min={1}
+                          className="h-10"
+                          placeholder={t("capacityPlaceholder")}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className={index === 0 ? "mt-6" : undefined}
-                aria-label={t("removeRow")}
-                title={t("removeRow")}
-                disabled={fields.length === 1}
-                onClick={() => remove(index)}
-              >
-                <Trash2 className="size-4" />
-              </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="mt-6"
+                  aria-label={t("removeRow")}
+                  title={t("removeRow")}
+                  disabled={fields.length === 1}
+                  onClick={() => handleRemoveRow(index)}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
+
+              {gradeId && (
+                <div className="flex flex-col gap-2">
+                  <FormLabel>{t("subjectTeachersLabel")}</FormLabel>
+                  <ClassroomSubjectTeachers
+                    gradeId={gradeId}
+                    value={rowAssignments[index] ?? []}
+                    onChange={(next) =>
+                      setRowAssignments((prev) =>
+                        prev.map((a, i) => (i === index ? next : a))
+                      )
+                    }
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -246,7 +278,7 @@ export function ClassroomsBulkForm({ onSuccess }: { onSuccess?: () => void }) {
           variant="outline"
           size="sm"
           className="self-start"
-          onClick={() => append({ name: "", capacity: "" })}
+          onClick={handleAppendRow}
         >
           <Plus className="size-4" />
           {t("addRow")}
