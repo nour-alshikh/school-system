@@ -15,7 +15,8 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $query = Student::with([
-            'user', 'parentUser', 'father', 'mother', 'stage', 'grade', 'classroom', 'academicYear', 'media',
+            'user', 'parentUser', 'father', 'mother', 'stage', 'grade', 'classroom', 'academicYear',
+            'nationality', 'governorate', 'bloodType', 'media',
         ])->orderBy('id');
 
         if ($stageId = $request->query('stage_id')) {

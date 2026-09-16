@@ -27,7 +27,7 @@ function attachmentsSchema(t: Translate) {
     .optional();
 }
 
-function guardianSchema(t: Translate) {
+export function guardianSchema(t: Translate) {
   return z.object({
     name: z.string().min(1, t("guardianNameRequired")).max(255),
     job: z.string().min(1, t("guardianJobRequired")).max(255),

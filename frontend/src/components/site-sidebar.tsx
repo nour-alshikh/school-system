@@ -13,6 +13,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
+  User as UserIcon,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -147,7 +148,7 @@ function SidebarLink({
 
 export function SiteSidebar() {
   const t = useTranslations("Nav");
-  const { user, isLoading, can } = useAuth();
+  const { user, isLoading, can, hasRole } = useAuth();
   const [collapsed, setCollapsed] = useState(readStoredCollapsed);
   const ref = useStaggerIn<HTMLElement>({ selector: "[data-animate='sidebar-link']" });
 
@@ -196,30 +197,47 @@ export function SiteSidebar() {
         label={t("dashboard")}
         collapsed={collapsed}
       />
-      <SidebarLink
-        href="/stages"
-        icon={GraduationCap}
-        label={t("stages")}
-        collapsed={collapsed}
-      />
-      <SidebarLink
-        href="/grades"
-        icon={Layers}
-        label={t("grades")}
-        collapsed={collapsed}
-      />
-      <SidebarLink
-        href="/classrooms"
-        icon={DoorOpen}
-        label={t("classrooms")}
-        collapsed={collapsed}
-      />
-      <SidebarLink
-        href="/academic-years"
-        icon={CalendarRange}
-        label={t("academicYears")}
-        collapsed={collapsed}
-      />
+
+      {hasRole("parent") && (
+        <SidebarLink
+          href="/parent"
+          icon={UserIcon}
+          label={t("myInfo")}
+          collapsed={collapsed}
+        />
+      )}
+
+      {/* The academic structure is admin territory — same gate as its API
+          routes (manage-academics or manage-students), so parents/students
+          never see a link to a page their requests would 403 on. */}
+      {(can("manage-academics") || can("manage-students")) && (
+        <>
+          <SidebarLink
+            href="/stages"
+            icon={GraduationCap}
+            label={t("stages")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/grades"
+            icon={Layers}
+            label={t("grades")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/classrooms"
+            icon={DoorOpen}
+            label={t("classrooms")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/academic-years"
+            icon={CalendarRange}
+            label={t("academicYears")}
+            collapsed={collapsed}
+          />
+        </>
+      )}
 
       {can("manage-students") && (
         <SidebarGroup

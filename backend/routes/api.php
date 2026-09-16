@@ -10,6 +10,8 @@ use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\NationalityController;
+use App\Http\Controllers\ParentPortal\ProfileController;
+use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\StageController;
@@ -76,6 +78,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('permission:manage-students')->group(function () {
         Route::get('/students', [StudentController::class, 'index']);
         Route::post('/students', [StudentController::class, 'store']);
+    });
+
+    // A parent's self-service corner: their own account, and the one child
+    // record linked to it — nothing else. No manage-students permission
+    // needed or granted; scoped entirely by role + ownership.
+    Route::middleware('role:parent')->group(function () {
+        Route::put('/parent/profile', [ProfileController::class, 'update']);
+        Route::get('/parent/student', [ParentStudentController::class, 'show']);
+        Route::put('/parent/student', [ParentStudentController::class, 'update']);
     });
 
     Route::get('/nationalities', [NationalityController::class, 'index']);

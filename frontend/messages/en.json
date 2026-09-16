@@ -6,6 +6,7 @@
   "Nav": {
     "brand": "School System",
     "dashboard": "Dashboard",
+    "myInfo": "My info",
     "stages": "Stages",
     "grades": "Grades",
     "classrooms": "Classrooms",
@@ -424,5 +425,24 @@
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
+  },
+  "ParentPortal": {
+    "profileHeading": "My info",
+    "profileSection": "Account",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "newPasswordLabel": "New password",
+    "newPasswordHint": "Leave blank to keep your current password.",
+    "newPasswordConfirmationLabel": "Confirm new password",
+    "saveProfile": "Save changes",
+    "saving": "Saving…",
+    "profileUpdated": "Your info has been updated.",
+    "profileUpdateError": "Couldn't update your info.",
+
+    "studentHeading": "My student",
+    "loadError": "Couldn't load your student's info.",
+    "saveGuardians": "Save changes",
+    "guardiansUpdated": "Updated.",
+    "guardiansUpdateError": "Couldn't save changes."
   }
 }
