@@ -40,11 +40,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/posts/{post}', [PostController::class, 'update'])->middleware('can:update,post');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post');
 
-    // Any authenticated user can view the academic structure (stages,
-    // grades, classrooms); only admins may change it.
-    Route::get('/stages', [StageController::class, 'index']);
-    Route::get('/grades', [GradeController::class, 'index']);
-    Route::get('/classrooms', [ClassroomController::class, 'index']);
+    // The academic structure (stages, grades, classrooms, academic years) is
+    // admin territory: read access is shared by whichever admin permission
+    // needs it (managing the structure itself, or picking values while
+    // registering a student), writes need manage-academics specifically.
+    // Parents/students get none of this — just their own record.
+    Route::middleware('permission:manage-academics|manage-students')->group(function () {
+        Route::get('/stages', [StageController::class, 'index']);
+        Route::get('/grades', [GradeController::class, 'index']);
+        Route::get('/classrooms', [ClassroomController::class, 'index']);
+        Route::get('/academic-years', [AcademicYearController::class, 'index']);
+    });
     Route::middleware('permission:manage-academics')->group(function () {
         Route::post('/stages', [StageController::class, 'store']);
         Route::post('/stages/bulk-delete', [StageController::class, 'bulkDestroy']);
@@ -60,10 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/classrooms/bulk-delete', [ClassroomController::class, 'bulkDestroy']);
         Route::put('/classrooms/{classroom}', [ClassroomController::class, 'update']);
         Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy']);
-    });
 
-    Route::get('/academic-years', [AcademicYearController::class, 'index']);
-    Route::middleware('permission:manage-academics')->group(function () {
         Route::post('/academic-years', [AcademicYearController::class, 'store']);
         Route::post('/academic-years/bulk-delete', [AcademicYearController::class, 'bulkDestroy']);
         Route::put('/academic-years/{academicYear}', [AcademicYearController::class, 'update']);
