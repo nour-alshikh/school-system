@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Subject\StoreSubjectRequest;
 use App\Http\Requests\Subject\UpdateSubjectRequest;
 use App\Http\Resources\SubjectResource;
+use App\Models\Grade;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 
@@ -19,6 +20,21 @@ class SubjectController extends Controller
             // so a plain LIKE against the raw column also matches whichever
             // locale the term appears in.
             $query->where('name', 'like', '%'.addcslashes($search, '%_\\').'%');
+        }
+
+        // "Subjects taught in this grade" — either scoped directly to the
+        // grade, or to the whole stage the grade belongs to (Subject has
+        // exactly one of those scopes, see Subject::stages()/grades()).
+        if ($gradeId = $request->query('grade_id')) {
+            $grade = Grade::find($gradeId);
+
+            $query->where(function ($q) use ($gradeId, $grade) {
+                $q->whereHas('grades', fn ($qq) => $qq->where('grades.id', $gradeId));
+
+                if ($grade) {
+                    $q->orWhereHas('stages', fn ($qq) => $qq->where('stages.id', $grade->stage_id));
+                }
+            });
         }
 
         if (! $request->has('page')) {

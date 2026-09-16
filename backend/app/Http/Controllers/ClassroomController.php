@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Classroom\StoreClassroomRequest;
 use App\Http\Requests\Classroom\UpdateClassroomRequest;
+use App\Http\Requests\Classroom\UpdateClassroomSubjectTeachersRequest;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ class ClassroomController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Classroom::orderBy('id');
+        $query = Classroom::with('subjectTeachers')->orderBy('id');
 
         if ($search = $request->query('search')) {
             $query->where('name', 'like', '%'.addcslashes($search, '%_\\').'%');
@@ -50,13 +51,20 @@ class ClassroomController extends Controller
 
     public function store(StoreClassroomRequest $request)
     {
-        $classrooms = DB::transaction(function () use ($request) {
+        $subjectTeachers = $request->validated('subject_teachers', []);
+
+        $classrooms = DB::transaction(function () use ($request, $subjectTeachers) {
             return collect($request->validated('classrooms'))
-                ->map(fn (array $row) => Classroom::create($row));
+                ->map(function (array $row) use ($subjectTeachers) {
+                    $classroom = Classroom::create($row);
+                    $classroom->subjectTeachers()->createMany($subjectTeachers);
+
+                    return $classroom;
+                });
         });
 
         return response()->json([
-            'classrooms' => ClassroomResource::collection($classrooms),
+            'classrooms' => ClassroomResource::collection($classrooms->each->load('subjectTeachers')),
         ], 201);
     }
 
@@ -64,7 +72,23 @@ class ClassroomController extends Controller
     {
         $classroom->update($request->validated());
 
-        return response()->json(['classroom' => new ClassroomResource($classroom)]);
+        return response()->json(['classroom' => new ClassroomResource($classroom->load('subjectTeachers'))]);
+    }
+
+    /**
+     * Subject/teacher assignment is its own endpoint rather than a field on
+     * the classroom update form's payload, so it can be resynced (delete +
+     * recreate) independently of the plain grade/name/capacity fields — see
+     * ClassroomSubjectTeachers on the frontend.
+     */
+    public function updateSubjectTeachers(UpdateClassroomSubjectTeachersRequest $request, Classroom $classroom)
+    {
+        DB::transaction(function () use ($request, $classroom) {
+            $classroom->subjectTeachers()->delete();
+            $classroom->subjectTeachers()->createMany($request->validated('assignments', []));
+        });
+
+        return response()->json(['classroom' => new ClassroomResource($classroom->load('subjectTeachers'))]);
     }
 
     public function destroy(Classroom $classroom)

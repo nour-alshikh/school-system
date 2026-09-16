@@ -20,11 +20,16 @@ readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type ClassroomSubjectTeacherType = {
+readonly subject_id: number,
+readonly teacher_id: number,
+};
 export type ClassroomType = {
 readonly id: number,
 readonly grade_id: number,
 readonly name: string,
 readonly capacity: number | null,
+readonly subject_teachers: ClassroomSubjectTeacherType[],
 readonly created_at: string,
 readonly updated_at: string,
 };

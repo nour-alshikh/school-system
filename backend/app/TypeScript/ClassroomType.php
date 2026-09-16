@@ -13,6 +13,8 @@ final class ClassroomType
         public readonly int $grade_id,
         public readonly string $name,
         public readonly ?int $capacity,
+        /** @var ClassroomSubjectTeacherType[] */
+        public readonly array $subject_teachers,
         public readonly string $created_at,
         public readonly string $updated_at,
     ) {}
@@ -24,6 +26,9 @@ final class ClassroomType
             grade_id: $classroom->grade_id,
             name: $classroom->name,
             capacity: $classroom->capacity,
+            subject_teachers: $classroom->subjectTeachers
+                ->map(fn ($assignment) => ClassroomSubjectTeacherType::fromModel($assignment))
+                ->all(),
             created_at: $classroom->created_at->toJSON(),
             updated_at: $classroom->updated_at->toJSON(),
         );

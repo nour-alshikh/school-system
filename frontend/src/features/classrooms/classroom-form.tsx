@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +26,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  ClassroomSubjectTeachers,
+  type SubjectTeacherAssignment,
+} from "./classroom-subject-teachers";
 import {
   createClassroomEditSchema,
   type ClassroomEditFormValues,
@@ -70,19 +74,46 @@ export function ClassroomForm({
     defaultValues: valuesFromClassroom(classroom),
   });
 
+  const gradeId = form.watch("grade_id");
+
+  const [assignments, setAssignments] = useState<SubjectTeacherAssignment[]>(
+    classroom.subject_teachers
+  );
+
+  // Switching to a different grade invalidates the previous grade's subject
+  // assignments (they don't apply to this classroom anymore) — but not on
+  // the initial render, where gradeId just matches the classroom already
+  // loaded above.
+  const isFirstGradeRender = useRef(true);
+  useEffect(() => {
+    if (isFirstGradeRender.current) {
+      isFirstGradeRender.current = false;
+      return;
+    }
+    setAssignments([]);
+  }, [gradeId]);
+
   const mutation = useMutation({
-    mutationFn: (values: ClassroomEditFormValues) => {
+    mutationFn: async (values: ClassroomEditFormValues) => {
       const payload = {
         grade_id: Number(values.grade_id),
         name: values.name,
         capacity: values.capacity ? Number(values.capacity) : null,
       };
 
-      return apiFetch<{ classroom: Classroom }>(
+      await apiFetch<{ classroom: Classroom }>(
         `/api/classrooms/${classroom.id}`,
         {
           method: "PUT",
           body: JSON.stringify(payload),
+        }
+      );
+
+      return apiFetch<{ classroom: Classroom }>(
+        `/api/classrooms/${classroom.id}/subject-teachers`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ assignments }),
         }
       );
     },
@@ -173,6 +204,17 @@ export function ClassroomForm({
             </FormItem>
           )}
         />
+
+        {gradeId && (
+          <div className="flex flex-col gap-2">
+            <FormLabel>{t("subjectTeachersLabel")}</FormLabel>
+            <ClassroomSubjectTeachers
+              gradeId={gradeId}
+              value={assignments}
+              onChange={setAssignments}
+            />
+          </div>
+        )}
 
         <div className="flex gap-2">
           <Button type="submit" disabled={mutation.isPending}>

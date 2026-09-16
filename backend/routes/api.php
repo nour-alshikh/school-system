@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/classrooms', [ClassroomController::class, 'store']);
         Route::post('/classrooms/bulk-delete', [ClassroomController::class, 'bulkDestroy']);
         Route::put('/classrooms/{classroom}', [ClassroomController::class, 'update']);
+        Route::put('/classrooms/{classroom}/subject-teachers', [ClassroomController::class, 'updateSubjectTeachers']);
         Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy']);
 
         Route::post('/academic-years', [AcademicYearController::class, 'store']);
@@ -85,9 +86,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Teachers are their own admin territory, separate from the academic
     // structure — manage-teachers only, no sharing with manage-academics or
-    // manage-students.
-    Route::middleware('permission:manage-teachers')->group(function () {
+    // manage-students. The one exception is reading the list: assigning a
+    // classroom subject to a teacher (manage-academics territory) needs
+    // teacher names to populate that picker.
+    Route::middleware('permission:manage-academics|manage-teachers')->group(function () {
         Route::get('/teachers', [TeacherController::class, 'index']);
+    });
+    Route::middleware('permission:manage-teachers')->group(function () {
         Route::post('/teachers', [TeacherController::class, 'store']);
         Route::post('/teachers/bulk-delete', [TeacherController::class, 'bulkDestroy']);
         Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);

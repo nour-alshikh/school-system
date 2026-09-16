@@ -236,6 +236,7 @@
     "nameLabel": "Name",
     "capacityLabel": "Capacity",
     "capacityPlaceholder": "Optional",
+    "subjectTeachersLabel": "Subjects & teachers",
     "saveChanges": "Save changes",
     "cancel": "Cancel",
     "updatedToast": "Classroom updated."
@@ -247,11 +248,19 @@
     "namePlaceholder": "e.g. 1A",
     "capacityLabel": "Capacity",
     "capacityPlaceholder": "Optional",
+    "subjectTeachersLabel": "Subjects & teachers",
     "addRow": "Add another classroom",
     "removeRow": "Remove",
     "createClassrooms": "Create classrooms",
     "cancel": "Cancel",
     "createdToast": "{count, plural, one {Classroom created.} other {# classrooms created.}}"
+  },
+  "ClassroomSubjectTeachers": {
+    "noSubjects": "No subjects for this grade yet.",
+    "unassigned": "Unassigned",
+    "teacherPlaceholder": "Choose a teacher",
+    "noEligibleTeachers": "No teachers are set up to teach this subject yet.",
+    "clear": "Remove teacher"
   },
   "AdminUsersPage": {
     "heading": "Users",

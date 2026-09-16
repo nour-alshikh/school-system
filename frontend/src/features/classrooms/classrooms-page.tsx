@@ -132,7 +132,7 @@ export function ClassroomsPage() {
 
       {canManage && (
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <DialogContent>
+          <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{t("newClassrooms")}</DialogTitle>
             </DialogHeader>
@@ -146,7 +146,7 @@ export function ClassroomsPage() {
           open={!!editingClassroom}
           onOpenChange={(open) => !open && setEditingClassroom(null)}
         >
-          <DialogContent>
+          <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{t("editClassroom")}</DialogTitle>
             </DialogHeader>

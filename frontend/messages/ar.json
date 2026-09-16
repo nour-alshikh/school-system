@@ -236,6 +236,7 @@
     "nameLabel": "الاسم",
     "capacityLabel": "السعة",
     "capacityPlaceholder": "اختياري",
+    "subjectTeachersLabel": "المواد والمعلمون",
     "saveChanges": "حفظ التغييرات",
     "cancel": "إلغاء",
     "updatedToast": "تم تحديث الفصل."
@@ -247,11 +248,19 @@
     "namePlaceholder": "مثال: 1أ",
     "capacityLabel": "السعة",
     "capacityPlaceholder": "اختياري",
+    "subjectTeachersLabel": "المواد والمعلمون",
     "addRow": "إضافة فصل آخر",
     "removeRow": "إزالة",
     "createClassrooms": "إنشاء الفصول",
     "cancel": "إلغاء",
     "createdToast": "{count, plural, one {تم إنشاء فصل واحد.} other {تم إنشاء # فصول.}}"
+  },
+  "ClassroomSubjectTeachers": {
+    "noSubjects": "لا توجد مواد لهذا الصف بعد.",
+    "unassigned": "لم يُحدد معلم",
+    "teacherPlaceholder": "اختر معلمًا",
+    "noEligibleTeachers": "لا يوجد معلمون مسجلون لتدريس هذه المادة بعد.",
+    "clear": "إزالة المعلم"
   },
   "AdminUsersPage": {
     "heading": "المستخدمون",

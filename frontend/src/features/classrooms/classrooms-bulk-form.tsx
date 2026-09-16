@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +26,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  ClassroomSubjectTeachers,
+  type SubjectTeacherAssignment,
+} from "./classroom-subject-teachers";
 import { createClassroomsSchema, type ClassroomsFormValues } from "./schema";
 import type { Classroom } from "./types";
 import type { Grade } from "@/features/grades/types";
@@ -81,6 +85,18 @@ export function ClassroomsBulkForm({ onSuccess }: { onSuccess?: () => void }) {
     name: "rows",
   });
 
+  const gradeId = form.watch("grade_id");
+
+  // Every classroom in this batch shares one grade, so one set of subject
+  // assignments applies to all of them — reset it whenever that grade
+  // changes since the previous grade's subjects no longer apply.
+  const [assignments, setAssignments] = useState<SubjectTeacherAssignment[]>(
+    []
+  );
+  useEffect(() => {
+    setAssignments([]);
+  }, [gradeId]);
+
   const mutation = useMutation({
     mutationFn: (values: ClassroomsFormValues) => {
       const payload = {
@@ -89,6 +105,7 @@ export function ClassroomsBulkForm({ onSuccess }: { onSuccess?: () => void }) {
           name: row.name,
           capacity: row.capacity ? Number(row.capacity) : null,
         })),
+        subject_teachers: assignments,
       };
 
       return apiFetch<{ classrooms: Classroom[] }>("/api/classrooms", {
@@ -100,6 +117,7 @@ export function ClassroomsBulkForm({ onSuccess }: { onSuccess?: () => void }) {
       queryClient.invalidateQueries({ queryKey: ["classrooms"] });
       toast.success(t("createdToast", { count: data.classrooms.length }));
       form.reset(defaultValues);
+      setAssignments([]);
       onSuccess?.();
     },
     onError: (err) => {
@@ -154,6 +172,17 @@ export function ClassroomsBulkForm({ onSuccess }: { onSuccess?: () => void }) {
             </FormItem>
           )}
         />
+
+        {gradeId && (
+          <div className="flex flex-col gap-2">
+            <FormLabel>{t("subjectTeachersLabel")}</FormLabel>
+            <ClassroomSubjectTeachers
+              gradeId={gradeId}
+              value={assignments}
+              onChange={setAssignments}
+            />
+          </div>
+        )}
 
         <div className="flex flex-col gap-3">
           {fields.map((rowField, index) => (
