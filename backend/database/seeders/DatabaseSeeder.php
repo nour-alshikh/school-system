@@ -23,6 +23,11 @@ class DatabaseSeeder extends Seeder
         $this->call(ReligionSeeder::class);
         $this->call(NationalitySeeder::class);
         $this->call(GovernorateSeeder::class);
+        $this->call(AcademicYearSeeder::class);
+        $this->call(SubjectSeeder::class);
+        $this->call(TeacherSeeder::class);
+        $this->call(ClassroomSubjectTeacherSeeder::class);
+        $this->call(StudentSeeder::class);
 
         // User::factory(10)->create();
 
