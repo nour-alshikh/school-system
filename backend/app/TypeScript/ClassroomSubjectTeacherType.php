@@ -10,7 +10,9 @@ final class ClassroomSubjectTeacherType
 {
     public function __construct(
         public readonly int $subject_id,
-        public readonly int $teacher_id,
+        // Null once the previously-assigned teacher goes inactive — see
+        // TeacherController::update().
+        public readonly ?int $teacher_id,
     ) {}
 
     public static function fromModel(ClassroomSubjectTeacher $assignment): self

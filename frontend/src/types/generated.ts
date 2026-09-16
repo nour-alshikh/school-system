@@ -22,7 +22,7 @@ readonly updated_at: string,
 };
 export type ClassroomSubjectTeacherType = {
 readonly subject_id: number,
-readonly teacher_id: number,
+readonly teacher_id: number | null,
 };
 export type ClassroomType = {
 readonly id: number,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TeacherStatus;
 use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Http\Requests\Teacher\UpdateTeacherRequest;
 use App\Http\Requests\Teacher\UpdateTeacherSubjectsRequest;
@@ -49,9 +50,20 @@ class TeacherController extends Controller
         return response()->json(['teacher' => new TeacherResource($teacher->load('subjects'))], 201);
     }
 
+    /**
+     * Going inactive frees up whatever classroom/subject slots this teacher
+     * held — nulling teacher_id rather than deleting the rows, so the
+     * classroom keeps the subject, it's just unassigned (a still-active
+     * teacher can only be assigned subjects they teach, so an inactive one
+     * can't stay on the roster there).
+     */
     public function update(UpdateTeacherRequest $request, Teacher $teacher)
     {
         $teacher->update($request->validated());
+
+        if ($teacher->status === TeacherStatus::Inactive) {
+            $teacher->classroomSubjects()->update(['teacher_id' => null]);
+        }
 
         return response()->json(['teacher' => new TeacherResource($teacher->load('subjects'))]);
     }
