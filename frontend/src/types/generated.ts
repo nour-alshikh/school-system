@@ -119,6 +119,7 @@ readonly academic_year_id: number,
 readonly parent_email: string,
 readonly father: GuardianType,
 readonly mother: GuardianType,
+readonly attachment_urls: string[],
 readonly created_at: string,
 readonly updated_at: string,
 };

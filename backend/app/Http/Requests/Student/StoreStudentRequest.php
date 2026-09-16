@@ -57,6 +57,9 @@ class StoreStudentRequest extends FormRequest
             'mother.blood_type_id' => ['required', 'integer', 'exists:blood_types,id'],
             'mother.religion_id' => ['required', 'integer', 'exists:religions,id'],
             'mother.address' => ['required', 'string'],
+
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => ['image', 'max:1024'],
         ];
     }
 }

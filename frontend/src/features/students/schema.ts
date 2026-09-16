@@ -14,6 +14,19 @@ function genderSchema() {
   return z.enum(["male", "female"]);
 }
 
+const MAX_ATTACHMENT_SIZE = 1024 * 1024; // 1MB per image
+
+function attachmentsSchema(t: Translate) {
+  return z
+    .array(
+      z
+        .instanceof(File)
+        .refine((f) => f.type.startsWith("image/"), t("attachmentImageOnly"))
+        .refine((f) => f.size <= MAX_ATTACHMENT_SIZE, t("attachmentTooLarge"))
+    )
+    .optional();
+}
+
 function guardianSchema(t: Translate) {
   return z.object({
     name: z.string().min(1, t("guardianNameRequired")).max(255),
@@ -62,6 +75,7 @@ export function createStudentWizardSchema(t: Translate) {
       }),
     father: guardianSchema(t),
     mother: guardianSchema(t),
+    attachments: attachmentsSchema(t),
   });
 }
 
@@ -113,9 +127,10 @@ export const STEP_FIELDS: Record<number, Path<StudentWizardValues>[]> = {
     "mother.religion_id",
     "mother.address",
   ],
+  6: ["attachments"],
 };
 
-export const TOTAL_STEPS = 6;
+export const TOTAL_STEPS = 7;
 
 export const defaultStudentWizardValues: StudentWizardValues = {
   student: {
@@ -160,7 +175,33 @@ export const defaultStudentWizardValues: StudentWizardValues = {
     religion_id: "",
     address: "",
   },
+  attachments: [],
 };
+
+export function toFormData(values: StudentWizardValues): FormData {
+  const formData = new FormData();
+  appendFormData(formData, toApiPayload(values));
+
+  (values.attachments ?? []).forEach((file) => {
+    formData.append("attachments[]", file);
+  });
+
+  return formData;
+}
+
+function appendFormData(formData: FormData, data: unknown, prefix = ""): void {
+  if (data === null || data === undefined) return;
+
+  if (Array.isArray(data)) {
+    data.forEach((item, index) => appendFormData(formData, item, `${prefix}[${index}]`));
+  } else if (typeof data === "object" && !(data instanceof File)) {
+    Object.entries(data as Record<string, unknown>).forEach(([key, value]) => {
+      appendFormData(formData, value, prefix ? `${prefix}[${key}]` : key);
+    });
+  } else {
+    formData.append(prefix, data instanceof File ? data : String(data));
+  }
+}
 
 export function toApiPayload(values: StudentWizardValues) {
   return {

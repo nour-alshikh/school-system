@@ -36,7 +36,7 @@ import {
   defaultStudentWizardValues,
   STEP_FIELDS,
   TOTAL_STEPS,
-  toApiPayload,
+  toFormData,
   type StudentWizardValues,
 } from "./schema";
 import type { Student } from "./types";
@@ -264,6 +264,104 @@ function GuardianFields({
   );
 }
 
+function AttachmentPreviews({
+  files,
+  onRemove,
+}: {
+  files: File[];
+  onRemove: (index: number) => void;
+}) {
+  const [urls, setUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    const next = files.map((file) => URL.createObjectURL(file));
+    setUrls(next);
+    return () => next.forEach((url) => URL.revokeObjectURL(url));
+  }, [files]);
+
+  if (files.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-3 pt-2">
+      {files.map((file, index) => (
+        <div key={`${file.name}-${file.size}-${index}`} className="relative">
+          <img
+            src={urls[index]}
+            alt={file.name}
+            className="h-20 w-20 rounded-md border object-cover"
+          />
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            className="absolute -right-2 -top-2 flex size-5 items-center justify-center rounded-full bg-destructive text-xs text-destructive-foreground"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const MAX_ATTACHMENT_SIZE = 1024 * 1024; // 1MB per image
+
+function AttachmentsField({ control }: { control: Control<StudentWizardValues> }) {
+  const t = useTranslations("StudentWizard");
+  const tValidation = useTranslations("Validation");
+
+  return (
+    <FormField
+      control={control}
+      name="attachments"
+      render={({ field }) => {
+        const files = (field.value as File[] | undefined) ?? [];
+
+        function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+          const picked = Array.from(event.target.files ?? []);
+          event.target.value = "";
+          if (picked.length === 0) return;
+
+          const accepted: File[] = [];
+          for (const file of picked) {
+            if (!file.type.startsWith("image/")) {
+              toast.error(tValidation("attachmentImageOnly"));
+            } else if (file.size > MAX_ATTACHMENT_SIZE) {
+              toast.error(tValidation("attachmentTooLarge"));
+            } else {
+              accepted.push(file);
+            }
+          }
+          if (accepted.length > 0) field.onChange([...files, ...accepted]);
+        }
+
+        function removeAt(index: number) {
+          field.onChange(files.filter((_, i) => i !== index));
+        }
+
+        return (
+          <FormItem>
+            <FormLabel>{t("attachmentsLabel")}</FormLabel>
+            <FormControl>
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleChange}
+                className="h-10"
+              />
+            </FormControl>
+            <p className="text-xs text-muted-foreground">
+              {t("attachmentsHint")}
+            </p>
+            <FormMessage />
+            <AttachmentPreviews files={files} onRemove={removeAt} />
+          </FormItem>
+        );
+      }}
+    />
+  );
+}
+
 export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
   const t = useTranslations("StudentWizard");
   const tValidation = useTranslations("Validation");
@@ -420,7 +518,7 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
     mutationFn: (values: StudentWizardValues) =>
       apiFetch<{ student: Student }>("/api/students", {
         method: "POST",
-        body: JSON.stringify(toApiPayload(values)),
+        body: toFormData(values),
       }),
     onSuccess: () => {
       toast.success(t("successToast"));
@@ -512,6 +610,7 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
     t("stepParentAccount"),
     t("stepFather"),
     t("stepMother"),
+    t("stepAttachments"),
     t("stepConfirm"),
   ];
 
@@ -773,6 +872,12 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
         )}
 
         {step === 6 && (
+          <Section title={t("sectionAttachments")}>
+            <AttachmentsField control={control} />
+          </Section>
+        )}
+
+        {step === 7 && (
           <div className="flex flex-col gap-6">
             <p className="text-sm text-muted-foreground">
               {t("confirmDescription")}
@@ -838,6 +943,17 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
               <p className="text-sm text-muted-foreground">
                 {values.mother.name} · {values.mother.job} ·{" "}
                 {values.mother.phone}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <h3 className="font-medium">{t("confirmAttachmentsSection")}</h3>
+              <p className="text-sm text-muted-foreground">
+                {(values.attachments?.length ?? 0) > 0
+                  ? t("confirmAttachmentsCount", {
+                      count: values.attachments?.length ?? 0,
+                    })
+                  : t("confirmAttachmentsNone")}
               </p>
             </div>
           </div>

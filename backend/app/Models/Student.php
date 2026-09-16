@@ -6,11 +6,13 @@ use App\Enums\Gender;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Translatable\HasTranslations;
 
-class Student extends Model
+class Student extends Model implements HasMedia
 {
-    use HasTranslations;
+    use HasTranslations, InteractsWithMedia;
 
     /**
      * Stored as a JSON object of locale => text, same convention as
@@ -89,5 +91,10 @@ class Student extends Model
     public function mother(): HasOne
     {
         return $this->hasOne(Mother::class);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('attachments');
     }
 }

@@ -310,6 +310,7 @@
     "stepParentAccount": "حساب ولي الأمر",
     "stepFather": "بيانات الأب",
     "stepMother": "بيانات الأم",
+    "stepAttachments": "المرفقات",
     "stepConfirm": "التأكيد",
 
     "sectionPersonalInfo": "البيانات الشخصية",
@@ -317,6 +318,7 @@
     "sectionAccount": "الحساب",
     "sectionAcademicAssignment": "البيانات الدراسية",
     "sectionAddress": "العنوان",
+    "sectionAttachments": "المرفقات",
     "back": "رجوع",
     "next": "التالي",
     "submit": "تسجيل الطالب",
@@ -366,13 +368,19 @@
     "guardianReligionPlaceholder": "اختر الديانة",
     "guardianAddressLabel": "العنوان",
 
+    "attachmentsLabel": "الصور",
+    "attachmentsHint": "اختياري. يمكنك رفع أكثر من صورة، بحد أقصى 1 ميجابايت لكل صورة.",
+
     "confirmHeading": "المراجعة والتأكيد",
     "confirmDescription": "راجع البيانات أدناه قبل تسجيل هذا الطالب.",
     "confirmStudentSection": "الطالب",
     "confirmAcademicSection": "البيانات الدراسية",
     "confirmParentSection": "حساب ولي الأمر",
     "confirmFatherSection": "الأب",
-    "confirmMotherSection": "الأم"
+    "confirmMotherSection": "الأم",
+    "confirmAttachmentsSection": "المرفقات",
+    "confirmAttachmentsCount": "{count, plural, one {# صورة مرفقة} other {# صور مرفقة}}",
+    "confirmAttachmentsNone": "لا توجد صور مرفقة"
   },
   "Validation": {
     "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا",
@@ -410,7 +418,9 @@
     "guardianJobRequired": "الوظيفة مطلوبة",
     "guardianNationalIdRequired": "الرقم القومي مطلوب",
     "guardianPhoneRequired": "رقم الهاتف مطلوب",
-    "guardianAddressRequired": "العنوان مطلوب"
+    "guardianAddressRequired": "العنوان مطلوب",
+    "attachmentImageOnly": "يُسمح فقط بملفات الصور",
+    "attachmentTooLarge": "يجب ألا يزيد حجم كل صورة عن 1 ميجابايت"
   },
   "Errors": {
     "somethingWentWrong": "حدث خطأ ما."

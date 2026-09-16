@@ -52,7 +52,11 @@ class StudentService
             Father::create([...$data['father'], 'student_id' => $student->id]);
             Mother::create([...$data['mother'], 'student_id' => $student->id]);
 
-            return $student->load(['user', 'parentUser', 'father', 'mother', 'stage', 'grade', 'classroom', 'academicYear', 'nationality', 'governorate', 'bloodType']);
+            foreach ($data['attachments'] ?? [] as $attachment) {
+                $student->addMedia($attachment)->toMediaCollection('attachments');
+            }
+
+            return $student->load(['user', 'parentUser', 'father', 'mother', 'stage', 'grade', 'classroom', 'academicYear', 'nationality', 'governorate', 'bloodType', 'media']);
         });
     }
 

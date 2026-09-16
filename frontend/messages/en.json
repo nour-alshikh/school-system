@@ -310,6 +310,7 @@
     "stepParentAccount": "Parent account",
     "stepFather": "Father's details",
     "stepMother": "Mother's details",
+    "stepAttachments": "Attachments",
     "stepConfirm": "Confirm",
 
     "sectionPersonalInfo": "Personal info",
@@ -317,6 +318,7 @@
     "sectionAccount": "Account",
     "sectionAcademicAssignment": "Academic assignment",
     "sectionAddress": "Address",
+    "sectionAttachments": "Attachments",
     "back": "Back",
     "next": "Next",
     "submit": "Register student",
@@ -366,13 +368,19 @@
     "guardianReligionPlaceholder": "Select religion",
     "guardianAddressLabel": "Address",
 
+    "attachmentsLabel": "Photos",
+    "attachmentsHint": "Optional. You can upload multiple images, up to 1MB each.",
+
     "confirmHeading": "Review and confirm",
     "confirmDescription": "Check the details below before registering this student.",
     "confirmStudentSection": "Student",
     "confirmAcademicSection": "Academic assignment",
     "confirmParentSection": "Parent account",
     "confirmFatherSection": "Father",
-    "confirmMotherSection": "Mother"
+    "confirmMotherSection": "Mother",
+    "confirmAttachmentsSection": "Attachments",
+    "confirmAttachmentsCount": "{count, plural, one {# photo} other {# photos}} attached",
+    "confirmAttachmentsNone": "No photos attached"
   },
   "Validation": {
     "emailInvalid": "Enter a valid email address",
@@ -410,7 +418,9 @@
     "guardianJobRequired": "Job is required",
     "guardianNationalIdRequired": "National ID is required",
     "guardianPhoneRequired": "Phone number is required",
-    "guardianAddressRequired": "Address is required"
+    "guardianAddressRequired": "Address is required",
+    "attachmentImageOnly": "Only image files are allowed",
+    "attachmentTooLarge": "Each image must be 1MB or smaller"
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
