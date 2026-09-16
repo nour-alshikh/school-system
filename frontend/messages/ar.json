@@ -302,7 +302,21 @@
     "nameColumn": "الاسم",
     "emailColumn": "البريد الإلكتروني",
     "classColumn": "المرحلة / الصف / الفصل",
-    "parentEmailColumn": "بريد ولي الأمر"
+    "parentEmailColumn": "بريد ولي الأمر",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "editStudent": "تعديل بيانات الطالب",
+    "confirmDeleteTitle": "حذف هذا الطالب؟",
+    "confirmDeleteDescription": "سيؤدي هذا إلى حذف بيانات {name} نهائيًا مع حسابي الطالب وولي الأمر. لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "deleteSuccess": "تم حذف الطالب.",
+    "deleteError": "تعذّر حذف الطالب.",
+    "updateSuccess": "تم تحديث بيانات الطالب.",
+    "updateError": "تعذّر تحديث بيانات الطالب.",
+    "newPasswordLabel": "كلمة مرور جديدة",
+    "newPasswordHint": "اتركه فارغًا للاحتفاظ بكلمة المرور الحالية.",
+    "saving": "جارٍ الحفظ…",
+    "saveChanges": "حفظ التغييرات"
   },
   "StudentWizard": {
     "stepOfTotal": "الخطوة {step} من {total}",

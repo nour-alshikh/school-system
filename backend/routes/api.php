@@ -78,6 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('permission:manage-students')->group(function () {
         Route::get('/students', [StudentController::class, 'index']);
         Route::post('/students', [StudentController::class, 'store']);
+        Route::put('/students/{student}', [StudentController::class, 'update']);
+        Route::delete('/students/{student}', [StudentController::class, 'destroy']);
     });
 
     // A parent's self-service corner: their own account, and the one child

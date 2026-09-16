@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\Student\StoreStudentRequest;
+use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Models\Classroom;
 use App\Models\Father;
 use App\Models\Mother;
@@ -14,6 +15,11 @@ use Illuminate\Validation\ValidationException;
 
 class StudentService
 {
+    private const WITH = [
+        'user', 'parentUser', 'father', 'mother', 'stage', 'grade', 'classroom',
+        'academicYear', 'nationality', 'governorate', 'bloodType', 'media',
+    ];
+
     public function register(StoreStudentRequest $request): Student
     {
         $data = $request->validated();
@@ -56,7 +62,87 @@ class StudentService
                 $student->addMedia($attachment)->toMediaCollection('attachments');
             }
 
-            return $student->load(['user', 'parentUser', 'father', 'mother', 'stage', 'grade', 'classroom', 'academicYear', 'nationality', 'governorate', 'bloodType', 'media']);
+            return $student->load(self::WITH);
+        });
+    }
+
+    /**
+     * Admin-only, full-access edit — unlike the parent portal's update
+     * (guardian fields only), this can touch the student's own fields and
+     * both accounts' email/password. Every field is optional (`sometimes`
+     * in the request); only what's present in $data gets touched.
+     */
+    public function update(Student $student, UpdateStudentRequest $request): Student
+    {
+        $data = $request->validated();
+
+        return DB::transaction(function () use ($student, $data) {
+            $newClassroomId = $data['student']['classroom_id'] ?? null;
+            if ($newClassroomId !== null && (int) $newClassroomId !== $student->classroom_id) {
+                $this->assertClassroomHasRoom((int) $newClassroomId);
+            }
+
+            if (isset($data['student'])) {
+                if (isset($data['student']['name'])) {
+                    $student->setTranslations(
+                        'name',
+                        array_merge($student->getTranslations('name'), $data['student']['name'])
+                    );
+                }
+
+                $student->fill(collect($data['student'])->except(['name', 'email', 'password', 'password_confirmation'])->toArray());
+                $student->save();
+
+                if (isset($data['student']['email'])) {
+                    $student->user->email = $data['student']['email'];
+                }
+                if (isset($data['student']['name']['en'])) {
+                    $student->user->name = $data['student']['name']['en'];
+                }
+                if (! empty($data['student']['password'])) {
+                    $student->user->password = Hash::make($data['student']['password']);
+                }
+                $student->user->save();
+            }
+
+            if (isset($data['parent'])) {
+                if (isset($data['parent']['email'])) {
+                    $student->parentUser->email = $data['parent']['email'];
+                }
+                if (! empty($data['parent']['password'])) {
+                    $student->parentUser->password = Hash::make($data['parent']['password']);
+                }
+                $student->parentUser->save();
+            }
+
+            if (isset($data['father'])) {
+                $student->father()->update($data['father']);
+            }
+
+            if (isset($data['mother'])) {
+                $student->mother()->update($data['mother']);
+            }
+
+            return $student->fresh(self::WITH);
+        });
+    }
+
+    /**
+     * Deletes the whole registration, not just the Student row: the
+     * student's own account and the parent's are each meaningless without
+     * it, so both go too. `students.user_id` and `students.parent_user_id`
+     * are `cascadeOnDelete`, so deleting either user cascades away the
+     * Student row (and father/mother/media cascade from there) — deleting
+     * both explicitly here is what actually removes every trace.
+     */
+    public function delete(Student $student): void
+    {
+        DB::transaction(function () use ($student) {
+            $parentUser = $student->parentUser;
+            $studentUser = $student->user;
+
+            $studentUser->delete();
+            $parentUser?->delete();
         });
     }
 

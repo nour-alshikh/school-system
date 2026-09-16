@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -19,9 +19,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
 import { SearchInput } from "@/components/search-input";
+import { StudentEditForm } from "./student-edit-form";
 import type { Student } from "./types";
 import type { StageType, GradeType, ClassroomType } from "@/types/generated";
 
@@ -36,9 +44,12 @@ export function StudentsPage() {
   const router = useRouter();
 
   const canManage = can("manage-students");
+  const queryClient = useQueryClient();
 
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [deletingStudent, setDeletingStudent] = useState<Student | null>(null);
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -121,6 +132,26 @@ export function StudentsPage() {
     deps: [filtered.length, isLoadingStudents],
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (s: Student) =>
+      apiFetch<void>(`/api/students/${s.id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"], exact: false });
+      toast.success(t("deleteSuccess"));
+      setDeletingStudent(null);
+    },
+    onError: (err) => {
+      toast.error(err instanceof ApiError ? err.message : t("deleteError"));
+    },
+  });
+
+  // One mutation backs every row's delete button — `variables` (the student
+  // passed to `mutate()`) scopes the spinner to that row, same convention as
+  // AcademicYearsPage.
+  const deletingId = deleteMutation.isPending
+    ? deleteMutation.variables?.id
+    : undefined;
+
   if (isAuthLoading || !user || !canManage) {
     return <PageLoader />;
   }
@@ -158,11 +189,12 @@ export function StudentsPage() {
                 <TableHead>{t("emailColumn")}</TableHead>
                 <TableHead>{t("classColumn")}</TableHead>
                 <TableHead>{t("parentEmailColumn")}</TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoadingStudents ? (
-                <TableSkeletonRows columns={4} />
+                <TableSkeletonRows columns={5} />
               ) : (
                 filtered.map((student) => (
                   <TableRow key={student.id}>
@@ -178,6 +210,35 @@ export function StudentsPage() {
                       {classroomNameById.get(student.classroom_id) ?? "—"}
                     </TableCell>
                     <TableCell>{student.parent_email}</TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon-sm"
+                          aria-label={t("edit")}
+                          title={t("edit")}
+                          onClick={() => setEditingStudent(student)}
+                        >
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon-sm"
+                          aria-label={t("delete")}
+                          title={t("delete")}
+                          disabled={deletingId === student.id}
+                          onClick={() => setDeletingStudent(student)}
+                        >
+                          {deletingId === student.id ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -185,6 +246,41 @@ export function StudentsPage() {
           </Table>
         </div>
       )}
+
+      <Dialog
+        open={!!editingStudent}
+        onOpenChange={(open) => !open && setEditingStudent(null)}
+      >
+        <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("editStudent")}</DialogTitle>
+          </DialogHeader>
+          {editingStudent && (
+            <StudentEditForm
+              key={editingStudent.id}
+              student={editingStudent}
+              onSuccess={() => setEditingStudent(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmDialog
+        open={!!deletingStudent}
+        onOpenChange={(open) => !open && setDeletingStudent(null)}
+        title={t("confirmDeleteTitle")}
+        description={t("confirmDeleteDescription", {
+          name: deletingStudent
+            ? locale === "ar"
+              ? deletingStudent.name_ar
+              : deletingStudent.name_en
+            : "",
+        })}
+        confirmLabel={t("delete")}
+        cancelLabel={t("cancel")}
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => deletingStudent && deleteMutation.mutate(deletingStudent)}
+      />
     </main>
   );
 }

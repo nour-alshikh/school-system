@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Student\StoreStudentRequest;
+use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Http\Resources\StudentResource;
 use App\Models\Student;
 use App\Services\StudentService;
@@ -59,5 +60,19 @@ class StudentController extends Controller
         $student = $this->studentService->register($request);
 
         return response()->json(['student' => new StudentResource($student)], 201);
+    }
+
+    public function update(UpdateStudentRequest $request, Student $student)
+    {
+        $student = $this->studentService->update($student, $request);
+
+        return response()->json(['student' => new StudentResource($student)]);
+    }
+
+    public function destroy(Student $student)
+    {
+        $this->studentService->delete($student);
+
+        return response()->noContent();
     }
 }

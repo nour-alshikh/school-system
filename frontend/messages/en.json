@@ -302,7 +302,21 @@
     "nameColumn": "Name",
     "emailColumn": "Email",
     "classColumn": "Stage / Grade / Classroom",
-    "parentEmailColumn": "Parent email"
+    "parentEmailColumn": "Parent email",
+    "edit": "Edit",
+    "delete": "Delete",
+    "editStudent": "Edit student",
+    "confirmDeleteTitle": "Delete this student?",
+    "confirmDeleteDescription": "This permanently deletes {name}'s record along with the student and parent accounts. This cannot be undone.",
+    "cancel": "Cancel",
+    "deleteSuccess": "Student deleted.",
+    "deleteError": "Couldn't delete student.",
+    "updateSuccess": "Student updated.",
+    "updateError": "Couldn't update student.",
+    "newPasswordLabel": "New password",
+    "newPasswordHint": "Leave blank to keep the current password.",
+    "saving": "Saving…",
+    "saveChanges": "Save changes"
   },
   "StudentWizard": {
     "stepOfTotal": "Step {step} of {total}",
