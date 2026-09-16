@@ -69,6 +69,12 @@ class GradeController extends Controller
             ], 422);
         }
 
+        if ($grade->subjects()->exists()) {
+            return response()->json([
+                'message' => 'This grade has subjects and cannot be deleted.',
+            ], 422);
+        }
+
         $grade->delete();
 
         return response()->noContent();
@@ -88,6 +94,14 @@ class GradeController extends Controller
         if ($withClassrooms->isNotEmpty()) {
             return response()->json([
                 'message' => 'Some grades have classrooms and cannot be deleted.',
+            ], 422);
+        }
+
+        $withSubjects = $grades->filter(fn (Grade $grade) => $grade->subjects()->exists());
+
+        if ($withSubjects->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Some grades have subjects and cannot be deleted.',
             ], 422);
         }
 

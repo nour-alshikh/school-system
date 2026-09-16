@@ -130,6 +130,27 @@ readonly attachment_urls: string[],
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type SubjectType = {
+readonly id: number,
+readonly name_en: string,
+readonly name_ar: string,
+readonly stage_ids: number[],
+readonly grade_ids: number[],
+readonly created_at: string,
+readonly updated_at: string,
+};
+export type TeacherStatus = 'active' | 'inactive' | 'on_leave';
+export type TeacherType = {
+readonly id: number,
+readonly name: string,
+readonly email: string,
+readonly phone: string | null,
+readonly joining_date: string,
+readonly status: TeacherStatus,
+readonly subject_ids: number[],
+readonly created_at: string,
+readonly updated_at: string,
+};
 export type UserType = {
 readonly id: number,
 readonly name: string,

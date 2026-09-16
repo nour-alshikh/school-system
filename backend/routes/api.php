@@ -16,6 +16,8 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\TeacherController;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/grades', [GradeController::class, 'index']);
         Route::get('/classrooms', [ClassroomController::class, 'index']);
         Route::get('/academic-years', [AcademicYearController::class, 'index']);
+        Route::get('/subjects', [SubjectController::class, 'index']);
     });
     Route::middleware('permission:manage-academics')->group(function () {
         Route::post('/stages', [StageController::class, 'store']);
@@ -73,6 +76,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/academic-years/bulk-delete', [AcademicYearController::class, 'bulkDestroy']);
         Route::put('/academic-years/{academicYear}', [AcademicYearController::class, 'update']);
         Route::delete('/academic-years/{academicYear}', [AcademicYearController::class, 'destroy']);
+
+        Route::post('/subjects', [SubjectController::class, 'store']);
+        Route::post('/subjects/bulk-delete', [SubjectController::class, 'bulkDestroy']);
+        Route::put('/subjects/{subject}', [SubjectController::class, 'update']);
+        Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy']);
+    });
+
+    // Teachers are their own admin territory, separate from the academic
+    // structure — manage-teachers only, no sharing with manage-academics or
+    // manage-students.
+    Route::middleware('permission:manage-teachers')->group(function () {
+        Route::get('/teachers', [TeacherController::class, 'index']);
+        Route::post('/teachers', [TeacherController::class, 'store']);
+        Route::post('/teachers/bulk-delete', [TeacherController::class, 'bulkDestroy']);
+        Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
+        Route::put('/teachers/{teacher}/subjects', [TeacherController::class, 'updateSubjects']);
+        Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
     });
 
     Route::middleware('permission:manage-students')->group(function () {

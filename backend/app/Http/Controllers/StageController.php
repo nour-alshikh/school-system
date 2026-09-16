@@ -65,6 +65,12 @@ class StageController extends Controller
             ], 422);
         }
 
+        if ($stage->subjects()->exists()) {
+            return response()->json([
+                'message' => 'This stage has subjects and cannot be deleted.',
+            ], 422);
+        }
+
         $stage->delete();
 
         return response()->noContent();
@@ -84,6 +90,14 @@ class StageController extends Controller
         if ($withGrades->isNotEmpty()) {
             return response()->json([
                 'message' => 'Some stages have grades and cannot be deleted.',
+            ], 422);
+        }
+
+        $withSubjects = $stages->filter(fn (Stage $stage) => $stage->subjects()->exists());
+
+        if ($withSubjects->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Some stages have subjects and cannot be deleted.',
             ], 422);
         }
 

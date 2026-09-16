@@ -3,17 +3,20 @@
 import { useState, type ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import {
+  BookOpen,
   CalendarRange,
   ChevronDown,
   DoorOpen,
   GraduationCap,
   LayoutDashboard,
   Layers,
+  Link2,
   List,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
   User as UserIcon,
+  UserCog,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -236,6 +239,12 @@ export function SiteSidebar() {
             label={t("academicYears")}
             collapsed={collapsed}
           />
+          <SidebarLink
+            href="/subjects"
+            icon={BookOpen}
+            label={t("subjects")}
+            collapsed={collapsed}
+          />
         </>
       )}
 
@@ -257,6 +266,29 @@ export function SiteSidebar() {
             href="/students/new"
             icon={Plus}
             label={t("addStudent")}
+            collapsed={false}
+          />
+        </SidebarGroup>
+      )}
+
+      {can("manage-teachers") && (
+        <SidebarGroup
+          icon={UserCog}
+          label={t("teachers")}
+          collapsed={collapsed}
+          storageKey="sidebar-teachers-group-open"
+          fallbackHref="/teachers"
+        >
+          <SidebarLink
+            href="/teachers"
+            icon={List}
+            label={t("allTeachers")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/teacher-subjects"
+            icon={Link2}
+            label={t("teacherSubjects")}
             collapsed={false}
           />
         </SidebarGroup>
