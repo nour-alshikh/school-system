@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Classroom extends Model
@@ -34,12 +33,5 @@ class Classroom extends Model
     public function subjectTeachers(): HasMany
     {
         return $this->hasMany(ClassroomSubjectTeacher::class);
-    }
-
-    public function teachers(): BelongsToMany
-    {
-        return $this->belongsToMany(Teacher::class, 'classroom_subject_teacher')
-            ->withPivot('subject_id')
-            ->withTimestamps();
     }
 }
