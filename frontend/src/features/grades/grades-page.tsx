@@ -381,7 +381,7 @@ export function GradesPage() {
 
       {canManage && (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
+          <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingGrade ? t("editGrade") : t("newGrade")}

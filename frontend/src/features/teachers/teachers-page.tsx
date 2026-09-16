@@ -336,7 +336,7 @@ export function TeachersPage() {
 
       {canManage && (
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent>
+          <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingTeacher ? t("editTeacher") : t("newTeacher")}
