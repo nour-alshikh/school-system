@@ -31,12 +31,21 @@ class DatabaseSeeder extends Seeder
 
         // User::factory(10)->create();
 
-        $user = User::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
 
-        $user->assignRole('user');
-        $user->assignRole('admin');
+        $admin->assignRole('user');
+        $admin->assignRole('admin');
+
+        // Base "user" role, no extra permissions — a plain registered account
+        // with none of the admin/parent/student territory. See docs/demo-accounts.md.
+        $plainUser = User::factory()->create([
+            'name' => 'Demo User',
+            'email' => 'user@example.com',
+        ]);
+
+        $plainUser->assignRole('user');
     }
 }
