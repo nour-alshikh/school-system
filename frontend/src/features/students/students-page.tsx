@@ -251,7 +251,7 @@ export function StudentsPage() {
         open={!!editingStudent}
         onOpenChange={(open) => !open && setEditingStudent(null)}
       >
-        <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+        <DialogContent className="max-h-[85vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t("editStudent")}</DialogTitle>
           </DialogHeader>
