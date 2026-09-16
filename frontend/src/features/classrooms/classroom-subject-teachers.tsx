@@ -78,7 +78,7 @@ export function ClassroomSubjectTeachers({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
       {subjects.map((subject) => {
         const subjectName =
           locale === "ar" ? subject.name_ar : subject.name_en;
