@@ -110,6 +110,8 @@ readonly to_classroom: ClassroomType,
 readonly to_academic_year: AcademicYearType,
 readonly promoted_by_name: string | null,
 readonly created_at: string,
+readonly rolled_back_at: string | null,
+readonly rolled_back_by_name: string | null,
 };
 export type ReligionType = {
 readonly id: number,

@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * An immutable log row — created once by PromotionService::promote() and
- * never updated or deleted by the app. Every from_ and to_ column is a
- * snapshot taken at promotion time (see the migration), not a live
- * reference to the student's current stage/grade/classroom.
+ * A log row created once by PromotionService::promote() — every from_ and
+ * to_ column is a snapshot taken at promotion time (see the migration),
+ * not a live reference to the student's current stage/grade/classroom.
+ * The only update it ever gets is PromotionService::rollbackMany() setting
+ * rolled_back_at/rolled_back_by; the row itself is never deleted, so the
+ * log stays complete even for an undone promotion.
  */
 class Promotion extends Model
 {
@@ -24,6 +26,12 @@ class Promotion extends Model
         'to_classroom_id',
         'to_academic_year_id',
         'promoted_by',
+        'rolled_back_at',
+        'rolled_back_by',
+    ];
+
+    protected $casts = [
+        'rolled_back_at' => 'datetime',
     ];
 
     public function student(): BelongsTo
@@ -74,5 +82,10 @@ class Promotion extends Model
     public function promotedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'promoted_by');
+    }
+
+    public function rolledBackBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rolled_back_by');
     }
 }

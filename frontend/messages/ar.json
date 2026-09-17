@@ -530,7 +530,7 @@
   },
   "PromotionsPage": {
     "heading": "ترقية الطلاب",
-    "description": "انقل كل الطلاب من فصل أو صف أو مرحلة إلى فصل أو صف أو مرحلة جديدة — اختر المصدر أدناه، ثم الوجهة.",
+    "description": "انقل طلاب فصل إلى فصل أو صف أو مرحلة جديدة — اختر الفصل أدناه، ثم الوجهة.",
     "fromHeading": "من",
     "toHeading": "إلى",
     "matchedHeading": "{count, plural, one {طالب واحد مطابق} other {# طالب مطابق}}",
@@ -551,7 +551,16 @@
     "toColumn": "إلى",
     "academicYearColumn": "العام الدراسي",
     "promotedByColumn": "تمت الترقية بواسطة",
-    "dateColumn": "التاريخ"
+    "dateColumn": "التاريخ",
+    "statusColumn": "الحالة",
+    "activeBadge": "سارية",
+    "rolledBackBadge": "تم التراجع",
+    "rollbackOne": "تراجع",
+    "rollbackSelected": "{count, plural, one {التراجع عن ترقية واحدة} other {التراجع عن # ترقية}}",
+    "rollbackConfirmTitle": "التراجع عن هذه الترقية؟",
+    "rollbackConfirmDescription": "{count, plural, one {سيعود طالب واحد إلى فصله السابق.} other {سيعود # طالب إلى فصلهم السابق.}} ممكن فقط إذا كانت لا تزال آخر تغيير لهم.",
+    "rollbackSuccessToast": "{count, plural, one {تم التراجع عن ترقية واحدة.} other {تم التراجع عن # ترقية.}}",
+    "rollbackError": "تعذّر التراجع عن هذه الترقية."
   },
   "Validation": {
     "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا",

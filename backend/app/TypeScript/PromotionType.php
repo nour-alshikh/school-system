@@ -23,6 +23,8 @@ final class PromotionType
         public readonly AcademicYearType $to_academic_year,
         public readonly ?string $promoted_by_name,
         public readonly string $created_at,
+        public readonly ?string $rolled_back_at,
+        public readonly ?string $rolled_back_by_name,
     ) {}
 
     public static function fromModel(Promotion $promotion): self
@@ -42,6 +44,8 @@ final class PromotionType
             to_academic_year: AcademicYearType::fromModel($promotion->toAcademicYear),
             promoted_by_name: $promotion->promotedBy?->name,
             created_at: $promotion->created_at->toJSON(),
+            rolled_back_at: $promotion->rolled_back_at?->toJSON(),
+            rolled_back_by_name: $promotion->rolledBackBy?->name,
         );
     }
 }

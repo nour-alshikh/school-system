@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Undo2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "@/i18n/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
@@ -47,8 +47,6 @@ import type {
 const PER_PAGE = 10;
 
 const KNOWN_FIELDS = [
-  "from.stage_id",
-  "from.grade_id",
   "from.classroom_id",
   "to.stage_id",
   "to.grade_id",
@@ -73,15 +71,6 @@ function formatDate(locale: string, iso: string) {
     month: "short",
     day: "numeric",
   });
-}
-
-// Mirrors PromotionService::resolveSourceStudents on the backend: the most
-// specific field set wins.
-function sourceQueryParams(from: PromoteValues["from"]) {
-  if (from.classroom_id) return `classroom_id=${from.classroom_id}`;
-  if (from.grade_id) return `grade_id=${from.grade_id}`;
-  if (from.stage_id) return `stage_id=${from.stage_id}`;
-  return "";
 }
 
 export function PromotionsPage() {
@@ -217,7 +206,7 @@ export function PromotionsPage() {
     locale,
     fromStageId ? grades.filter((g) => g.stage_id === Number(fromStageId)) : grades
   );
-  const fromClassroomOptions = classroomOptionsFor(fromStageId, fromGradeId ?? "");
+  const fromClassroomOptions = classroomOptionsFor(fromStageId ?? "", fromGradeId ?? "");
 
   const toGradeOptions = toOptions(
     locale,
@@ -225,34 +214,27 @@ export function PromotionsPage() {
   );
   const toClassroomOptions = classroomOptionsFor(toStageId, toGradeId);
 
-  const sourceParams = sourceQueryParams({
-    stage_id: fromStageId,
-    grade_id: fromGradeId,
-    classroom_id: fromClassroomId,
-  });
-
   const {
     data: matchedStudents = [],
     isLoading: isLoadingMatched,
     error: matchedError,
   } = useQuery({
-    queryKey: ["students", "promote-source", fromStageId, fromGradeId, fromClassroomId],
+    queryKey: ["students", "promote-source", fromClassroomId],
     queryFn: () =>
-      apiFetch<{ students: Student[] }>(`/api/students?${sourceParams}`).then(
-        (d) => d.students
-      ),
-    enabled: !isAuthLoading && !!user && canManage && !!fromStageId,
+      apiFetch<{ students: Student[] }>(
+        `/api/students?classroom_id=${fromClassroomId}`
+      ).then((d) => d.students),
+    enabled: !isAuthLoading && !!user && canManage && !!fromClassroomId,
   });
 
-  // A different source selection invalidates the previous "except" picks —
-  // done during render (comparing against the previous committed value)
-  // rather than in an effect, so it applies in the same render. The
-  // student_ids prefill effect below runs after this and overrides it once
-  // the matched list actually loads.
-  const sourceKey = `${fromStageId}::${fromGradeId}::${fromClassroomId}`;
-  const [prevSourceKey, setPrevSourceKey] = useState(sourceKey);
-  if (sourceKey !== prevSourceKey) {
-    setPrevSourceKey(sourceKey);
+  // A different classroom invalidates the previous "except" picks — done
+  // during render (comparing against the previous committed value) rather
+  // than in an effect, so it applies in the same render. The student_ids
+  // prefill effect below runs after this and overrides it once the matched
+  // list actually loads.
+  const [prevFromClassroomId, setPrevFromClassroomId] = useState(fromClassroomId);
+  if (fromClassroomId !== prevFromClassroomId) {
+    setPrevFromClassroomId(fromClassroomId);
     setExceptIds(new Set());
   }
 
@@ -310,6 +292,61 @@ export function PromotionsPage() {
   const rowsRef = useStaggerIn<HTMLDivElement>({
     selector: "[data-slot='table-body'] [data-slot='table-row']",
     deps: [history.length, historyPage, isLoadingHistory],
+  });
+
+  const [selectedRollbackIds, setSelectedRollbackIds] = useState<Set<number>>(
+    new Set()
+  );
+  const [rollbackTargetIds, setRollbackTargetIds] = useState<number[]>([]);
+  const [rollbackConfirmOpen, setRollbackConfirmOpen] = useState(false);
+
+  function handleHistoryPageChange(newPage: number) {
+    setHistoryPage(newPage);
+    setSelectedRollbackIds(new Set());
+  }
+
+  const rollbackableIds = history
+    .filter((p) => !p.rolled_back_at)
+    .map((p) => p.id);
+  const allRollbackSelected =
+    rollbackableIds.length > 0 &&
+    rollbackableIds.every((id) => selectedRollbackIds.has(id));
+
+  function toggleRollbackRow(id: number, checked: boolean) {
+    setSelectedRollbackIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function toggleAllRollback(checked: boolean) {
+    setSelectedRollbackIds(checked ? new Set(rollbackableIds) : new Set());
+  }
+
+  function openRollbackConfirm(ids: number[]) {
+    setRollbackTargetIds(ids);
+    setRollbackConfirmOpen(true);
+  }
+
+  const rollbackMutation = useMutation({
+    mutationFn: (promotionIds: number[]) =>
+      apiFetch<{ rolled_back_count: number }>("/api/promotions/rollback", {
+        method: "POST",
+        body: JSON.stringify({ promotion_ids: promotionIds }),
+      }),
+    onSuccess: (data) => {
+      toast.success(t("rollbackSuccessToast", { count: data.rolled_back_count }));
+      queryClient.invalidateQueries({ queryKey: ["students"], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["promotions"], exact: false });
+      setSelectedRollbackIds(new Set());
+      setRollbackConfirmOpen(false);
+    },
+    onError: (err) => {
+      toast.error(err instanceof ApiError ? err.message : t("rollbackError"));
+      setRollbackConfirmOpen(false);
+    },
   });
 
   const promoteMutation = useMutation({
@@ -387,11 +424,10 @@ export function PromotionsPage() {
               label={tWizard("classroomLabel")}
               placeholder={tWizard("classroomPlaceholder")}
               options={fromClassroomOptions}
-              disabled={!fromStageId}
             />
           </Section>
 
-          {fromStageId && (
+          {fromClassroomId && (
             <div className="flex flex-col gap-2 rounded-lg border p-4">
               <h3 className="text-sm font-medium text-muted-foreground">
                 {t("matchedHeading", { count: matchedStudents.length })}
@@ -482,7 +518,20 @@ export function PromotionsPage() {
       </Form>
 
       <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold">{t("historyHeading")}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">{t("historyHeading")}</h2>
+          {selectedRollbackIds.size > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => openRollbackConfirm([...selectedRollbackIds])}
+            >
+              <Undo2 className="size-4" />
+              {t("rollbackSelected", { count: selectedRollbackIds.size })}
+            </Button>
+          )}
+        </div>
 
         {!isLoadingHistory && history.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("historyEmpty")}</p>
@@ -491,47 +540,95 @@ export function PromotionsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox
+                      aria-label={tTable("selectAll")}
+                      checked={allRollbackSelected}
+                      onCheckedChange={(checked) => toggleAllRollback(!!checked)}
+                    />
+                  </TableHead>
                   <TableHead>{t("studentColumn")}</TableHead>
                   <TableHead>{t("fromColumn")}</TableHead>
                   <TableHead>{t("toColumn")}</TableHead>
                   <TableHead>{t("academicYearColumn")}</TableHead>
                   <TableHead>{t("promotedByColumn")}</TableHead>
                   <TableHead>{t("dateColumn")}</TableHead>
+                  <TableHead>{t("statusColumn")}</TableHead>
+                  <TableHead />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoadingHistory ? (
-                  <TableSkeletonRows columns={6} />
+                  <TableSkeletonRows columns={9} />
                 ) : (
-                  history.map((promotion) => (
-                    <TableRow key={promotion.id}>
-                      <TableCell>
-                        {locale === "ar"
-                          ? promotion.student_name_ar
-                          : promotion.student_name_en}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {nameOf(locale, promotion.from_stage)} /{" "}
-                        {nameOf(locale, promotion.from_grade)} /{" "}
-                        {promotion.from_classroom.name}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {nameOf(locale, promotion.to_stage)} /{" "}
-                        {nameOf(locale, promotion.to_grade)} /{" "}
-                        {promotion.to_classroom.name}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {nameOf(locale, promotion.from_academic_year)} →{" "}
-                        {nameOf(locale, promotion.to_academic_year)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {promotion.promoted_by_name ?? "—"}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatDate(locale, promotion.created_at)}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  history.map((promotion) => {
+                    const isRolledBack = !!promotion.rolled_back_at;
+                    return (
+                      <TableRow key={promotion.id}>
+                        <TableCell>
+                          <Checkbox
+                            aria-label={tTable("selectRow")}
+                            checked={selectedRollbackIds.has(promotion.id)}
+                            disabled={isRolledBack}
+                            onCheckedChange={(checked) =>
+                              toggleRollbackRow(promotion.id, !!checked)
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {locale === "ar"
+                            ? promotion.student_name_ar
+                            : promotion.student_name_en}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {nameOf(locale, promotion.from_stage)} /{" "}
+                          {nameOf(locale, promotion.from_grade)} /{" "}
+                          {promotion.from_classroom.name}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {nameOf(locale, promotion.to_stage)} /{" "}
+                          {nameOf(locale, promotion.to_grade)} /{" "}
+                          {promotion.to_classroom.name}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {nameOf(locale, promotion.from_academic_year)} →{" "}
+                          {nameOf(locale, promotion.to_academic_year)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {promotion.promoted_by_name ?? "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatDate(locale, promotion.created_at)}
+                        </TableCell>
+                        <TableCell>
+                          {isRolledBack ? (
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                              {t("rolledBackBadge")}
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                              {t("activeBadge")}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon-sm"
+                              aria-label={t("rollbackOne")}
+                              title={t("rollbackOne")}
+                              disabled={isRolledBack}
+                              onClick={() => openRollbackConfirm([promotion.id])}
+                            >
+                              <Undo2 className="size-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -539,7 +636,7 @@ export function PromotionsPage() {
         )}
 
         {historyMeta && (
-          <Pagination meta={historyMeta} onPageChange={setHistoryPage} />
+          <Pagination meta={historyMeta} onPageChange={handleHistoryPageChange} />
         )}
       </div>
 
@@ -555,6 +652,19 @@ export function PromotionsPage() {
         cancelLabel={t("cancel")}
         isLoading={promoteMutation.isPending}
         onConfirm={() => promoteMutation.mutate(form.getValues())}
+      />
+
+      <ConfirmDialog
+        open={rollbackConfirmOpen}
+        onOpenChange={setRollbackConfirmOpen}
+        title={t("rollbackConfirmTitle")}
+        description={t("rollbackConfirmDescription", {
+          count: rollbackTargetIds.length,
+        })}
+        confirmLabel={t("rollbackOne")}
+        cancelLabel={t("cancel")}
+        isLoading={rollbackMutation.isPending}
+        onConfirm={() => rollbackMutation.mutate(rollbackTargetIds)}
       />
     </main>
   );

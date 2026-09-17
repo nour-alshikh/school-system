@@ -8,13 +8,13 @@ type Translate = (key: string) => string;
 export function createPromoteSchema(t: Translate) {
   return z.object({
     from: z.object({
-      stage_id: z.string().min(1, t("stageRequired")),
-      // Optional — a bare stage promotes every grade under it, a stage +
-      // grade promotes every classroom under that grade. See
-      // PromotionService::resolveSourceStudents on the backend, which
-      // mirrors this same "most specific field wins" rule.
+      // stage_id/grade_id only narrow the classroom picker's option list —
+      // a promotion always moves one whole classroom at a time (see
+      // PromotionService on the backend), so they're not validated and
+      // never sent to the API. classroom_id is the only field that matters.
+      stage_id: z.string().optional(),
       grade_id: z.string().optional(),
-      classroom_id: z.string().optional(),
+      classroom_id: z.string().min(1, t("classroomRequired")),
     }),
     to: z.object({
       stage_id: z.string().min(1, t("stageRequired")),
@@ -38,11 +38,7 @@ export function toPromotePayload(
 ) {
   return {
     from: {
-      stage_id: Number(values.from.stage_id),
-      grade_id: values.from.grade_id ? Number(values.from.grade_id) : undefined,
-      classroom_id: values.from.classroom_id
-        ? Number(values.from.classroom_id)
-        : undefined,
+      classroom_id: Number(values.from.classroom_id),
     },
     to: {
       stage_id: Number(values.to.stage_id),

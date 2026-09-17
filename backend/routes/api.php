@@ -113,6 +113,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/promotions', [PromotionController::class, 'index']);
         Route::post('/promotions', [PromotionController::class, 'store']);
+        Route::post('/promotions/rollback', [PromotionController::class, 'rollback']);
     });
 
     // A parent's self-service corner: their own account, and the one child

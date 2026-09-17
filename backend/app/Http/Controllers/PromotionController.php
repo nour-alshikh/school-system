@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Promotion\RollbackPromotionsRequest;
 use App\Http\Requests\Promotion\StorePromotionRequest;
 use App\Http\Resources\PromotionResource;
 use App\Models\Promotion;
@@ -12,7 +13,7 @@ class PromotionController extends Controller
 {
     private const WITH = [
         'student', 'fromStage', 'fromGrade', 'fromClassroom', 'fromAcademicYear',
-        'toStage', 'toGrade', 'toClassroom', 'toAcademicYear', 'promotedBy',
+        'toStage', 'toGrade', 'toClassroom', 'toAcademicYear', 'promotedBy', 'rolledBackBy',
     ];
 
     public function __construct(private readonly PromotionService $promotionService) {}
@@ -45,9 +46,10 @@ class PromotionController extends Controller
     }
 
     /**
-     * Not a plain create — this is the bulk-promote action. It resolves the
-     * source set itself (see PromotionService::resolveSourceStudents), so
-     * the response carries every Promotion row it created rather than one.
+     * Not a plain create — this is the bulk-promote action. It resolves
+     * every student in the given classroom itself (see
+     * PromotionService::promote), so the response carries every Promotion
+     * row it created rather than one.
      */
     public function store(StorePromotionRequest $request)
     {
@@ -59,5 +61,22 @@ class PromotionController extends Controller
             'promoted_count' => $promotions->count(),
             'promotions' => PromotionResource::collection($promotions),
         ], 201);
+    }
+
+    /**
+     * Also bulk by default — a single row rolls back via a one-element
+     * promotion_ids array, so the frontend's per-row button and its
+     * multi-select "rollback selected" bar action share this one endpoint.
+     */
+    public function rollback(RollbackPromotionsRequest $request)
+    {
+        $promotions = $this->promotionService
+            ->rollbackMany($request->validated('promotion_ids'), $request->user())
+            ->load(self::WITH);
+
+        return response()->json([
+            'rolled_back_count' => $promotions->count(),
+            'promotions' => PromotionResource::collection($promotions),
+        ]);
     }
 }
