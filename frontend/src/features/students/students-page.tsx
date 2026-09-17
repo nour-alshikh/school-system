@@ -28,10 +28,13 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
+import { Pagination, type PageMeta } from "@/components/pagination";
 import { SearchInput } from "@/components/search-input";
 import { StudentEditForm } from "./student-edit-form";
 import type { Student } from "./types";
 import type { StageType, GradeType, ClassroomType } from "@/types/generated";
+
+const PER_PAGE = 10;
 
 function nameOf(locale: string, item: { name_en: string; name_ar: string }) {
   return locale === "ar" ? item.name_ar : item.name_en;
@@ -48,6 +51,7 @@ export function StudentsPage() {
 
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
+  const [page, setPage] = useState(1);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [deletingStudent, setDeletingStudent] = useState<Student | null>(null);
 
@@ -63,19 +67,34 @@ export function StudentsPage() {
     }
   }, [isAuthLoading, user, canManage, router]);
 
+  const [prevSearch, setPrevSearch] = useState(search);
+  if (search !== prevSearch) {
+    setPrevSearch(search);
+    setPage(1);
+  }
+
   const {
     data: studentsData,
     isLoading: isLoadingStudents,
     error: studentsError,
   } = useQuery({
-    queryKey: ["students"],
+    queryKey: ["students", page, search],
     queryFn: () =>
-      apiFetch<{ students: Student[] }>("/api/students").then(
-        (d) => d.students
+      apiFetch<{ students: Student[]; meta: PageMeta }>(
+        `/api/students?page=${page}&per_page=${PER_PAGE}&search=${encodeURIComponent(search)}`
       ),
     enabled: !isAuthLoading && !!user && canManage,
   });
-  const students = studentsData ?? [];
+  const students = studentsData?.students ?? [];
+  const meta = studentsData?.meta;
+
+  const [prevMeta, setPrevMeta] = useState<PageMeta | undefined>(undefined);
+  if (meta && meta !== prevMeta) {
+    setPrevMeta(meta);
+    if (meta.total > 0 && page > meta.last_page) {
+      setPage(meta.last_page);
+    }
+  }
 
   const { data: stagesData } = useQuery({
     queryKey: ["stages"],
@@ -116,20 +135,9 @@ export function StudentsPage() {
     );
   }, [studentsError, t]);
 
-  const filtered = search
-    ? students.filter((s) => {
-        const q = search.toLowerCase();
-        return (
-          s.name_en.toLowerCase().includes(q) ||
-          s.name_ar.toLowerCase().includes(q) ||
-          s.email.toLowerCase().includes(q)
-        );
-      })
-    : students;
-
   const rowsRef = useStaggerIn<HTMLDivElement>({
     selector: "[data-slot='table-body'] [data-slot='table-row']",
-    deps: [filtered.length, isLoadingStudents],
+    deps: [students.length, page, search, isLoadingStudents],
   });
 
   const deleteMutation = useMutation({
@@ -151,6 +159,10 @@ export function StudentsPage() {
   const deletingId = deleteMutation.isPending
     ? deleteMutation.variables?.id
     : undefined;
+
+  function handlePageChange(newPage: number) {
+    setPage(newPage);
+  }
 
   if (isAuthLoading || !user || !canManage) {
     return <PageLoader />;
@@ -176,7 +188,7 @@ export function StudentsPage() {
         placeholder={t("searchPlaceholder")}
       />
 
-      {!isLoadingStudents && filtered.length === 0 ? (
+      {!isLoadingStudents && students.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           {search ? t("noResults") : t("noStudents")}
         </p>
@@ -196,7 +208,7 @@ export function StudentsPage() {
               {isLoadingStudents ? (
                 <TableSkeletonRows columns={5} />
               ) : (
-                filtered.map((student) => (
+                students.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>
                       {locale === "ar" ? student.name_ar : student.name_en}
@@ -246,6 +258,8 @@ export function StudentsPage() {
           </Table>
         </div>
       )}
+
+      {meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
 
       <Dialog
         open={!!editingStudent}

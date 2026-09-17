@@ -20,6 +20,17 @@ class StudentController extends Controller
             'nationality', 'governorate', 'bloodType', 'media',
         ])->orderBy('id');
 
+        if ($search = $request->query('search')) {
+            $escaped = addcslashes($search, '%_\\');
+            $query->where(function ($q) use ($escaped) {
+                $q->where('name->en', 'like', "%{$escaped}%")
+                    ->orWhere('name->ar', 'like', "%{$escaped}%")
+                    ->orWhereHas('user', function ($userQuery) use ($escaped) {
+                        $userQuery->where('email', 'like', "%{$escaped}%");
+                    });
+            });
+        }
+
         if ($stageId = $request->query('stage_id')) {
             $query->where('stage_id', $stageId);
         }
