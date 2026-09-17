@@ -414,6 +414,7 @@
     "emailColumn": "Email",
     "classColumn": "Stage / Grade / Classroom",
     "parentEmailColumn": "Parent email",
+    "view": "View",
     "edit": "Edit",
     "delete": "Delete",
     "editStudent": "Edit student",
@@ -507,6 +508,11 @@
     "confirmAttachmentsSection": "Attachments",
     "confirmAttachmentsCount": "{count, plural, one {# photo} other {# photos}} attached",
     "confirmAttachmentsNone": "No photos attached"
+  },
+  "StudentShowPage": {
+    "backToStudents": "Back to students",
+    "loadError": "Failed to load student.",
+    "attachmentsNone": "No photos attached."
   },
   "Validation": {
     "emailInvalid": "Enter a valid email address",

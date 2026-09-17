@@ -73,6 +73,16 @@ class StudentController extends Controller
         return response()->json(['student' => new StudentResource($student)], 201);
     }
 
+    public function show(Student $student)
+    {
+        $student->load([
+            'user', 'parentUser', 'father', 'mother', 'stage', 'grade', 'classroom', 'academicYear',
+            'nationality', 'governorate', 'bloodType', 'media',
+        ]);
+
+        return response()->json(['student' => new StudentResource($student)]);
+    }
+
     public function update(UpdateStudentRequest $request, Student $student)
     {
         $student = $this->studentService->update($student, $request);

@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -224,6 +224,16 @@ export function StudentsPage() {
                     <TableCell>{student.parent_email}</TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon-sm"
+                          aria-label={t("view")}
+                          title={t("view")}
+                          onClick={() => router.push(`/students/${student.id}`)}
+                        >
+                          <Eye className="size-4" />
+                        </Button>
                         <Button
                           type="button"
                           variant="outline"

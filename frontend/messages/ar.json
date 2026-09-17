@@ -414,6 +414,7 @@
     "emailColumn": "البريد الإلكتروني",
     "classColumn": "المرحلة / الصف / الفصل",
     "parentEmailColumn": "بريد ولي الأمر",
+    "view": "عرض",
     "edit": "تعديل",
     "delete": "حذف",
     "editStudent": "تعديل بيانات الطالب",
@@ -507,6 +508,11 @@
     "confirmAttachmentsSection": "المرفقات",
     "confirmAttachmentsCount": "{count, plural, one {# صورة مرفقة} other {# صور مرفقة}}",
     "confirmAttachmentsNone": "لا توجد صور مرفقة"
+  },
+  "StudentShowPage": {
+    "backToStudents": "العودة إلى الطلاب",
+    "loadError": "فشل تحميل بيانات الطالب.",
+    "attachmentsNone": "لا توجد صور مرفقة."
   },
   "Validation": {
     "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا",
