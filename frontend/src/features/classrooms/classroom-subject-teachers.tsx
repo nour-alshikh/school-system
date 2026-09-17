@@ -86,8 +86,10 @@ export function ClassroomSubjectTeachers({
         const assignedTeacher = teachers.find(
           (teacher) => teacher.id === assignedTeacherId
         );
-        const eligibleTeachers = teachers.filter((teacher) =>
-          teacher.subject_ids.includes(subject.id)
+        const eligibleTeachers = teachers.filter(
+          (teacher) =>
+            teacher.status === "active" &&
+            teacher.subject_ids.includes(subject.id)
         );
         const isOpen = openSubjectId === subject.id;
 

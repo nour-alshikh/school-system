@@ -71,6 +71,18 @@ class StoreClassroomRequest extends FormRequest
                             'The selected teacher does not teach this subject.'
                         );
                     }
+
+                    $isActive = DB::table('teachers')
+                        ->where('id', $row['teacher_id'])
+                        ->where('status', 'active')
+                        ->exists();
+
+                    if (! $isActive) {
+                        $validator->errors()->add(
+                            "classrooms.$classroomIndex.subject_teachers.$rowIndex.teacher_id",
+                            'The selected teacher is not active.'
+                        );
+                    }
                 }
             }
         });

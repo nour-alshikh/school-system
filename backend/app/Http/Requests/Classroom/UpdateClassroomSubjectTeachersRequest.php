@@ -24,9 +24,9 @@ class UpdateClassroomSubjectTeachersRequest extends FormRequest
 
     /**
      * A teacher can only be assigned to a classroom subject they are
-     * actually set up to teach (Teacher::subjects) — the frontend already
-     * limits the picker to those teachers, this is the backend's guard
-     * against a client that skips it.
+     * actually set up to teach (Teacher::subjects) and must be active —
+     * the frontend already limits the picker to those teachers, this is
+     * the backend's guard against a client that skips it.
      */
     public function withValidator(Validator $validator): void
     {
@@ -45,6 +45,18 @@ class UpdateClassroomSubjectTeachersRequest extends FormRequest
                     $validator->errors()->add(
                         "assignments.$index.teacher_id",
                         'The selected teacher does not teach this subject.'
+                    );
+                }
+
+                $isActive = DB::table('teachers')
+                    ->where('id', $row['teacher_id'])
+                    ->where('status', 'active')
+                    ->exists();
+
+                if (! $isActive) {
+                    $validator->errors()->add(
+                        "assignments.$index.teacher_id",
+                        'The selected teacher is not active.'
                     );
                 }
             }
