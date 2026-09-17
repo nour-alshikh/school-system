@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -95,9 +96,24 @@ export function PromotionsPage() {
 
   const canManage = can("manage-students");
 
+  // Deep-linked from StudentsPage's "Promote classroom"/"Promote selected"
+  // actions: classroom_id pre-fills the From section, student_ids (a subset
+  // of that classroom) pre-excludes everyone else — see the two prefill
+  // effects below, once classrooms/grades and the matched-students list
+  // have actually loaded.
+  const searchParams = useSearchParams();
+  const prefillClassroomId = searchParams.get("classroom_id");
+  const prefillStudentIds = searchParams.get("student_ids");
+
   const [exceptIds, setExceptIds] = useState<Set<number>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [historyPage, setHistoryPage] = useState(1);
+  const [classroomPrefillApplied, setClassroomPrefillApplied] = useState(
+    !prefillClassroomId
+  );
+  const [exceptPrefillApplied, setExceptPrefillApplied] = useState(
+    !prefillStudentIds
+  );
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -149,6 +165,20 @@ export function PromotionsPage() {
     enabled: !isAuthLoading && !!user && canManage,
   });
   const classrooms = classroomsData ?? [];
+
+  useEffect(() => {
+    if (classroomPrefillApplied || !prefillClassroomId) return;
+    if (!classroomsData || !gradesData) return;
+
+    const classroom = classroomsData.find((c) => c.id === Number(prefillClassroomId));
+    if (classroom) {
+      const grade = gradesData.find((g) => g.id === classroom.grade_id);
+      form.setValue("from.stage_id", grade ? String(grade.stage_id) : "");
+      form.setValue("from.grade_id", String(classroom.grade_id));
+      form.setValue("from.classroom_id", String(classroom.id));
+    }
+    setClassroomPrefillApplied(true);
+  }, [classroomPrefillApplied, prefillClassroomId, classroomsData, gradesData, form]);
 
   const { data: academicYearsData } = useQuery({
     queryKey: ["academic-years-all"],
@@ -216,13 +246,28 @@ export function PromotionsPage() {
 
   // A different source selection invalidates the previous "except" picks —
   // done during render (comparing against the previous committed value)
-  // rather than in an effect, so it applies in the same render.
+  // rather than in an effect, so it applies in the same render. The
+  // student_ids prefill effect below runs after this and overrides it once
+  // the matched list actually loads.
   const sourceKey = `${fromStageId}::${fromGradeId}::${fromClassroomId}`;
   const [prevSourceKey, setPrevSourceKey] = useState(sourceKey);
   if (sourceKey !== prevSourceKey) {
     setPrevSourceKey(sourceKey);
     setExceptIds(new Set());
   }
+
+  useEffect(() => {
+    if (exceptPrefillApplied || !prefillStudentIds) return;
+    if (isLoadingMatched || matchedStudents.length === 0) return;
+
+    const includeIds = new Set(prefillStudentIds.split(",").map(Number));
+    setExceptIds(
+      new Set(
+        matchedStudents.filter((s) => !includeIds.has(s.id)).map((s) => s.id)
+      )
+    );
+    setExceptPrefillApplied(true);
+  }, [exceptPrefillApplied, prefillStudentIds, isLoadingMatched, matchedStudents]);
 
   const includedCount = matchedStudents.filter((s) => !exceptIds.has(s.id)).length;
 

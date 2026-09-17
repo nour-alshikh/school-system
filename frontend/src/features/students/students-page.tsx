@@ -5,12 +5,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Eye, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Eye, Loader2, Pencil, Plus, Trash2, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -50,6 +51,7 @@ function nameOf(locale: string, item: { name_en: string; name_ar: string }) {
 
 export function StudentsPage() {
   const t = useTranslations("StudentsPage");
+  const tTable = useTranslations("Table");
   const locale = useLocale();
   const { user, isLoading: isAuthLoading, can } = useAuth();
   const router = useRouter();
@@ -63,6 +65,7 @@ export function StudentsPage() {
   const [stageFilter, setStageFilter] = useState<string>(ALL);
   const [gradeFilter, setGradeFilter] = useState<string>(ALL);
   const [classroomFilter, setClassroomFilter] = useState<string>(ALL);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [deletingStudent, setDeletingStudent] = useState<Student | null>(null);
 
@@ -98,6 +101,7 @@ export function StudentsPage() {
   if (filtersKey !== prevFiltersKey) {
     setPrevFiltersKey(filtersKey);
     setPage(1);
+    setSelectedIds(new Set());
   }
 
   const {
@@ -223,6 +227,44 @@ export function StudentsPage() {
 
   function handlePageChange(newPage: number) {
     setPage(newPage);
+    setSelectedIds(new Set());
+  }
+
+  function toggleRow(id: number, checked: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function toggleAll(checked: boolean) {
+    setSelectedIds(checked ? new Set(students.map((s) => s.id)) : new Set());
+  }
+
+  const allSelected = students.length > 0 && students.every((s) => selectedIds.has(s.id));
+
+  // A promotion moves everyone selected into one target classroom, so the
+  // selection only makes sense when every checked row already shares a
+  // classroom — mixed selections are rejected up front rather than left to
+  // the promotions page to sort out.
+  const selectedStudents = students.filter((s) => selectedIds.has(s.id));
+  const selectedClassroomIds = new Set(selectedStudents.map((s) => s.classroom_id));
+
+  function handlePromoteSelected() {
+    if (selectedClassroomIds.size !== 1) {
+      toast.error(t("promoteMixedClassrooms"));
+      return;
+    }
+    const classroomId = [...selectedClassroomIds][0];
+    router.push(
+      `/promotions?classroom_id=${classroomId}&student_ids=${[...selectedIds].join(",")}`
+    );
+  }
+
+  function handlePromoteClassroom() {
+    router.push(`/promotions?classroom_id=${classroomFilter}`);
   }
 
   if (isAuthLoading || !user || !canManage) {
@@ -233,14 +275,27 @@ export function StudentsPage() {
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">{t("indexHeading")}</h1>
-        <Button
-          type="button"
-          size="sm"
-          onClick={() => router.push("/students/new")}
-        >
-          <Plus className="size-4" />
-          {t("newStudent")}
-        </Button>
+        <div className="flex items-center gap-2">
+          {selectedIds.size > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePromoteSelected}
+            >
+              <TrendingUp className="size-4" />
+              {t("promoteSelected", { count: selectedIds.size })}
+            </Button>
+          )}
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => router.push("/students/new")}
+          >
+            <Plus className="size-4" />
+            {t("newStudent")}
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -297,6 +352,17 @@ export function StudentsPage() {
             ))}
           </SelectContent>
         </Select>
+        {classroomFilter !== ALL && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handlePromoteClassroom}
+          >
+            <TrendingUp className="size-4" />
+            {t("promoteClassroom")}
+          </Button>
+        )}
       </div>
 
       {!isLoadingStudents && students.length === 0 ? (
@@ -310,6 +376,13 @@ export function StudentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10">
+                  <Checkbox
+                    aria-label={tTable("selectAll")}
+                    checked={allSelected}
+                    onCheckedChange={(checked) => toggleAll(!!checked)}
+                  />
+                </TableHead>
                 <TableHead>{t("nameColumn")}</TableHead>
                 <TableHead>{t("emailColumn")}</TableHead>
                 <TableHead>{t("classColumn")}</TableHead>
@@ -319,10 +392,19 @@ export function StudentsPage() {
             </TableHeader>
             <TableBody>
               {isLoadingStudents ? (
-                <TableSkeletonRows columns={5} />
+                <TableSkeletonRows columns={6} />
               ) : (
                 students.map((student) => (
                   <TableRow key={student.id}>
+                    <TableCell>
+                      <Checkbox
+                        aria-label={tTable("selectRow")}
+                        checked={selectedIds.has(student.id)}
+                        onCheckedChange={(checked) =>
+                          toggleRow(student.id, !!checked)
+                        }
+                      />
+                    </TableCell>
                     <TableCell>
                       {locale === "ar" ? student.name_ar : student.name_en}
                     </TableCell>
