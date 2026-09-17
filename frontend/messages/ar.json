@@ -546,6 +546,8 @@
     "loadError": "فشل تحميل سجل الترقيات.",
     "historyHeading": "سجل الترقيات",
     "historyEmpty": "لا توجد ترقيات بعد.",
+    "historyNoResults": "لا توجد ترقيات مطابقة لعامل التصفية.",
+    "statusFilterAll": "الكل",
     "studentColumn": "الطالب",
     "fromColumn": "من",
     "toColumn": "إلى",

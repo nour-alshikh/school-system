@@ -546,6 +546,8 @@
     "loadError": "Failed to load promotion history.",
     "historyHeading": "Promotion history",
     "historyEmpty": "No promotions yet.",
+    "historyNoResults": "No promotions match this filter.",
+    "statusFilterAll": "All",
     "studentColumn": "Student",
     "fromColumn": "From",
     "toColumn": "To",

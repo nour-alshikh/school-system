@@ -26,6 +26,14 @@ class PromotionController extends Controller
             $query->where('student_id', $studentId);
         }
 
+        if ($status = $request->query('status')) {
+            if ($status === 'active') {
+                $query->whereNull('rolled_back_at');
+            } elseif ($status === 'rolled_back') {
+                $query->whereNotNull('rolled_back_at');
+            }
+        }
+
         if (! $request->has('page')) {
             return response()->json([
                 'promotions' => PromotionResource::collection($query->get()),

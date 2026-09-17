@@ -17,6 +17,13 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -45,6 +52,7 @@ import type {
 } from "@/types/generated";
 
 const PER_PAGE = 10;
+const ALL = "all";
 
 const KNOWN_FIELDS = [
   "from.classroom_id",
@@ -97,6 +105,7 @@ export function PromotionsPage() {
   const [exceptIds, setExceptIds] = useState<Set<number>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [historyPage, setHistoryPage] = useState(1);
+  const [historyStatusFilter, setHistoryStatusFilter] = useState<string>(ALL);
   const [classroomPrefillApplied, setClassroomPrefillApplied] = useState(
     !prefillClassroomId
   );
@@ -268,15 +277,28 @@ export function PromotionsPage() {
 
   const allIncluded = matchedStudents.length > 0 && exceptIds.size === 0;
 
+  // A status-filter change should jump back to page 1 — done during render
+  // (comparing against the previous committed value) rather than in an
+  // effect, so it applies in the same render. Same convention as
+  // StudentsPage/GradesPage.
+  const [prevHistoryStatusFilter, setPrevHistoryStatusFilter] = useState(
+    historyStatusFilter
+  );
+  if (historyStatusFilter !== prevHistoryStatusFilter) {
+    setPrevHistoryStatusFilter(historyStatusFilter);
+    setHistoryPage(1);
+  }
+
   const {
     data: historyData,
     isLoading: isLoadingHistory,
     error: historyError,
   } = useQuery({
-    queryKey: ["promotions", historyPage],
+    queryKey: ["promotions", historyPage, historyStatusFilter],
     queryFn: () =>
       apiFetch<{ promotions: Promotion[]; meta: PageMeta }>(
-        `/api/promotions?page=${historyPage}&per_page=${PER_PAGE}`
+        `/api/promotions?page=${historyPage}&per_page=${PER_PAGE}` +
+          (historyStatusFilter !== ALL ? `&status=${historyStatusFilter}` : "")
       ),
     enabled: !isAuthLoading && !!user && canManage,
   });
@@ -291,7 +313,7 @@ export function PromotionsPage() {
 
   const rowsRef = useStaggerIn<HTMLDivElement>({
     selector: "[data-slot='table-body'] [data-slot='table-row']",
-    deps: [history.length, historyPage, isLoadingHistory],
+    deps: [history.length, historyPage, historyStatusFilter, isLoadingHistory],
   });
 
   const [selectedRollbackIds, setSelectedRollbackIds] = useState<Set<number>>(
@@ -302,6 +324,11 @@ export function PromotionsPage() {
 
   function handleHistoryPageChange(newPage: number) {
     setHistoryPage(newPage);
+    setSelectedRollbackIds(new Set());
+  }
+
+  function handleHistoryStatusFilterChange(value: string | null) {
+    setHistoryStatusFilter(value ?? ALL);
     setSelectedRollbackIds(new Set());
   }
 
@@ -520,21 +547,43 @@ export function PromotionsPage() {
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">{t("historyHeading")}</h2>
-          {selectedRollbackIds.size > 0 && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => openRollbackConfirm([...selectedRollbackIds])}
+          <div className="flex items-center gap-2">
+            {selectedRollbackIds.size > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => openRollbackConfirm([...selectedRollbackIds])}
+              >
+                <Undo2 className="size-4" />
+                {t("rollbackSelected", { count: selectedRollbackIds.size })}
+              </Button>
+            )}
+            <Select
+              items={[
+                { value: ALL, label: t("statusFilterAll") },
+                { value: "active", label: t("activeBadge") },
+                { value: "rolled_back", label: t("rolledBackBadge") },
+              ]}
+              value={historyStatusFilter}
+              onValueChange={handleHistoryStatusFilterChange}
             >
-              <Undo2 className="size-4" />
-              {t("rollbackSelected", { count: selectedRollbackIds.size })}
-            </Button>
-          )}
+              <SelectTrigger aria-label={t("statusColumn")} size="sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>{t("statusFilterAll")}</SelectItem>
+                <SelectItem value="active">{t("activeBadge")}</SelectItem>
+                <SelectItem value="rolled_back">{t("rolledBackBadge")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {!isLoadingHistory && history.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t("historyEmpty")}</p>
+          <p className="text-sm text-muted-foreground">
+            {historyStatusFilter !== ALL ? t("historyNoResults") : t("historyEmpty")}
+          </p>
         ) : (
           <div ref={rowsRef}>
             <Table>
