@@ -15,6 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
+  TrendingUp,
   User as UserIcon,
   UserCog,
   UserPlus,
@@ -266,6 +267,12 @@ export function SiteSidebar() {
             href="/students/new"
             icon={Plus}
             label={t("addStudent")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/promotions"
+            icon={TrendingUp}
+            label={t("promoteStudents")}
             collapsed={false}
           />
         </SidebarGroup>

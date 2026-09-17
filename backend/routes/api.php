@@ -13,6 +13,7 @@ use App\Http\Controllers\NationalityController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
@@ -109,6 +110,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/students/{student}/attachments', [StudentController::class, 'storeAttachments']);
         Route::get('/students/{student}/attachments/{media}/download', [StudentController::class, 'downloadAttachment']);
         Route::delete('/students/{student}/attachments/{media}', [StudentController::class, 'destroyAttachment']);
+
+        Route::get('/promotions', [PromotionController::class, 'index']);
+        Route::post('/promotions', [PromotionController::class, 'store']);
     });
 
     // A parent's self-service corner: their own account, and the one child

@@ -95,6 +95,22 @@ readonly user: PostAuthorType,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type PromotionType = {
+readonly id: number,
+readonly student_id: number,
+readonly student_name_en: string,
+readonly student_name_ar: string,
+readonly from_stage: StageType,
+readonly from_grade: GradeType,
+readonly from_classroom: ClassroomType,
+readonly from_academic_year: AcademicYearType,
+readonly to_stage: StageType,
+readonly to_grade: GradeType,
+readonly to_classroom: ClassroomType,
+readonly to_academic_year: AcademicYearType,
+readonly promoted_by_name: string | null,
+readonly created_at: string,
+};
 export type ReligionType = {
 readonly id: number,
 readonly name_en: string,
