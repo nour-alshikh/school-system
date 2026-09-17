@@ -344,7 +344,9 @@ function StudentDetail({ student }: { student: Student }) {
             student={student}
             onSuccess={() => {
               setEditOpen(false);
-              queryClient.invalidateQueries({ queryKey: ["student", student.id] });
+              queryClient.invalidateQueries({
+                queryKey: ["student", String(student.id)],
+              });
             }}
           />
         </DialogContent>

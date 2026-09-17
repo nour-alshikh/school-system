@@ -30,7 +30,7 @@ export function StudentAttachmentsTab({ student }: { student: Student }) {
 
   function syncCaches(next: AttachmentType[]) {
     setAttachments(next);
-    queryClient.invalidateQueries({ queryKey: ["student", student.id] });
+    queryClient.invalidateQueries({ queryKey: ["student", String(student.id)] });
     queryClient.invalidateQueries({ queryKey: ["students"], exact: false });
   }
 
