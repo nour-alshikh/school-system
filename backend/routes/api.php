@@ -106,6 +106,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/students/{student}', [StudentController::class, 'show']);
         Route::put('/students/{student}', [StudentController::class, 'update']);
         Route::delete('/students/{student}', [StudentController::class, 'destroy']);
+        Route::post('/students/{student}/attachments', [StudentController::class, 'storeAttachments']);
+        Route::get('/students/{student}/attachments/{media}/download', [StudentController::class, 'downloadAttachment']);
+        Route::delete('/students/{student}/attachments/{media}', [StudentController::class, 'destroyAttachment']);
     });
 
     // A parent's self-service corner: their own account, and the one child

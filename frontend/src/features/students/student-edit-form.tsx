@@ -22,6 +22,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Section, SelectField, GuardianFields, type Option } from "./guardian-fields";
+import { StudentAttachmentsTab } from "./student-attachments-tab";
 import {
   createEditStudentSchema,
   editStudentDefaults,
@@ -64,7 +65,13 @@ function toOptions(
   }));
 }
 
-type TabValue = "student" | "academic" | "parent" | "father" | "mother";
+type TabValue =
+  | "student"
+  | "academic"
+  | "parent"
+  | "father"
+  | "mother"
+  | "attachments";
 
 // Where a field's error surfaces so an invalid submit can flip to the right
 // tab — otherwise the message renders on a panel the admin isn't looking at.
@@ -230,6 +237,7 @@ export function StudentEditForm({
             <TabsTrigger value="parent">{t("stepParentAccount")}</TabsTrigger>
             <TabsTrigger value="father">{t("stepFather")}</TabsTrigger>
             <TabsTrigger value="mother">{t("stepMother")}</TabsTrigger>
+            <TabsTrigger value="attachments">{t("stepAttachments")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="student">
@@ -450,6 +458,10 @@ export function StudentEditForm({
               religions={religionOptions}
               governorateOptions={toOptions(locale, motherGovernorates)}
             />
+          </TabsContent>
+
+          <TabsContent value="attachments">
+            <StudentAttachmentsTab student={student} />
           </TabsContent>
         </Tabs>
 

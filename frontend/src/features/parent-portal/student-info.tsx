@@ -75,14 +75,14 @@ function ReadOnlyStudentSummary({ student }: { student: Student }) {
         {bilingual(locale, student.academic_year)}
       </p>
 
-      {student.attachment_urls.length > 0 && (
+      {student.attachments.length > 0 && (
         <div className="flex flex-wrap gap-3 pt-2">
-          {student.attachment_urls.map((url) => (
+          {student.attachments.map((attachment) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              key={url}
-              src={url}
-              alt={student.name_en}
+              key={attachment.id}
+              src={attachment.url}
+              alt={attachment.name}
               className="h-20 w-20 rounded-md border object-cover"
             />
           ))}

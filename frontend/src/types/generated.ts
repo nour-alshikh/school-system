@@ -13,6 +13,11 @@ readonly name: string,
 readonly email: string,
 readonly roles: RoleType[],
 };
+export type AttachmentType = {
+readonly id: number,
+readonly url: string,
+readonly name: string,
+};
 export type BloodTypeType = {
 readonly id: number,
 readonly name_en: string,
@@ -131,7 +136,7 @@ readonly academic_year: AcademicYearType,
 readonly parent_email: string,
 readonly father: GuardianType,
 readonly mother: GuardianType,
-readonly attachment_urls: string[],
+readonly attachments: AttachmentType[],
 readonly created_at: string,
 readonly updated_at: string,
 };

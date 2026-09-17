@@ -512,7 +512,11 @@
   "StudentShowPage": {
     "backToStudents": "العودة إلى الطلاب",
     "loadError": "فشل تحميل بيانات الطالب.",
-    "attachmentsNone": "لا توجد صور مرفقة."
+    "attachmentsNone": "لا توجد صور مرفقة.",
+    "attachmentsUploading": "جارٍ الرفع…",
+    "attachmentsUploadError": "تعذّر رفع الصورة.",
+    "attachmentsDeleteError": "تعذّر حذف الصورة.",
+    "download": "تنزيل"
   },
   "Validation": {
     "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا",

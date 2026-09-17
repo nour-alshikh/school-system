@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { Link, useRouter } from "@/i18n/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
@@ -303,20 +303,30 @@ function StudentDetail({ student }: { student: Student }) {
 
         <TabsContent value="attachments">
           <Section title={t("sectionAttachments")}>
-            {student.attachment_urls.length === 0 ? (
+            {student.attachments.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 {tShow("attachmentsNone")}
               </p>
             ) : (
               <div className="flex flex-wrap gap-3">
-                {student.attachment_urls.map((url) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={url}
-                    src={url}
-                    alt={student.name_en}
-                    className="h-24 w-24 rounded-md border object-cover"
-                  />
+                {student.attachments.map((attachment) => (
+                  <div key={attachment.id} className="relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={attachment.url}
+                      alt={attachment.name}
+                      className="h-24 w-24 rounded-md border object-cover"
+                    />
+                    <a
+                      href={`/api/students/${student.id}/attachments/${attachment.id}/download`}
+                      download
+                      aria-label={tShow("download")}
+                      title={tShow("download")}
+                      className="absolute inset-x-0 bottom-0 flex items-center justify-center rounded-b-md bg-background/80 p-1 text-foreground hover:bg-muted"
+                    >
+                      <Download className="size-3.5" />
+                    </a>
+                  </div>
                 ))}
               </div>
             )}

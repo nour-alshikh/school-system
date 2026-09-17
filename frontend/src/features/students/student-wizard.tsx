@@ -23,9 +23,11 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { LocaleTabs } from "@/components/locale-tabs";
+import { Dropzone } from "./dropzone";
 import {
   createStudentWizardSchema,
   defaultStudentWizardValues,
+  MAX_ATTACHMENT_SIZE,
   STEP_FIELDS,
   TOTAL_STEPS,
   toFormData,
@@ -99,8 +101,6 @@ function AttachmentPreviews({
   );
 }
 
-const MAX_ATTACHMENT_SIZE = 1024 * 1024; // 1MB per image
-
 function AttachmentsField({ control }: { control: Control<StudentWizardValues> }) {
   const t = useTranslations("StudentWizard");
   const tValidation = useTranslations("Validation");
@@ -112,11 +112,7 @@ function AttachmentsField({ control }: { control: Control<StudentWizardValues> }
       render={({ field }) => {
         const files = (field.value as File[] | undefined) ?? [];
 
-        function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-          const picked = Array.from(event.target.files ?? []);
-          event.target.value = "";
-          if (picked.length === 0) return;
-
+        function handlePicked(picked: File[]) {
           const accepted: File[] = [];
           for (const file of picked) {
             if (!file.type.startsWith("image/")) {
@@ -138,17 +134,12 @@ function AttachmentsField({ control }: { control: Control<StudentWizardValues> }
           <FormItem>
             <FormLabel>{t("attachmentsLabel")}</FormLabel>
             <FormControl>
-              <Input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleChange}
-                className="h-10"
+              <Dropzone
+                onFilesAdded={handlePicked}
+                label={t("attachmentsLabel")}
+                hint={t("attachmentsHint")}
               />
             </FormControl>
-            <p className="text-xs text-muted-foreground">
-              {t("attachmentsHint")}
-            </p>
             <FormMessage />
             <AttachmentPreviews files={files} onRemove={removeAt} />
           </FormItem>

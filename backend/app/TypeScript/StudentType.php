@@ -32,8 +32,8 @@ final class StudentType
         public readonly string $parent_email,
         public readonly GuardianType $father,
         public readonly GuardianType $mother,
-        /** @var string[] */
-        public readonly array $attachment_urls,
+        /** @var AttachmentType[] */
+        public readonly array $attachments,
         public readonly string $created_at,
         public readonly string $updated_at,
     ) {}
@@ -63,7 +63,7 @@ final class StudentType
             parent_email: $student->parentUser->email,
             father: GuardianType::fromModel($student->father),
             mother: GuardianType::fromModel($student->mother),
-            attachment_urls: $student->getMedia('attachments')->map->getUrl()->all(),
+            attachments: $student->getMedia('attachments')->map(AttachmentType::fromModel(...))->all(),
             created_at: $student->created_at->toJSON(),
             updated_at: $student->updated_at->toJSON(),
         );

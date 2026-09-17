@@ -512,7 +512,11 @@
   "StudentShowPage": {
     "backToStudents": "Back to students",
     "loadError": "Failed to load student.",
-    "attachmentsNone": "No photos attached."
+    "attachmentsNone": "No photos attached.",
+    "attachmentsUploading": "Uploading…",
+    "attachmentsUploadError": "Couldn't upload the photo.",
+    "attachmentsDeleteError": "Couldn't delete the photo.",
+    "download": "Download"
   },
   "Validation": {
     "emailInvalid": "Enter a valid email address",

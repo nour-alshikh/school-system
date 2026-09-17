@@ -15,7 +15,7 @@ function genderSchema() {
   return z.enum(["male", "female"]);
 }
 
-const MAX_ATTACHMENT_SIZE = 1024 * 1024; // 1MB per image
+export const MAX_ATTACHMENT_SIZE = 1024 * 1024; // 1MB per image
 
 function attachmentsSchema(t: Translate) {
   return z
