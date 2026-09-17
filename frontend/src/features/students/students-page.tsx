@@ -20,6 +20,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -35,6 +42,7 @@ import type { Student } from "./types";
 import type { StageType, GradeType, ClassroomType } from "@/types/generated";
 
 const PER_PAGE = 10;
+const ALL = "all";
 
 function nameOf(locale: string, item: { name_en: string; name_ar: string }) {
   return locale === "ar" ? item.name_ar : item.name_en;
@@ -52,8 +60,22 @@ export function StudentsPage() {
   const [searchInput, setSearchInput] = useState("");
   const search = useDebouncedValue(searchInput, 300);
   const [page, setPage] = useState(1);
+  const [stageFilter, setStageFilter] = useState<string>(ALL);
+  const [gradeFilter, setGradeFilter] = useState<string>(ALL);
+  const [classroomFilter, setClassroomFilter] = useState<string>(ALL);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [deletingStudent, setDeletingStudent] = useState<Student | null>(null);
+
+  function handleStageFilterChange(value: string | null) {
+    setStageFilter(value ?? ALL);
+    setGradeFilter(ALL);
+    setClassroomFilter(ALL);
+  }
+
+  function handleGradeFilterChange(value: string | null) {
+    setGradeFilter(value ?? ALL);
+    setClassroomFilter(ALL);
+  }
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -67,9 +89,14 @@ export function StudentsPage() {
     }
   }, [isAuthLoading, user, canManage, router]);
 
-  const [prevSearch, setPrevSearch] = useState(search);
-  if (search !== prevSearch) {
-    setPrevSearch(search);
+  // A search or filter change should jump back to page 1 — done here
+  // (during render, comparing against the previous committed value) rather
+  // than in an effect, so it takes effect in the same render instead of
+  // causing an extra one. Same convention as GradesPage.
+  const filtersKey = `${search}::${stageFilter}::${gradeFilter}::${classroomFilter}`;
+  const [prevFiltersKey, setPrevFiltersKey] = useState(filtersKey);
+  if (filtersKey !== prevFiltersKey) {
+    setPrevFiltersKey(filtersKey);
     setPage(1);
   }
 
@@ -78,10 +105,13 @@ export function StudentsPage() {
     isLoading: isLoadingStudents,
     error: studentsError,
   } = useQuery({
-    queryKey: ["students", page, search],
+    queryKey: ["students", page, search, stageFilter, gradeFilter, classroomFilter],
     queryFn: () =>
       apiFetch<{ students: Student[]; meta: PageMeta }>(
-        `/api/students?page=${page}&per_page=${PER_PAGE}&search=${encodeURIComponent(search)}`
+        `/api/students?page=${page}&per_page=${PER_PAGE}&search=${encodeURIComponent(search)}` +
+          (stageFilter !== ALL ? `&stage_id=${stageFilter}` : "") +
+          (gradeFilter !== ALL ? `&grade_id=${gradeFilter}` : "") +
+          (classroomFilter !== ALL ? `&classroom_id=${classroomFilter}` : "")
       ),
     enabled: !isAuthLoading && !!user && canManage,
   });
@@ -128,6 +158,29 @@ export function StudentsPage() {
     (classroomsData ?? []).map((c) => [c.id, c.name])
   );
 
+  const stageFilterItems = [
+    { value: ALL, label: t("allStages") },
+    ...(stagesData ?? []).map((s) => ({ value: String(s.id), label: nameOf(locale, s) })),
+  ];
+
+  const gradesForFilter =
+    stageFilter !== ALL
+      ? (gradesData ?? []).filter((g) => g.stage_id === Number(stageFilter))
+      : (gradesData ?? []);
+  const gradeFilterItems = [
+    { value: ALL, label: t("allGrades") },
+    ...gradesForFilter.map((g) => ({ value: String(g.id), label: nameOf(locale, g) })),
+  ];
+
+  const classroomsForFilter =
+    gradeFilter !== ALL
+      ? (classroomsData ?? []).filter((c) => c.grade_id === Number(gradeFilter))
+      : (classroomsData ?? []);
+  const classroomFilterItems = [
+    { value: ALL, label: t("allClassrooms") },
+    ...classroomsForFilter.map((c) => ({ value: String(c.id), label: c.name })),
+  ];
+
   useEffect(() => {
     if (!studentsError) return;
     toast.error(
@@ -137,7 +190,15 @@ export function StudentsPage() {
 
   const rowsRef = useStaggerIn<HTMLDivElement>({
     selector: "[data-slot='table-body'] [data-slot='table-row']",
-    deps: [students.length, page, search, isLoadingStudents],
+    deps: [
+      students.length,
+      page,
+      search,
+      stageFilter,
+      gradeFilter,
+      classroomFilter,
+      isLoadingStudents,
+    ],
   });
 
   const deleteMutation = useMutation({
@@ -182,15 +243,67 @@ export function StudentsPage() {
         </Button>
       </div>
 
-      <SearchInput
-        value={searchInput}
-        onChange={setSearchInput}
-        placeholder={t("searchPlaceholder")}
-      />
+      <div className="flex flex-wrap items-center gap-2">
+        <SearchInput
+          value={searchInput}
+          onChange={setSearchInput}
+          placeholder={t("searchPlaceholder")}
+        />
+        <Select
+          items={stageFilterItems}
+          value={stageFilter}
+          onValueChange={handleStageFilterChange}
+        >
+          <SelectTrigger aria-label={t("stageFilterLabel")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {stageFilterItems.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          items={gradeFilterItems}
+          value={gradeFilter}
+          onValueChange={handleGradeFilterChange}
+        >
+          <SelectTrigger aria-label={t("gradeFilterLabel")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {gradeFilterItems.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
+          items={classroomFilterItems}
+          value={classroomFilter}
+          onValueChange={(value) => setClassroomFilter(value ?? ALL)}
+        >
+          <SelectTrigger aria-label={t("classroomFilterLabel")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {classroomFilterItems.map((item) => (
+              <SelectItem key={item.value} value={item.value}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
       {!isLoadingStudents && students.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          {search ? t("noResults") : t("noStudents")}
+          {search || stageFilter !== ALL || gradeFilter !== ALL || classroomFilter !== ALL
+            ? t("noResults")
+            : t("noStudents")}
         </p>
       ) : (
         <div ref={rowsRef}>
