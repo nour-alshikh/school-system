@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\StudentStatus;
 use App\Http\Requests\Promotion\StorePromotionRequest;
 use App\Models\Classroom;
 use App\Models\Promotion;
@@ -25,7 +26,11 @@ class PromotionService
         $exceptIds = $data['except_student_ids'] ?? [];
 
         return DB::transaction(function () use ($data, $exceptIds, $promotedBy) {
+            // A graduated student keeps their last classroom_id forever
+            // (see GraduationService::graduate), so this excludes them the
+            // same way it would a student who'd already promoted out.
             $students = Student::where('classroom_id', $data['from']['classroom_id'])
+                ->where('status', StudentStatus::Active)
                 ->whereNotIn('id', $exceptIds)
                 ->lockForUpdate()
                 ->get();
@@ -152,7 +157,13 @@ class PromotionService
             return;
         }
 
-        $currentCount = $classroom->students()->whereNotIn('id', $incomingStudentIds)->count();
+        // A graduated student keeps their classroom_id forever (see
+        // GraduationService::graduate) but has left the roster, so they
+        // shouldn't keep the seat they're no longer sitting in.
+        $currentCount = $classroom->students()
+            ->where('status', StudentStatus::Active)
+            ->whereNotIn('id', $incomingStudentIds)
+            ->count();
 
         if ($currentCount + count($incomingStudentIds) > $classroom->capacity) {
             throw ValidationException::withMessages([

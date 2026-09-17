@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Gender;
+use App\Enums\StudentStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -33,10 +34,12 @@ class Student extends Model implements HasMedia
         'grade_id',
         'classroom_id',
         'academic_year_id',
+        'status',
     ];
 
     protected $casts = [
         'gender' => Gender::class,
+        'status' => StudentStatus::class,
     ];
 
     public function user(): BelongsTo
@@ -97,6 +100,11 @@ class Student extends Model implements HasMedia
     public function promotions(): HasMany
     {
         return $this->hasMany(Promotion::class);
+    }
+
+    public function graduations(): HasMany
+    {
+        return $this->hasMany(Graduation::class);
     }
 
     public function registerMediaCollections(): void

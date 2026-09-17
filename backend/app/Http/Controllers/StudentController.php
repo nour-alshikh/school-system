@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StudentStatus;
 use App\Http\Requests\Student\StoreStudentAttachmentsRequest;
 use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
@@ -25,6 +26,17 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $query = Student::with(self::WITH)->orderBy('id');
+
+        // Defaults to the active roster — a graduated student stays on
+        // their last classroom_id/grade_id/etc. forever (see
+        // GraduationService::graduate), so every other caller of this
+        // endpoint (promotion/graduation source pickers, the students
+        // index) would otherwise keep surfacing them. status=all or
+        // status=graduated opts out explicitly.
+        $status = $request->query('status', StudentStatus::Active->value);
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
 
         if ($search = $request->query('search')) {
             $escaped = addcslashes($search, '%_\\');

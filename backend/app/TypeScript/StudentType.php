@@ -3,6 +3,7 @@
 namespace App\TypeScript;
 
 use App\Enums\Gender;
+use App\Enums\StudentStatus;
 use App\Models\Student;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -22,6 +23,7 @@ final class StudentType
         public readonly int $grade_id,
         public readonly int $classroom_id,
         public readonly int $academic_year_id,
+        public readonly StudentStatus $status,
         public readonly NationalityType $nationality,
         public readonly GovernorateType $governorate,
         public readonly BloodTypeType $blood_type,
@@ -53,6 +55,7 @@ final class StudentType
             grade_id: $student->grade_id,
             classroom_id: $student->classroom_id,
             academic_year_id: $student->academic_year_id,
+            status: $student->status,
             nationality: NationalityType::fromModel($student->nationality),
             governorate: GovernorateType::fromModel($student->governorate),
             blood_type: BloodTypeType::fromModel($student->bloodType),

@@ -55,6 +55,20 @@ readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type GraduationType = {
+readonly id: number,
+readonly student_id: number,
+readonly student_name_en: string,
+readonly student_name_ar: string,
+readonly stage: StageType,
+readonly grade: GradeType,
+readonly classroom: ClassroomType,
+readonly academic_year: AcademicYearType,
+readonly graduated_by_name: string | null,
+readonly created_at: string,
+readonly rolled_back_at: string | null,
+readonly rolled_back_by_name: string | null,
+};
 export type GuardianType = {
 readonly name: string,
 readonly job: string,
@@ -131,6 +145,7 @@ readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type StudentStatus = 'active' | 'graduated';
 export type StudentType = {
 readonly id: number,
 readonly name_en: string,
@@ -144,6 +159,7 @@ readonly stage_id: number,
 readonly grade_id: number,
 readonly classroom_id: number,
 readonly academic_year_id: number,
+readonly status: StudentStatus,
 readonly nationality: NationalityType,
 readonly governorate: GovernorateType,
 readonly blood_type: BloodTypeType,

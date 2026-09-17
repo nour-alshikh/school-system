@@ -9,6 +9,7 @@ use App\Http\Controllers\BloodTypeController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\GradeController;
+use App\Http\Controllers\GraduationController;
 use App\Http\Controllers\NationalityController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
@@ -114,6 +115,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/promotions', [PromotionController::class, 'index']);
         Route::post('/promotions', [PromotionController::class, 'store']);
         Route::post('/promotions/rollback', [PromotionController::class, 'rollback']);
+
+        Route::get('/graduations', [GraduationController::class, 'index']);
+        Route::post('/graduations', [GraduationController::class, 'store']);
+        Route::post('/graduations/rollback', [GraduationController::class, 'rollback']);
     });
 
     // A parent's self-service corner: their own account, and the one child

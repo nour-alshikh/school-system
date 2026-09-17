@@ -3,6 +3,7 @@
 import { useState, type ComponentType } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Award,
   BookOpen,
   CalendarRange,
   ChevronDown,
@@ -280,6 +281,18 @@ export function SiteSidebar() {
             href="/promotions/history"
             icon={History}
             label={t("promotionHistory")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/graduations"
+            icon={Award}
+            label={t("graduateStudents")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/graduations/history"
+            icon={History}
+            label={t("graduationHistory")}
             collapsed={false}
           />
         </SidebarGroup>

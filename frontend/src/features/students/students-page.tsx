@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Eye, Loader2, Pencil, Plus, Trash2, TrendingUp } from "lucide-react";
+import { Award, Eye, Loader2, Pencil, Plus, Trash2, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -65,6 +65,7 @@ export function StudentsPage() {
   const [stageFilter, setStageFilter] = useState<string>(ALL);
   const [gradeFilter, setGradeFilter] = useState<string>(ALL);
   const [classroomFilter, setClassroomFilter] = useState<string>(ALL);
+  const [statusFilter, setStatusFilter] = useState<string>("active");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [deletingStudent, setDeletingStudent] = useState<Student | null>(null);
@@ -96,7 +97,7 @@ export function StudentsPage() {
   // (during render, comparing against the previous committed value) rather
   // than in an effect, so it takes effect in the same render instead of
   // causing an extra one. Same convention as GradesPage.
-  const filtersKey = `${search}::${stageFilter}::${gradeFilter}::${classroomFilter}`;
+  const filtersKey = `${search}::${stageFilter}::${gradeFilter}::${classroomFilter}::${statusFilter}`;
   const [prevFiltersKey, setPrevFiltersKey] = useState(filtersKey);
   if (filtersKey !== prevFiltersKey) {
     setPrevFiltersKey(filtersKey);
@@ -109,13 +110,14 @@ export function StudentsPage() {
     isLoading: isLoadingStudents,
     error: studentsError,
   } = useQuery({
-    queryKey: ["students", page, search, stageFilter, gradeFilter, classroomFilter],
+    queryKey: ["students", page, search, stageFilter, gradeFilter, classroomFilter, statusFilter],
     queryFn: () =>
       apiFetch<{ students: Student[]; meta: PageMeta }>(
         `/api/students?page=${page}&per_page=${PER_PAGE}&search=${encodeURIComponent(search)}` +
           (stageFilter !== ALL ? `&stage_id=${stageFilter}` : "") +
           (gradeFilter !== ALL ? `&grade_id=${gradeFilter}` : "") +
-          (classroomFilter !== ALL ? `&classroom_id=${classroomFilter}` : "")
+          (classroomFilter !== ALL ? `&classroom_id=${classroomFilter}` : "") +
+          `&status=${statusFilter}`
       ),
     enabled: !isAuthLoading && !!user && canManage,
   });
@@ -201,6 +203,7 @@ export function StudentsPage() {
       stageFilter,
       gradeFilter,
       classroomFilter,
+      statusFilter,
       isLoadingStudents,
     ],
   });
@@ -267,6 +270,23 @@ export function StudentsPage() {
     router.push(`/promotions?classroom_id=${classroomFilter}`);
   }
 
+  // Same mixed-classroom guard as handlePromoteSelected — a graduation also
+  // moves everyone selected as one batch out of one classroom.
+  function handleGraduateSelected() {
+    if (selectedClassroomIds.size !== 1) {
+      toast.error(t("promoteMixedClassrooms"));
+      return;
+    }
+    const classroomId = [...selectedClassroomIds][0];
+    router.push(
+      `/graduations?classroom_id=${classroomId}&student_ids=${[...selectedIds].join(",")}`
+    );
+  }
+
+  function handleGraduateClassroom() {
+    router.push(`/graduations?classroom_id=${classroomFilter}`);
+  }
+
   if (isAuthLoading || !user || !canManage) {
     return <PageLoader />;
   }
@@ -276,16 +296,27 @@ export function StudentsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">{t("indexHeading")}</h1>
         <div className="flex items-center gap-2">
-          {selectedIds.size > 0 && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handlePromoteSelected}
-            >
-              <TrendingUp className="size-4" />
-              {t("promoteSelected", { count: selectedIds.size })}
-            </Button>
+          {selectedIds.size > 0 && statusFilter === "active" && (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handlePromoteSelected}
+              >
+                <TrendingUp className="size-4" />
+                {t("promoteSelected", { count: selectedIds.size })}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleGraduateSelected}
+              >
+                <Award className="size-4" />
+                {t("graduateSelected", { count: selectedIds.size })}
+              </Button>
+            </>
           )}
           <Button
             type="button"
@@ -352,22 +383,55 @@ export function StudentsPage() {
             ))}
           </SelectContent>
         </Select>
-        {classroomFilter !== ALL && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handlePromoteClassroom}
-          >
-            <TrendingUp className="size-4" />
-            {t("promoteClassroom")}
-          </Button>
+        <Select
+          items={[
+            { value: "active", label: t("activeBadge") },
+            { value: "graduated", label: t("graduatedBadge") },
+            { value: "all", label: t("allStatuses") },
+          ]}
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value ?? "active")}
+        >
+          <SelectTrigger aria-label={t("statusFilterLabel")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">{t("activeBadge")}</SelectItem>
+            <SelectItem value="graduated">{t("graduatedBadge")}</SelectItem>
+            <SelectItem value="all">{t("allStatuses")}</SelectItem>
+          </SelectContent>
+        </Select>
+        {classroomFilter !== ALL && statusFilter === "active" && (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePromoteClassroom}
+            >
+              <TrendingUp className="size-4" />
+              {t("promoteClassroom")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleGraduateClassroom}
+            >
+              <Award className="size-4" />
+              {t("graduateClassroom")}
+            </Button>
+          </>
         )}
       </div>
 
       {!isLoadingStudents && students.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          {search || stageFilter !== ALL || gradeFilter !== ALL || classroomFilter !== ALL
+          {search ||
+          stageFilter !== ALL ||
+          gradeFilter !== ALL ||
+          classroomFilter !== ALL ||
+          statusFilter !== "active"
             ? t("noResults")
             : t("noStudents")}
         </p>
@@ -387,12 +451,13 @@ export function StudentsPage() {
                 <TableHead>{t("emailColumn")}</TableHead>
                 <TableHead>{t("classColumn")}</TableHead>
                 <TableHead>{t("parentEmailColumn")}</TableHead>
+                {statusFilter !== "active" && <TableHead>{t("statusColumn")}</TableHead>}
                 <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoadingStudents ? (
-                <TableSkeletonRows columns={6} />
+                <TableSkeletonRows columns={statusFilter !== "active" ? 7 : 6} />
               ) : (
                 students.map((student) => (
                   <TableRow key={student.id}>
@@ -417,6 +482,19 @@ export function StudentsPage() {
                       {classroomNameById.get(student.classroom_id) ?? "—"}
                     </TableCell>
                     <TableCell>{student.parent_email}</TableCell>
+                    {statusFilter !== "active" && (
+                      <TableCell>
+                        {student.status === "graduated" ? (
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                            {t("graduatedBadge")}
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                            {t("activeBadge")}
+                          </span>
+                        )}
+                      </TableCell>
+                    )}
                     <TableCell>
                       <div className="flex justify-end gap-2">
                         <Button
