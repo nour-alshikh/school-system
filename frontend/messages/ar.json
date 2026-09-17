@@ -16,6 +16,7 @@
     "allStudents": "جميع الطلاب",
     "addStudent": "إضافة طالب",
     "promoteStudents": "ترقية الطلاب",
+    "promotionHistory": "سجل الترقيات",
     "teachers": "المعلمون",
     "allTeachers": "جميع المعلمين",
     "teacherSubjects": "تعيين المواد",
@@ -531,6 +532,10 @@
   "PromotionsPage": {
     "heading": "ترقية الطلاب",
     "description": "انقل طلاب فصل إلى فصل أو صف أو مرحلة جديدة — اختر الفصل أدناه، ثم الوجهة.",
+    "viewHistory": "عرض السجل",
+    "backToPromote": "العودة إلى ترقية الطلاب",
+    "historySearchPlaceholder": "ابحث باسم الطالب...",
+    "classroomFilterLabel": "الفصل",
     "fromHeading": "من",
     "toHeading": "إلى",
     "matchedHeading": "{count, plural, one {طالب واحد مطابق} other {# طالب مطابق}}",

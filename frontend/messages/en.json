@@ -16,6 +16,7 @@
     "allStudents": "All students",
     "addStudent": "Add student",
     "promoteStudents": "Promote students",
+    "promotionHistory": "Promotion history",
     "teachers": "Teachers",
     "allTeachers": "All teachers",
     "teacherSubjects": "Subject assignments",
@@ -531,6 +532,10 @@
   "PromotionsPage": {
     "heading": "Promote students",
     "description": "Move a classroom's students into a new classroom, grade, or stage — pick the classroom below, then where they're going.",
+    "viewHistory": "View history",
+    "backToPromote": "Back to promote students",
+    "historySearchPlaceholder": "Search by student name...",
+    "classroomFilterLabel": "Classroom",
     "fromHeading": "From",
     "toHeading": "To",
     "matchedHeading": "{count, plural, one {# student matches} other {# students match}}",

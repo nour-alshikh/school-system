@@ -34,6 +34,23 @@ class PromotionController extends Controller
             }
         }
 
+        // Either side — a classroom shows up in this filter whether it was
+        // where the student moved from or where they landed.
+        if ($classroomId = $request->query('classroom_id')) {
+            $query->where(function ($q) use ($classroomId) {
+                $q->where('from_classroom_id', $classroomId)
+                    ->orWhere('to_classroom_id', $classroomId);
+            });
+        }
+
+        if ($search = $request->query('search')) {
+            $escaped = addcslashes($search, '%_\\');
+            $query->whereHas('student', function ($studentQuery) use ($escaped) {
+                $studentQuery->where('name->en', 'like', "%{$escaped}%")
+                    ->orWhere('name->ar', 'like', "%{$escaped}%");
+            });
+        }
+
         if (! $request->has('page')) {
             return response()->json([
                 'promotions' => PromotionResource::collection($query->get()),

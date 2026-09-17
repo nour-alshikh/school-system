@@ -8,6 +8,7 @@ import {
   ChevronDown,
   DoorOpen,
   GraduationCap,
+  History,
   LayoutDashboard,
   Layers,
   Link2,
@@ -273,6 +274,12 @@ export function SiteSidebar() {
             href="/promotions"
             icon={TrendingUp}
             label={t("promoteStudents")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/promotions/history"
+            icon={History}
+            label={t("promotionHistory")}
             collapsed={false}
           />
         </SidebarGroup>
