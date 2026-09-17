@@ -76,10 +76,6 @@ export function ClassroomForm({
 
   const gradeId = form.watch("grade_id");
 
-  // A subject whose teacher went inactive keeps its row server-side with
-  // teacher_id null (see TeacherController::update) rather than being
-  // deleted — the picker only ever holds real assignments, so those show up
-  // here the same as a subject nobody's assigned yet: as "Unassigned".
   const [assignments, setAssignments] = useState<SubjectTeacherAssignment[]>(
     classroom.subject_teachers.filter(
       (assignment): assignment is SubjectTeacherAssignment =>

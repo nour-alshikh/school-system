@@ -51,19 +51,21 @@ class TeacherController extends Controller
     }
 
     /**
-     * Going inactive frees up whatever classroom/subject slots this teacher
-     * held — nulling teacher_id rather than deleting the rows, so the
-     * classroom keeps the subject, it's just unassigned (a still-active
-     * teacher can only be assigned subjects they teach, so an inactive one
-     * can't stay on the roster there).
+     * A teacher still holding a classroom subject slot can't go
+     * inactive/on_leave — the classroom would be left with a "teacher" who
+     * isn't actually teaching. Unassign them from every classroom first.
      */
     public function update(UpdateTeacherRequest $request, Teacher $teacher)
     {
-        $teacher->update($request->validated());
+        $data = $request->validated();
 
-        if ($teacher->status === TeacherStatus::Inactive) {
-            $teacher->classroomSubjects()->update(['teacher_id' => null]);
+        if ($data['status'] !== TeacherStatus::Active->value && $teacher->classroomSubjects()->exists()) {
+            return response()->json([
+                'message' => 'This teacher is assigned to a classroom subject and cannot become inactive or on leave.',
+            ], 422);
         }
+
+        $teacher->update($data);
 
         return response()->json(['teacher' => new TeacherResource($teacher->load('subjects'))]);
     }
@@ -82,6 +84,12 @@ class TeacherController extends Controller
 
     public function destroy(Teacher $teacher)
     {
+        if ($teacher->classroomSubjects()->exists()) {
+            return response()->json([
+                'message' => 'This teacher is assigned to a classroom subject and cannot be deleted.',
+            ], 422);
+        }
+
         $teacher->delete();
 
         return response()->noContent();
@@ -93,6 +101,16 @@ class TeacherController extends Controller
             'ids' => ['required', 'array', 'min:1'],
             'ids.*' => ['integer', 'exists:teachers,id'],
         ]);
+
+        $teachers = Teacher::whereIn('id', $validated['ids'])->get();
+
+        $withClassroomSubjects = $teachers->filter(fn (Teacher $teacher) => $teacher->classroomSubjects()->exists());
+
+        if ($withClassroomSubjects->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Some teachers are assigned to a classroom subject and cannot be deleted.',
+            ], 422);
+        }
 
         Teacher::whereIn('id', $validated['ids'])->delete();
 

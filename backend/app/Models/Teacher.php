@@ -29,8 +29,8 @@ class Teacher extends Model
 
     /**
      * This teacher's classroom subject assignments — see
-     * TeacherController::update(), which nulls teacher_id here (instead of
-     * deleting the rows) when this teacher goes inactive.
+     * TeacherController::update()/destroy(), which block going
+     * inactive/on_leave or being deleted while any of these exist.
      */
     public function classroomSubjects(): HasMany
     {
