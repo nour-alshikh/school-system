@@ -184,7 +184,7 @@ function StudentDetail({
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 print:hidden">
         <Link
           href="/students"
           className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -230,7 +230,7 @@ function StudentDetail({
         onValueChange={(v) => setActiveTab(v as TabValue)}
         className="flex flex-col gap-4"
       >
-        <TabsList>
+        <TabsList className="print:hidden">
           <TabsTrigger value="student">{t("stepPersonal")}</TabsTrigger>
           <TabsTrigger value="academic">{t("stepAcademic")}</TabsTrigger>
           <TabsTrigger value="parent">{t("stepParentAccount")}</TabsTrigger>

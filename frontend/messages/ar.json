@@ -590,6 +590,12 @@
   "StudentFeesSection": {
     "heading": "الرسوم المستحقة",
     "addCharge": "إضافة رسم",
+    "print": "طباعة",
+    "printTitle": "سجل دفعات الرسوم",
+    "printGeneratedOn": "تم الإنشاء بتاريخ {date}",
+    "printChargesHeading": "الرسوم",
+    "printPaymentsHeading": "سجل الدفعات",
+    "printTotalsLabel": "الإجمالي",
     "noCharges": "لا توجد رسوم مستحقة بعد.",
     "feeColumn": "الرسم",
     "dueColumn": "المستحق",

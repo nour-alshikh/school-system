@@ -49,7 +49,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header ref={ref} className="border-b">
+    <header ref={ref} className="border-b print:hidden">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <Link href="/" className="text-sm font-semibold">
           {t("brand")}

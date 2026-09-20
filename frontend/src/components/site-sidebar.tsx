@@ -179,7 +179,7 @@ export function SiteSidebar() {
     <nav
       ref={ref}
       className={cn(
-        "hidden shrink-0 flex-col gap-1 border-e p-2 transition-[width] duration-150 md:flex",
+        "hidden shrink-0 flex-col gap-1 border-e p-2 transition-[width] duration-150 print:hidden md:flex",
         collapsed ? "w-12 items-center" : "w-48 p-4"
       )}
     >

@@ -590,6 +590,12 @@
   "StudentFeesSection": {
     "heading": "Fee charges",
     "addCharge": "Add charge",
+    "print": "Print",
+    "printTitle": "Fee payment history",
+    "printGeneratedOn": "Generated on {date}",
+    "printChargesHeading": "Charges",
+    "printPaymentsHeading": "Payment history",
+    "printTotalsLabel": "Total",
     "noCharges": "No fees charged yet.",
     "feeColumn": "Fee",
     "dueColumn": "Due",
