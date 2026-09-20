@@ -22,8 +22,8 @@ class UpdateFeeRequest extends FormRequest
             'amount' => ['required', 'numeric', 'min:0'],
             'is_active' => ['required', 'boolean'],
             'is_for_all' => ['required', 'boolean'],
-            'stage_id' => ['required_if:is_for_all,false', 'prohibited_if:is_for_all,true', 'integer', 'exists:stages,id'],
-            'grade_id' => ['required_if:is_for_all,false', 'prohibited_if:is_for_all,true', 'integer', 'exists:grades,id'],
+            'stage_id' => ['nullable', 'required_if:is_for_all,false', 'prohibited_if:is_for_all,true', 'integer', 'exists:stages,id'],
+            'grade_id' => ['nullable', 'required_if:is_for_all,false', 'prohibited_if:is_for_all,true', 'integer', 'exists:grades,id'],
         ];
     }
 
