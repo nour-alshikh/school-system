@@ -157,6 +157,20 @@ html[dir="rtl"] {
   }
 }
 
+/* Printed output should always read like paper — white background, dark
+   text — regardless of which theme the viewer has active on screen. Without
+   this, dark mode prints as a solid black page (readable only as white text
+   on black, and wastes ink on an actual printer). */
+@media print {
+  :root,
+  .dark {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --border: oklch(0.922 0 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

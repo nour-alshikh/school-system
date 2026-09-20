@@ -36,6 +36,15 @@ const statusBadgeClass: Record<FeeChargeStatus, string> = {
   waived: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
 };
 
+// A waived charge owes nothing regardless of what's actually been paid on
+// it. And an overpaid charge (only possible from data predating the
+// payment-total guard) reads as "Paid", not a negative debt — clamp at 0
+// rather than showing a confusing negative balance.
+function chargeBalance(charge: FeeCharge): number {
+  if (charge.status === "waived") return 0;
+  return Math.max(0, Number(charge.amount_due) - Number(charge.amount_paid));
+}
+
 function methodLabel(t: (key: string) => string, method: string): string {
   const map: Record<string, string> = {
     cash: t("methodCash"),
@@ -63,16 +72,11 @@ function FeesPrintReport({
   const locale = useLocale();
 
   const totals = charges.reduce(
-    (acc, charge) => {
-      const due = Number(charge.amount_due);
-      const paid = Number(charge.amount_paid);
-      const balance = charge.status === "waived" ? 0 : due - paid;
-      return {
-        due: acc.due + due,
-        paid: acc.paid + paid,
-        balance: acc.balance + balance,
-      };
-    },
+    (acc, charge) => ({
+      due: acc.due + Number(charge.amount_due),
+      paid: acc.paid + Number(charge.amount_paid),
+      balance: acc.balance + chargeBalance(charge),
+    }),
     { due: 0, paid: 0, balance: 0 }
   );
 
@@ -88,7 +92,7 @@ function FeesPrintReport({
     );
 
   return (
-    <div className="flex flex-col gap-6 text-sm text-black">
+    <div className="flex flex-col gap-6 text-sm">
       <div>
         <h1 className="text-lg font-semibold">{t("printTitle")}</h1>
         <p>{locale === "ar" ? student.name_ar : student.name_en}</p>
@@ -111,12 +115,7 @@ function FeesPrintReport({
           </thead>
           <tbody>
             {charges.map((charge) => {
-              const balance =
-                charge.status === "waived"
-                  ? "0.00"
-                  : (
-                      Number(charge.amount_due) - Number(charge.amount_paid)
-                    ).toFixed(2);
+              const balance = chargeBalance(charge).toFixed(2);
               return (
                 <tr key={charge.id} className="border-b">
                   <td className="p-1">
@@ -312,14 +311,7 @@ export function StudentFeesSection({ student }: { student: Student }) {
                 <TableSkeletonRows columns={6} />
               ) : (
                 charges.map((charge) => {
-                  // A waived charge owes nothing regardless of what's actually
-                  // been paid on it — don't show the due/paid gap as a debt.
-                  const balance =
-                    charge.status === "waived"
-                      ? "0.00"
-                      : (
-                          Number(charge.amount_due) - Number(charge.amount_paid)
-                        ).toFixed(2);
+                  const balance = chargeBalance(charge).toFixed(2);
                   const canPay =
                     charge.status !== "paid" && charge.status !== "waived";
                   const canWaive = canPay;
