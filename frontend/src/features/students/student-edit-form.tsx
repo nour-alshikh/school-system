@@ -230,6 +230,7 @@ export function StudentEditForm({
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as TabValue)}
+          className="flex flex-col gap-4"
         >
           <TabsList>
             <TabsTrigger value="student">{t("stepPersonal")}</TabsTrigger>
