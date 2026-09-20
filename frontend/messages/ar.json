@@ -351,6 +351,7 @@
   "FeesPage": {
     "newFee": "رسم جديد",
     "editFee": "تعديل الرسم",
+    "chargeAll": "تحصيل الرسم من جميع الطلاب المطابقين",
     "feesHeading": "الرسوم",
     "noFees": "لا توجد رسوم بعد.",
     "noResults": "لا توجد رسوم مطابقة لبحثك.",
@@ -608,6 +609,7 @@
     "status_paid": "مدفوع",
     "status_waived": "معفى",
     "viewHistory": "عرض سجل الدفعات",
+    "editAmount": "تعديل المبلغ",
     "recordPayment": "تسجيل دفعة",
     "waive": "إعفاء",
     "unwaive": "إلغاء الإعفاء",
@@ -629,6 +631,22 @@
     "amountColumn": "المبلغ",
     "methodColumn": "طريقة الدفع",
     "noteColumn": "ملاحظة"
+  },
+  "ChargeAllFeeForm": {
+    "loading": "جارٍ تحميل الطلاب المطابقين…",
+    "loadError": "فشل تحميل الطلاب المطابقين.",
+    "noMatches": "تم بالفعل تحصيل هذا الرسم من جميع الطلاب المطابقين.",
+    "matchCount": "{count, plural, one {# طالب مطابق لهذا الرسم ولم يُحصّل منه بعد.} other {# طلاب مطابقين لهذا الرسم ولم يُحصّل منهم بعد.}}",
+    "removeRow": "إزالة",
+    "chargeAll": "تحصيل المحدد",
+    "cancel": "إلغاء",
+    "createdToast": "{count, plural, one {تم التحصيل من طالب واحد.} other {تم التحصيل من # طلاب.}}"
+  },
+  "FeeChargeAmountForm": {
+    "amountDueLabel": "المبلغ المستحق",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "updatedToast": "تم تحديث المبلغ."
   },
   "FeeChargeForm": {
     "feeLabel": "الرسم",

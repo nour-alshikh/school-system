@@ -30,6 +30,48 @@ export function createFeeChargesSchema(t: Translate) {
 export type FeeChargeRowValues = z.infer<ReturnType<typeof createFeeChargeRowSchema>>;
 export type FeeChargesFormValues = z.infer<ReturnType<typeof createFeeChargesSchema>>;
 
+export function createFeeChargeAmountSchema(t: Translate) {
+  return z.object({
+    amount_due: z
+      .string()
+      .min(1, t("feeChargeAmountRequired"))
+      .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, {
+        message: t("feeChargeAmountInvalid"),
+      }),
+  });
+}
+
+export type FeeChargeAmountFormValues = z.infer<
+  ReturnType<typeof createFeeChargeAmountSchema>
+>;
+
+export function createChargeAllFeeRowSchema(t: Translate) {
+  return z.object({
+    student_id: z.string(),
+    amount_due: z
+      .string()
+      .min(1, t("feeChargeAmountRequired"))
+      .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, {
+        message: t("feeChargeAmountInvalid"),
+      }),
+  });
+}
+
+export function createChargeAllFeeSchema(t: Translate) {
+  return z.object({
+    rows: z
+      .array(createChargeAllFeeRowSchema(t))
+      .min(1, t("feeChargeRowsRequired")),
+  });
+}
+
+export type ChargeAllFeeRowValues = z.infer<
+  ReturnType<typeof createChargeAllFeeRowSchema>
+>;
+export type ChargeAllFeeFormValues = z.infer<
+  ReturnType<typeof createChargeAllFeeSchema>
+>;
+
 export function createFeePaymentSchema(t: Translate) {
   return z.object({
     amount: z

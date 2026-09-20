@@ -3,4 +3,5 @@ export type {
   FeePaymentType as FeePayment,
   FeeChargeStatus,
   FeePaymentMethod,
+  FeeMatchingStudentType as FeeMatchingStudent,
 } from "@/types/generated";

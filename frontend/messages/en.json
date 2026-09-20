@@ -351,6 +351,7 @@
   "FeesPage": {
     "newFee": "New fee",
     "editFee": "Edit fee",
+    "chargeAll": "Charge all matching students",
     "feesHeading": "Fees",
     "noFees": "No fees yet.",
     "noResults": "No fees match your search.",
@@ -608,6 +609,7 @@
     "status_paid": "Paid",
     "status_waived": "Waived",
     "viewHistory": "View payment history",
+    "editAmount": "Edit amount",
     "recordPayment": "Record payment",
     "waive": "Waive",
     "unwaive": "Unwaive",
@@ -629,6 +631,22 @@
     "amountColumn": "Amount",
     "methodColumn": "Method",
     "noteColumn": "Note"
+  },
+  "ChargeAllFeeForm": {
+    "loading": "Loading matching students…",
+    "loadError": "Failed to load matching students.",
+    "noMatches": "Every matching student has already been charged this fee.",
+    "matchCount": "{count, plural, one {# student matches this fee and hasn't been charged yet.} other {# students match this fee and haven't been charged yet.}}",
+    "removeRow": "Remove",
+    "chargeAll": "Charge selected",
+    "cancel": "Cancel",
+    "createdToast": "{count, plural, one {Charged 1 student.} other {Charged # students.}}"
+  },
+  "FeeChargeAmountForm": {
+    "amountDueLabel": "Amount due",
+    "save": "Save",
+    "cancel": "Cancel",
+    "updatedToast": "Amount updated."
   },
   "FeeChargeForm": {
     "feeLabel": "Fee",

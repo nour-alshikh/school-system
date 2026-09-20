@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -31,6 +31,7 @@ import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
 import { Pagination, type PageMeta } from "@/components/pagination";
 import { SearchInput } from "@/components/search-input";
+import { ChargeAllFeeForm } from "@/features/fee-charges/charge-all-fee-form";
 import { FeeForm } from "./fee-form";
 import type { Fee } from "./types";
 import type { AcademicYear } from "@/features/academic-years/types";
@@ -62,6 +63,7 @@ export function FeesPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [deletingFee, setDeletingFee] = useState<Fee | null>(null);
   const [bulkDeleteConfirmOpen, setBulkDeleteConfirmOpen] = useState(false);
+  const [chargingAllFee, setChargingAllFee] = useState<Fee | null>(null);
 
   function openCreateDialog() {
     setEditingFee(null);
@@ -335,6 +337,16 @@ export function FeesPage() {
                               type="button"
                               variant="outline"
                               size="icon-sm"
+                              aria-label={t("chargeAll")}
+                              title={t("chargeAll")}
+                              onClick={() => setChargingAllFee(fee)}
+                            >
+                              <Users className="size-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon-sm"
                               aria-label={t("edit")}
                               title={t("edit")}
                               onClick={() => openEditDialog(fee)}
@@ -384,6 +396,24 @@ export function FeesPage() {
           </DialogContent>
         </Dialog>
       )}
+
+      <Dialog
+        open={!!chargingAllFee}
+        onOpenChange={(open) => !open && setChargingAllFee(null)}
+      >
+        <DialogContent className="max-h-[85vh] sm:max-w-lg overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("chargeAll")}</DialogTitle>
+          </DialogHeader>
+          {chargingAllFee && (
+            <ChargeAllFeeForm
+              key={chargingAllFee.id}
+              fee={chargingAllFee}
+              onSuccess={() => setChargingAllFee(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={!!deletingFee}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\FeeChargeStatus;
 use App\Http\Requests\FeeCharge\StoreFeeChargeRequest;
 use App\Http\Requests\FeeCharge\StoreFeePaymentRequest;
+use App\Http\Requests\FeeCharge\UpdateFeeChargeRequest;
 use App\Http\Resources\FeeChargeResource;
 use App\Models\Fee;
 use App\Models\FeeCharge;
@@ -46,6 +47,21 @@ class FeeChargeController extends Controller
         return response()->json([
             'fee_charges' => FeeChargeResource::collection($charges->each->load(['fee', 'payments.recordedBy'])),
         ], 201);
+    }
+
+    public function update(UpdateFeeChargeRequest $request, FeeCharge $feeCharge)
+    {
+        if ($feeCharge->payments()->exists()) {
+            return response()->json([
+                'message' => 'This charge has payments recorded against it and its amount can no longer be edited.',
+            ], 422);
+        }
+
+        $feeCharge->update(['amount_due' => $request->input('amount_due')]);
+
+        return response()->json([
+            'fee_charge' => new FeeChargeResource($feeCharge->load(['fee', 'payments.recordedBy'])),
+        ]);
     }
 
     public function destroy(FeeCharge $feeCharge)

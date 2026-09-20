@@ -97,12 +97,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/fees/bulk-delete', [FeeController::class, 'bulkDestroy']);
         Route::put('/fees/{fee}', [FeeController::class, 'update']);
         Route::delete('/fees/{fee}', [FeeController::class, 'destroy']);
+        Route::get('/fees/{fee}/matching-students', [FeeController::class, 'matchingStudents']);
+        Route::post('/fees/{fee}/charge-all', [FeeController::class, 'chargeAll']);
 
         // Billing lives here rather than under manage-students, since it's
         // the same admin territory that owns the fee catalog — see
         // Fee::charges()/FeeCharge.
         Route::get('/students/{student}/fee-charges', [FeeChargeController::class, 'index']);
         Route::post('/students/{student}/fee-charges', [FeeChargeController::class, 'store']);
+        Route::put('/fee-charges/{feeCharge}', [FeeChargeController::class, 'update']);
         Route::delete('/fee-charges/{feeCharge}', [FeeChargeController::class, 'destroy']);
         Route::post('/fee-charges/{feeCharge}/waive', [FeeChargeController::class, 'waive']);
         Route::post('/fee-charges/{feeCharge}/unwaive', [FeeChargeController::class, 'unwaive']);

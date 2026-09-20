@@ -52,6 +52,11 @@ readonly status: FeeChargeStatus,
 readonly payments: FeePaymentType[],
 readonly created_at: string,
 };
+export type FeeMatchingStudentType = {
+readonly id: number,
+readonly name_en: string,
+readonly name_ar: string,
+};
 export type FeePaymentMethod = 'cash' | 'bank_transfer' | 'card' | 'other';
 export type FeePaymentType = {
 readonly id: number,

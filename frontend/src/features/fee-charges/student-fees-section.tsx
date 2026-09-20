@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Banknote, History, Loader2, Plus, Printer, Trash2 } from "lucide-react";
+import {
+  Banknote,
+  History,
+  Loader2,
+  Pencil,
+  Plus,
+  Printer,
+  Trash2,
+} from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -23,6 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TableSkeletonRows } from "@/components/table-skeleton";
+import { FeeChargeAmountForm } from "./fee-charge-amount-form";
 import { FeeChargeForm } from "./fee-charge-form";
 import { FeePaymentForm } from "./fee-payment-form";
 import type { FeeCharge, FeeChargeStatus } from "./types";
@@ -196,6 +205,7 @@ export function StudentFeesSection({ student }: { student: Student }) {
   const queryClient = useQueryClient();
 
   const [addChargeOpen, setAddChargeOpen] = useState(false);
+  const [editingCharge, setEditingCharge] = useState<FeeCharge | null>(null);
   const [payingCharge, setPayingCharge] = useState<FeeCharge | null>(null);
   const [viewingCharge, setViewingCharge] = useState<FeeCharge | null>(null);
   const [waivingCharge, setWaivingCharge] = useState<FeeCharge | null>(null);
@@ -375,6 +385,18 @@ export function StudentFeesSection({ student }: { student: Student }) {
                           {canDelete && (
                             <Button
                               type="button"
+                              variant="outline"
+                              size="icon-sm"
+                              aria-label={t("editAmount")}
+                              title={t("editAmount")}
+                              onClick={() => setEditingCharge(charge)}
+                            >
+                              <Pencil className="size-4" />
+                            </Button>
+                          )}
+                          {canDelete && (
+                            <Button
+                              type="button"
                               variant="destructive"
                               size="icon-sm"
                               aria-label={t("delete")}
@@ -442,6 +464,24 @@ export function StudentFeesSection({ student }: { student: Student }) {
               chargeableFees={chargeableFees}
               onSuccess={() => setAddChargeOpen(false)}
             />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={!!editingCharge}
+          onOpenChange={(open) => !open && setEditingCharge(null)}
+        >
+          <DialogContent className="max-h-[85vh] sm:max-w-sm overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{t("editAmount")}</DialogTitle>
+            </DialogHeader>
+            {editingCharge && (
+              <FeeChargeAmountForm
+                studentId={student.id}
+                feeCharge={editingCharge}
+                onSuccess={() => setEditingCharge(null)}
+              />
+            )}
           </DialogContent>
         </Dialog>
 

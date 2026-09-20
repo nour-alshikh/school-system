@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\FeeChargeStatus;
+use App\Enums\StudentStatus;
+use App\Http\Requests\Fee\ChargeAllFeeRequest;
 use App\Http\Requests\Fee\StoreFeeRequest;
 use App\Http\Requests\Fee\UpdateFeeRequest;
+use App\Http\Resources\FeeMatchingStudentResource;
 use App\Http\Resources\FeeResource;
 use App\Models\Fee;
+use App\Models\FeeCharge;
+use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FeeController extends Controller
 {
@@ -101,5 +108,40 @@ class FeeController extends Controller
         Fee::whereIn('id', $validated['ids'])->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Students this fee applies to (is_for_all, or its exact stage+grade)
+     * who are active in the fee's academic year and don't already have a
+     * charge for it — the review step's candidate list for "charge all".
+     */
+    public function matchingStudents(Fee $fee)
+    {
+        $query = Student::where('academic_year_id', $fee->academic_year_id)
+            ->where('status', StudentStatus::Active)
+            ->whereDoesntHave('feeCharges', fn ($q) => $q->where('fee_id', $fee->id));
+
+        if (! $fee->is_for_all) {
+            $query->where('stage_id', $fee->stage_id)->where('grade_id', $fee->grade_id);
+        }
+
+        $students = $query->orderBy('id')->get();
+
+        return response()->json(['students' => FeeMatchingStudentResource::collection($students)]);
+    }
+
+    public function chargeAll(ChargeAllFeeRequest $request, Fee $fee)
+    {
+        $charges = DB::transaction(function () use ($request, $fee) {
+            return collect($request->validated('charges'))->map(fn (array $row) => FeeCharge::create([
+                'student_id' => $row['student_id'],
+                'fee_id' => $fee->id,
+                'academic_year_id' => $fee->academic_year_id,
+                'amount_due' => $row['amount_due'],
+                'status' => FeeChargeStatus::Unpaid,
+            ]));
+        });
+
+        return response()->json(['charged_count' => $charges->count()], 201);
     }
 }
