@@ -107,6 +107,11 @@ class Student extends Model implements HasMedia
         return $this->hasMany(Graduation::class);
     }
 
+    public function feeCharges(): HasMany
+    {
+        return $this->hasMany(FeeCharge::class);
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('attachments');

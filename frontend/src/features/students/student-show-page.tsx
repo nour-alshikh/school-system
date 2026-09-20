@@ -20,6 +20,7 @@ import { PageLoader } from "@/components/page-loader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Section } from "./guardian-fields";
 import { StudentEditForm } from "./student-edit-form";
+import { StudentFeesSection } from "@/features/fee-charges/student-fees-section";
 import type { Student, Guardian } from "./types";
 import type {
   BloodTypeType,
@@ -50,7 +51,14 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-type TabValue = "student" | "academic" | "parent" | "father" | "mother" | "attachments";
+type TabValue =
+  | "student"
+  | "academic"
+  | "parent"
+  | "father"
+  | "mother"
+  | "attachments"
+  | "fees";
 
 function GuardianTab({
   guardian,
@@ -107,7 +115,13 @@ function GuardianTab({
   );
 }
 
-function StudentDetail({ student }: { student: Student }) {
+function StudentDetail({
+  student,
+  canManageFees,
+}: {
+  student: Student;
+  canManageFees: boolean;
+}) {
   const t = useTranslations("StudentWizard");
   const tShow = useTranslations("StudentShowPage");
   const tPage = useTranslations("StudentsPage");
@@ -219,6 +233,9 @@ function StudentDetail({ student }: { student: Student }) {
           <TabsTrigger value="father">{t("stepFather")}</TabsTrigger>
           <TabsTrigger value="mother">{t("stepMother")}</TabsTrigger>
           <TabsTrigger value="attachments">{t("stepAttachments")}</TabsTrigger>
+          {canManageFees && (
+            <TabsTrigger value="fees">{tShow("feesTab")}</TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="student">
@@ -332,6 +349,12 @@ function StudentDetail({ student }: { student: Student }) {
             )}
           </Section>
         </TabsContent>
+
+        {canManageFees && (
+          <TabsContent value="fees">
+            <StudentFeesSection student={student} />
+          </TabsContent>
+        )}
       </Tabs>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
@@ -373,6 +396,7 @@ export function StudentShowPage({ id }: { id: string }) {
   const { user, isLoading: isAuthLoading, can } = useAuth();
   const router = useRouter();
   const canManage = can("manage-students");
+  const canManageFees = can("manage-fees");
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -405,5 +429,5 @@ export function StudentShowPage({ id }: { id: string }) {
     return <PageLoader />;
   }
 
-  return <StudentDetail student={student} />;
+  return <StudentDetail student={student} canManageFees={canManageFees} />;
 }

@@ -70,6 +70,12 @@ class FeeController extends Controller
 
     public function destroy(Fee $fee)
     {
+        if ($fee->charges()->exists()) {
+            return response()->json([
+                'message' => 'This fee has been charged to students and cannot be deleted.',
+            ], 422);
+        }
+
         $fee->delete();
 
         return response()->noContent();
@@ -81,6 +87,16 @@ class FeeController extends Controller
             'ids' => ['required', 'array', 'min:1'],
             'ids.*' => ['integer', 'exists:fees,id'],
         ]);
+
+        $fees = Fee::whereIn('id', $validated['ids'])->get();
+
+        $withCharges = $fees->filter(fn (Fee $fee) => $fee->charges()->exists());
+
+        if ($withCharges->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Some fees have been charged to students and cannot be deleted.',
+            ], 422);
+        }
 
         Fee::whereIn('id', $validated['ids'])->delete();
 

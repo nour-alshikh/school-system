@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\BloodTypeController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\FeeChargeController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\GradeController;
@@ -96,6 +97,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/fees/bulk-delete', [FeeController::class, 'bulkDestroy']);
         Route::put('/fees/{fee}', [FeeController::class, 'update']);
         Route::delete('/fees/{fee}', [FeeController::class, 'destroy']);
+
+        // Billing lives here rather than under manage-students, since it's
+        // the same admin territory that owns the fee catalog — see
+        // Fee::charges()/FeeCharge.
+        Route::get('/students/{student}/fee-charges', [FeeChargeController::class, 'index']);
+        Route::post('/students/{student}/fee-charges', [FeeChargeController::class, 'store']);
+        Route::delete('/fee-charges/{feeCharge}', [FeeChargeController::class, 'destroy']);
+        Route::post('/fee-charges/{feeCharge}/waive', [FeeChargeController::class, 'waive']);
+        Route::post('/fee-charges/{feeCharge}/payments', [FeeChargeController::class, 'storePayment']);
     });
 
     // Teachers are their own admin territory, separate from the academic

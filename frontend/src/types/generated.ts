@@ -38,6 +38,30 @@ readonly subject_teachers: ClassroomSubjectTeacherType[],
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type FeeChargeStatus = 'unpaid' | 'partial' | 'paid' | 'waived';
+export type FeeChargeType = {
+readonly id: number,
+readonly student_id: number,
+readonly fee_id: number,
+readonly fee_name_en: string,
+readonly fee_name_ar: string,
+readonly academic_year_id: number,
+readonly amount_due: string,
+readonly amount_paid: string,
+readonly status: FeeChargeStatus,
+readonly payments: FeePaymentType[],
+readonly created_at: string,
+};
+export type FeePaymentMethod = 'cash' | 'bank_transfer' | 'card' | 'other';
+export type FeePaymentType = {
+readonly id: number,
+readonly amount: string,
+readonly paid_at: string,
+readonly method: FeePaymentMethod,
+readonly note: string | null,
+readonly recorded_by_name: string | null,
+readonly created_at: string,
+};
 export type FeeType = {
 readonly id: number,
 readonly name_en: string,
