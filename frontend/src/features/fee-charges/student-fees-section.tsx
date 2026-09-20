@@ -172,9 +172,14 @@ export function StudentFeesSection({ student }: { student: Student }) {
               <TableSkeletonRows columns={6} />
             ) : (
               charges.map((charge) => {
-                const balance = (
-                  Number(charge.amount_due) - Number(charge.amount_paid)
-                ).toFixed(2);
+                // A waived charge owes nothing regardless of what's actually
+                // been paid on it — don't show the due/paid gap as a debt.
+                const balance =
+                  charge.status === "waived"
+                    ? "0.00"
+                    : (
+                        Number(charge.amount_due) - Number(charge.amount_paid)
+                      ).toFixed(2);
                 const canPay =
                   charge.status !== "paid" && charge.status !== "waived";
                 const canWaive = canPay;
