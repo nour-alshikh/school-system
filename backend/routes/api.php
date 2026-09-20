@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\BloodTypeController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FeeChargeController;
 use App\Http\Controllers\FeeController;
 use App\Http\Controllers\GovernorateController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentPortal\ExamController as StudentExamController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Models\Post;
@@ -167,6 +169,29 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/parent/profile', [ProfileController::class, 'update']);
         Route::get('/parent/student', [ParentStudentController::class, 'show']);
         Route::put('/parent/student', [ParentStudentController::class, 'update']);
+    });
+
+    // Exams/quizzes are shared between admin (manage-exams, any grade or
+    // classroom) and the teacher role (only classroom+subject combinations
+    // they hold via ClassroomSubjectTeacher) — same split as attendance,
+    // enforced in ExamController since route middleware alone can't express
+    // the per-classroom scoping. See ExamController::authorizeTarget().
+    Route::middleware('role_or_permission:teacher|manage-exams')->group(function () {
+        Route::get('/exams', [ExamController::class, 'index']);
+        Route::get('/exams/teaching-assignments', [ExamController::class, 'teachingAssignments']);
+        Route::post('/exams', [ExamController::class, 'store']);
+        Route::get('/exams/{exam}', [ExamController::class, 'show']);
+        Route::put('/exams/{exam}', [ExamController::class, 'update']);
+        Route::delete('/exams/{exam}', [ExamController::class, 'destroy']);
+        Route::get('/exams/{exam}/results', [ExamController::class, 'results']);
+    });
+
+    // A student's self-service corner, same shape as the role:parent block
+    // above — their own eligible exams, taking one, and submitting it.
+    Route::middleware('role:student')->group(function () {
+        Route::get('/student/exams', [StudentExamController::class, 'index']);
+        Route::get('/student/exams/{exam}', [StudentExamController::class, 'show']);
+        Route::post('/student/exams/{exam}/submit', [StudentExamController::class, 'submit']);
     });
 
     Route::get('/nationalities', [NationalityController::class, 'index']);

@@ -56,6 +56,64 @@ readonly subject_teachers: ClassroomSubjectTeacherType[],
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type ExamAttemptStatus = 'in_progress' | 'submitted';
+export type ExamDetailType = {
+readonly id: number,
+readonly title: string,
+readonly type: ExamType,
+readonly subject_id: number,
+readonly grade_id: number,
+readonly classroom_id: number | null,
+readonly academic_year_id: number,
+readonly subject: SubjectType,
+readonly grade: GradeType,
+readonly classroom: ClassroomType | null,
+readonly academic_year: AcademicYearType,
+readonly instructions: string | null,
+readonly duration_minutes: number,
+readonly opens_at: string,
+readonly closes_at: string,
+readonly status: ExamStatus,
+readonly questions: ExamQuestionType[],
+readonly total_marks: number,
+readonly attempts_count: number,
+readonly submitted_count: number,
+readonly created_at: string,
+readonly updated_at: string,
+};
+export type ExamQuestionOptionType = {
+readonly id: number,
+readonly text: string,
+readonly is_correct: boolean,
+readonly order: number,
+};
+export type ExamQuestionType = {
+readonly id: number,
+readonly text: string,
+readonly marks: number,
+readonly order: number,
+readonly options: ExamQuestionOptionType[],
+};
+export type ExamResultEntryType = {
+readonly student_id: number,
+readonly student_name_en: string,
+readonly student_name_ar: string,
+readonly status: ExamAttemptStatus | null,
+readonly score: number | null,
+readonly submitted_at: string | null,
+};
+export type ExamStatus = 'draft' | 'published';
+export type ExamTeachingAssignmentType = {
+readonly classroom_id: number,
+readonly classroom_name: string,
+readonly subject_id: number,
+readonly subject_name_en: string,
+readonly subject_name_ar: string,
+readonly grade_id: number,
+readonly grade_name_en: string,
+readonly grade_name_ar: string,
+};
+export type ExamType = 'exam' | 'quiz';
 export type FeeChargeStatus = 'unpaid' | 'partial' | 'paid' | 'waived';
 export type FeeChargeType = {
 readonly id: number,
@@ -204,6 +262,44 @@ readonly name_en: string,
 readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
+};
+export type StudentExamAttemptType = {
+readonly attempt_id: number,
+readonly exam_id: number,
+readonly title: string,
+readonly instructions: string | null,
+readonly duration_minutes: number,
+readonly remaining_seconds: number,
+readonly questions: StudentExamQuestionType[],
+};
+export type StudentExamListEntryType = {
+readonly id: number,
+readonly title: string,
+readonly type: ExamType,
+readonly subject_name_en: string,
+readonly subject_name_ar: string,
+readonly duration_minutes: number,
+readonly opens_at: string,
+readonly closes_at: string,
+readonly attempt_status: ExamAttemptStatus | null,
+readonly score: number | null,
+readonly total_marks: number,
+};
+export type StudentExamOptionType = {
+readonly id: number,
+readonly text: string,
+};
+export type StudentExamQuestionType = {
+readonly id: number,
+readonly text: string,
+readonly marks: number,
+readonly options: StudentExamOptionType[],
+readonly selected_option_id: number | null,
+};
+export type StudentExamResultType = {
+readonly score: number,
+readonly total_marks: number,
+readonly submitted_at: string,
 };
 export type StudentStatus = 'active' | 'graduated';
 export type StudentType = {

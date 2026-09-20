@@ -8,6 +8,7 @@ import {
   CalendarRange,
   CheckSquare,
   ChevronDown,
+  ClipboardList,
   DoorOpen,
   DollarSign,
   GraduationCap,
@@ -218,6 +219,15 @@ export function SiteSidebar() {
         />
       )}
 
+      {hasRole("student") && (
+        <SidebarLink
+          href="/my-exams"
+          icon={ClipboardList}
+          label={t("myExams")}
+          collapsed={collapsed}
+        />
+      )}
+
       {/* The academic structure is admin territory — same gate as its API
           routes (manage-academics or manage-students), so parents/students
           never see a link to a page their requests would 403 on. */}
@@ -353,6 +363,29 @@ export function SiteSidebar() {
             href="/attendance/history"
             icon={History}
             label={t("attendanceHistory")}
+            collapsed={false}
+          />
+        </SidebarGroup>
+      )}
+
+      {(can("manage-exams") || hasRole("teacher")) && (
+        <SidebarGroup
+          icon={ClipboardList}
+          label={t("exams")}
+          collapsed={collapsed}
+          storageKey="sidebar-exams-group-open"
+          fallbackHref="/exams"
+        >
+          <SidebarLink
+            href="/exams"
+            icon={List}
+            label={t("allExams")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/exams/new"
+            icon={Plus}
+            label={t("createExam")}
             collapsed={false}
           />
         </SidebarGroup>

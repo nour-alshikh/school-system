@@ -16,6 +16,7 @@ class RolePermissionSeeder extends Seeder
         $manageTeachers = Permission::firstOrCreate(['name' => 'manage-teachers']);
         $manageFees = Permission::firstOrCreate(['name' => 'manage-fees']);
         $manageAttendance = Permission::firstOrCreate(['name' => 'manage-attendance']);
+        $manageExams = Permission::firstOrCreate(['name' => 'manage-exams']);
 
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->givePermissionTo($manageUsers);
@@ -24,15 +25,17 @@ class RolePermissionSeeder extends Seeder
         $admin->givePermissionTo($manageTeachers);
         $admin->givePermissionTo($manageFees);
         $admin->givePermissionTo($manageAttendance);
+        $admin->givePermissionTo($manageExams);
 
         Role::firstOrCreate(['name' => 'user']);
         Role::firstOrCreate(['name' => 'student']);
         Role::firstOrCreate(['name' => 'parent']);
 
-        // No permissions of its own — a teacher's access to attendance is
-        // scoped per classroom (only ones they're assigned a subject in via
-        // ClassroomSubjectTeacher), which a blanket permission can't
-        // express. See AttendanceController's ownership check.
+        // No permissions of its own — a teacher's access to attendance and
+        // exams is scoped per classroom (only ones they're assigned a
+        // subject in via ClassroomSubjectTeacher), which a blanket
+        // permission can't express. See AttendanceController's and
+        // ExamController's ownership checks.
         Role::firstOrCreate(['name' => 'teacher']);
     }
 }
