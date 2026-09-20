@@ -635,6 +635,7 @@
   "FeePaymentForm": {
     "amountLabel": "Amount",
     "amountHint": "Use a negative amount to record a refund or correction.",
+    "balanceHint": "Remaining balance: {balance}.",
     "dateLabel": "Date",
     "methodLabel": "Method",
     "methodCash": "Cash",

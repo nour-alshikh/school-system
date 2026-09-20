@@ -635,6 +635,7 @@
   "FeePaymentForm": {
     "amountLabel": "المبلغ",
     "amountHint": "استخدم مبلغًا سالبًا لتسجيل استرداد أو تصحيح.",
+    "balanceHint": "الرصيد المتبقي: {balance}.",
     "dateLabel": "التاريخ",
     "methodLabel": "طريقة الدفع",
     "methodCash": "نقدًا",

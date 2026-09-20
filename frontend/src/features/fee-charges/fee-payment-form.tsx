@@ -47,11 +47,11 @@ const defaultValues: FeePaymentFormValues = {
 
 export function FeePaymentForm({
   studentId,
-  feeChargeId,
+  feeCharge,
   onSuccess,
 }: {
   studentId: number;
-  feeChargeId: number;
+  feeCharge: FeeCharge;
   onSuccess?: () => void;
 }) {
   const t = useTranslations("FeePaymentForm");
@@ -60,6 +60,10 @@ export function FeePaymentForm({
   const queryClient = useQueryClient();
 
   const schema = useMemo(() => createFeePaymentSchema(tValidation), [tValidation]);
+
+  const balance = (
+    Number(feeCharge.amount_due) - Number(feeCharge.amount_paid)
+  ).toFixed(2);
 
   const methodLabels: Record<(typeof feePaymentMethods)[number], string> = {
     cash: t("methodCash"),
@@ -76,7 +80,7 @@ export function FeePaymentForm({
   const mutation = useMutation({
     mutationFn: (values: FeePaymentFormValues) =>
       apiFetch<{ fee_charge: FeeCharge }>(
-        `/api/fee-charges/${feeChargeId}/payments`,
+        `/api/fee-charges/${feeCharge.id}/payments`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -126,7 +130,9 @@ export function FeePaymentForm({
                   className="h-10"
                 />
               </FormControl>
-              <p className="text-xs text-muted-foreground">{t("amountHint")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("amountHint")} {t("balanceHint", { balance })}
+              </p>
               <FormMessage />
             </FormItem>
           )}

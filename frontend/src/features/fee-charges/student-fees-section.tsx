@@ -305,7 +305,7 @@ export function StudentFeesSection({ student }: { student: Student }) {
           {payingCharge && (
             <FeePaymentForm
               studentId={student.id}
-              feeChargeId={payingCharge.id}
+              feeCharge={payingCharge}
               onSuccess={() => setPayingCharge(null)}
             />
           )}
