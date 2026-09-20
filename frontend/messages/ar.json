@@ -627,9 +627,11 @@
     "feeLabel": "الرسم",
     "feePlaceholder": "اختر رسمًا",
     "amountDueLabel": "المبلغ المستحق",
-    "createCharge": "إضافة رسم",
+    "addRow": "إضافة رسم آخر",
+    "removeRow": "إزالة",
+    "createCharge": "إضافة الرسوم",
     "cancel": "إلغاء",
-    "createdToast": "تم تسجيل الرسم."
+    "createdToast": "{count, plural, one {تم تسجيل الرسم.} other {تم تسجيل # رسوم.}}"
   },
   "FeePaymentForm": {
     "amountLabel": "المبلغ",
@@ -780,6 +782,7 @@
     "feeChargeFeeRequired": "الرسم مطلوب",
     "feeChargeAmountRequired": "المبلغ المستحق مطلوب",
     "feeChargeAmountInvalid": "أدخل مبلغًا صحيحًا",
+    "feeChargeRowsRequired": "أضف رسمًا واحدًا على الأقل",
     "feePaymentAmountRequired": "المبلغ مطلوب",
     "feePaymentAmountInvalid": "أدخل مبلغًا صحيحًا وغير صفري",
     "feePaymentDateRequired": "التاريخ مطلوب"

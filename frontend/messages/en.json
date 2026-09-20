@@ -627,9 +627,11 @@
     "feeLabel": "Fee",
     "feePlaceholder": "Select a fee",
     "amountDueLabel": "Amount due",
-    "createCharge": "Add charge",
+    "addRow": "Add another fee",
+    "removeRow": "Remove",
+    "createCharge": "Add charges",
     "cancel": "Cancel",
-    "createdToast": "Fee charged."
+    "createdToast": "{count, plural, one {Fee charged.} other {# fees charged.}}"
   },
   "FeePaymentForm": {
     "amountLabel": "Amount",
@@ -780,6 +782,7 @@
     "feeChargeFeeRequired": "Fee is required",
     "feeChargeAmountRequired": "Amount due is required",
     "feeChargeAmountInvalid": "Enter a valid amount",
+    "feeChargeRowsRequired": "Add at least one fee",
     "feePaymentAmountRequired": "Amount is required",
     "feePaymentAmountInvalid": "Enter a valid, non-zero amount",
     "feePaymentDateRequired": "Date is required"

@@ -7,7 +7,7 @@ type Translate = (key: string) => string;
 
 export const feePaymentMethods = ["cash", "bank_transfer", "card", "other"] as const;
 
-export function createFeeChargeSchema(t: Translate) {
+export function createFeeChargeRowSchema(t: Translate) {
   return z.object({
     fee_id: z.string().min(1, t("feeChargeFeeRequired")),
     amount_due: z
@@ -19,7 +19,16 @@ export function createFeeChargeSchema(t: Translate) {
   });
 }
 
-export type FeeChargeFormValues = z.infer<ReturnType<typeof createFeeChargeSchema>>;
+export function createFeeChargesSchema(t: Translate) {
+  return z.object({
+    rows: z
+      .array(createFeeChargeRowSchema(t))
+      .min(1, t("feeChargeRowsRequired")),
+  });
+}
+
+export type FeeChargeRowValues = z.infer<ReturnType<typeof createFeeChargeRowSchema>>;
+export type FeeChargesFormValues = z.infer<ReturnType<typeof createFeeChargesSchema>>;
 
 export function createFeePaymentSchema(t: Translate) {
   return z.object({

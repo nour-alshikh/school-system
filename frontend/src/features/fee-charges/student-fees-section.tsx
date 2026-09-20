@@ -284,7 +284,7 @@ export function StudentFeesSection({ student }: { student: Student }) {
       )}
 
       <Dialog open={addChargeOpen} onOpenChange={setAddChargeOpen}>
-        <DialogContent className="max-h-[85vh] sm:max-w-lg overflow-y-auto">
+        <DialogContent className="max-h-[85vh] sm:max-w-xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t("addCharge")}</DialogTitle>
           </DialogHeader>

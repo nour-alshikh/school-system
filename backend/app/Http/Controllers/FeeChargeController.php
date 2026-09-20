@@ -9,6 +9,7 @@ use App\Http\Resources\FeeChargeResource;
 use App\Models\Fee;
 use App\Models\FeeCharge;
 use App\Models\Student;
+use Illuminate\Support\Facades\DB;
 
 class FeeChargeController extends Controller
 {
@@ -24,18 +25,26 @@ class FeeChargeController extends Controller
 
     public function store(StoreFeeChargeRequest $request, Student $student)
     {
-        $fee = Fee::findOrFail($request->integer('fee_id'));
+        $fees = Fee::whereIn('id', collect($request->validated('charges'))->pluck('fee_id'))
+            ->get()
+            ->keyBy('id');
 
-        $charge = FeeCharge::create([
-            'student_id' => $student->id,
-            'fee_id' => $fee->id,
-            'academic_year_id' => $fee->academic_year_id,
-            'amount_due' => $request->input('amount_due'),
-            'status' => FeeChargeStatus::Unpaid,
-        ]);
+        $charges = DB::transaction(function () use ($request, $student, $fees) {
+            return collect($request->validated('charges'))->map(function (array $row) use ($student, $fees) {
+                $fee = $fees[$row['fee_id']];
+
+                return FeeCharge::create([
+                    'student_id' => $student->id,
+                    'fee_id' => $fee->id,
+                    'academic_year_id' => $fee->academic_year_id,
+                    'amount_due' => $row['amount_due'],
+                    'status' => FeeChargeStatus::Unpaid,
+                ]);
+            });
+        });
 
         return response()->json([
-            'fee_charge' => new FeeChargeResource($charge->load(['fee', 'payments.recordedBy'])),
+            'fee_charges' => FeeChargeResource::collection($charges->each->load(['fee', 'payments.recordedBy'])),
         ], 201);
     }
 
