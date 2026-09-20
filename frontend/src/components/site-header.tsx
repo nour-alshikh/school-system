@@ -12,7 +12,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -74,12 +73,16 @@ export function SiteHeader() {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel className="flex flex-col gap-0.5 font-normal">
+                {/* A plain div, not DropdownMenuLabel — that renders
+                    Base UI's Menu.GroupLabel, which throws unless wrapped
+                    in a <Menu.Group> (there's nothing to group here, just
+                    a static info line above the actions). */}
+                <div className="flex flex-col gap-0.5 px-1.5 py-1">
                   <span className="text-sm font-medium">{user.name}</span>
                   <span className="text-xs text-muted-foreground" dir="ltr">
                     {user.email}
                   </span>
-                </DropdownMenuLabel>
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   {t("logout")}
