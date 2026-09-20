@@ -76,7 +76,7 @@ function SidebarGroup({
   fallbackHref: string;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(() => readStoredGroupOpen(storageKey, true));
+  const [open, setOpen] = useState(() => readStoredGroupOpen(storageKey, false));
 
   if (collapsed) {
     return (
