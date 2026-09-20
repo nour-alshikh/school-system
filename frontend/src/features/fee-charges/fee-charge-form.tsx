@@ -38,12 +38,10 @@ const defaultValues: FeeChargeFormValues = {
 export function FeeChargeForm({
   studentId,
   chargeableFees,
-  suggestedFeeIds,
   onSuccess,
 }: {
   studentId: number;
   chargeableFees: Fee[];
-  suggestedFeeIds: Set<number>;
   onSuccess?: () => void;
 }) {
   const t = useTranslations("FeeChargeForm");
@@ -57,15 +55,6 @@ export function FeeChargeForm({
   const form = useForm<FeeChargeFormValues>({
     resolver: zodResolver(schema),
     defaultValues,
-  });
-
-  // Suggested fees (matching the student's current stage/grade, or
-  // is_for_all) sort first so the common case is right at the top of the
-  // list — everything else stays pickable for exceptions.
-  const sortedFees = [...chargeableFees].sort((a, b) => {
-    const aSuggested = suggestedFeeIds.has(a.id) ? 0 : 1;
-    const bSuggested = suggestedFeeIds.has(b.id) ? 0 : 1;
-    return aSuggested - bSuggested;
   });
 
   const mutation = useMutation({
@@ -107,14 +96,14 @@ export function FeeChargeForm({
             <FormItem>
               <FormLabel>{t("feeLabel")}</FormLabel>
               <Select
-                items={sortedFees.map((fee) => ({
+                items={chargeableFees.map((fee) => ({
                   value: String(fee.id),
-                  label: `${locale === "ar" ? fee.name_ar : fee.name_en} — ${fee.amount}${suggestedFeeIds.has(fee.id) ? ` (${t("suggested")})` : ""}`,
+                  label: `${locale === "ar" ? fee.name_ar : fee.name_en} — ${fee.amount}`,
                 }))}
                 value={field.value}
                 onValueChange={(value) => {
                   field.onChange(value);
-                  const fee = sortedFees.find((f) => String(f.id) === value);
+                  const fee = chargeableFees.find((f) => String(f.id) === value);
                   if (fee) form.setValue("amount_due", fee.amount);
                 }}
               >
@@ -124,11 +113,10 @@ export function FeeChargeForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {sortedFees.map((fee) => (
+                  {chargeableFees.map((fee) => (
                     <SelectItem key={fee.id} value={String(fee.id)}>
                       {locale === "ar" ? fee.name_ar : fee.name_en} —{" "}
                       {fee.amount}
-                      {suggestedFeeIds.has(fee.id) ? ` (${t("suggested")})` : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>

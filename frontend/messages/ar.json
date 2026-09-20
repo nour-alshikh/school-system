@@ -626,7 +626,6 @@
   "FeeChargeForm": {
     "feeLabel": "الرسم",
     "feePlaceholder": "اختر رسمًا",
-    "suggested": "مقترح",
     "amountDueLabel": "المبلغ المستحق",
     "createCharge": "إضافة رسم",
     "cancel": "إلغاء",

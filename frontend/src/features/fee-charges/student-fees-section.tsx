@@ -86,17 +86,15 @@ export function StudentFeesSection({ student }: { student: Student }) {
   }, [chargesError, t]);
 
   const chargedFeeIds = new Set(charges.map((c) => c.fee_id));
+  // Only fees that actually apply to this student: is_for_all, or scoped to
+  // their exact stage+grade. A fee scoped elsewhere never appears here — no
+  // charging a Grade 5 fee to a Grade 2 student from this screen.
   const chargeableFees = fees.filter(
-    (fee) => fee.is_active && !chargedFeeIds.has(fee.id)
-  );
-  const suggestedFeeIds = new Set(
-    chargeableFees
-      .filter(
-        (fee) =>
-          fee.is_for_all ||
-          (fee.stage_id === student.stage_id && fee.grade_id === student.grade_id)
-      )
-      .map((fee) => fee.id)
+    (fee) =>
+      fee.is_active &&
+      !chargedFeeIds.has(fee.id) &&
+      (fee.is_for_all ||
+        (fee.stage_id === student.stage_id && fee.grade_id === student.grade_id))
   );
 
   const waiveMutation = useMutation({
@@ -293,7 +291,6 @@ export function StudentFeesSection({ student }: { student: Student }) {
           <FeeChargeForm
             studentId={student.id}
             chargeableFees={chargeableFees}
-            suggestedFeeIds={suggestedFeeIds}
             onSuccess={() => setAddChargeOpen(false)}
           />
         </DialogContent>

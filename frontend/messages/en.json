@@ -626,7 +626,6 @@
   "FeeChargeForm": {
     "feeLabel": "Fee",
     "feePlaceholder": "Select a fee",
-    "suggested": "suggested",
     "amountDueLabel": "Amount due",
     "createCharge": "Add charge",
     "cancel": "Cancel",
