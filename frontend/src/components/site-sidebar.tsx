@@ -333,12 +333,26 @@ export function SiteSidebar() {
       )}
 
       {(can("manage-attendance") || hasRole("teacher")) && (
-        <SidebarLink
-          href="/attendance"
+        <SidebarGroup
           icon={CheckSquare}
           label={t("attendance")}
           collapsed={collapsed}
-        />
+          storageKey="sidebar-attendance-group-open"
+          fallbackHref="/attendance"
+        >
+          <SidebarLink
+            href="/attendance"
+            icon={CheckSquare}
+            label={t("takeAttendance")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/attendance/history"
+            icon={History}
+            label={t("attendanceHistory")}
+            collapsed={false}
+          />
+        </SidebarGroup>
       )}
 
       {can("manage-users") && (

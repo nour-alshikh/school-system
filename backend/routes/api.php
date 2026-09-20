@@ -157,6 +157,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/attendance/classrooms', [AttendanceController::class, 'classrooms']);
         Route::get('/classrooms/{classroom}/attendance', [AttendanceController::class, 'index']);
         Route::post('/classrooms/{classroom}/attendance', [AttendanceController::class, 'store']);
+        Route::get('/classrooms/{classroom}/attendance/history', [AttendanceController::class, 'history']);
     });
 
     // A parent's self-service corner: their own account, and the one child

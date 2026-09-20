@@ -18,6 +18,15 @@ readonly id: number,
 readonly url: string,
 readonly name: string,
 };
+export type AttendanceRecordType = {
+readonly id: number,
+readonly student_id: number,
+readonly student_name_en: string,
+readonly student_name_ar: string,
+readonly date: string,
+readonly status: AttendanceStatus,
+readonly notes: string | null,
+};
 export type AttendanceRosterEntryType = {
 readonly student_id: number,
 readonly student_name_en: string,

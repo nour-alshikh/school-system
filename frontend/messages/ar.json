@@ -33,7 +33,9 @@
     "expandSidebar": "توسيع الشريط الجانبي",
     "switchToLightTheme": "التبديل إلى الوضع الفاتح",
     "switchToDarkTheme": "التبديل إلى الوضع الداكن",
-    "attendance": "الحضور والغياب"
+    "attendance": "الحضور والغياب",
+    "takeAttendance": "تسجيل الحضور",
+    "attendanceHistory": "سجل الحضور"
   },
   "LoginPage": {
     "heading": "تسجيل الدخول",
@@ -855,5 +857,25 @@
     "statusExcused": "معذور",
     "loadError": "تعذر تحميل الفصول.",
     "rosterLoadError": "تعذر تحميل قائمة الطلاب."
+  },
+  "AttendanceHistoryPage": {
+    "heading": "سجل الحضور",
+    "description": "اختر الفصل والفترة الزمنية لمراجعة الحضور السابق.",
+    "classroomLabel": "الفصل",
+    "classroomPlaceholder": "اختر فصلاً",
+    "fromLabel": "من",
+    "toLabel": "إلى",
+    "noClassrooms": "لا توجد فصول مخصصة لك.",
+    "dateColumn": "التاريخ",
+    "studentColumn": "الطالب",
+    "statusColumn": "الحالة",
+    "notesColumn": "ملاحظات",
+    "noRecords": "لا يوجد حضور مسجل لهذه الفترة.",
+    "statusPresent": "حاضر",
+    "statusAbsent": "غائب",
+    "statusLate": "متأخر",
+    "statusExcused": "معذور",
+    "loadError": "تعذر تحميل الفصول.",
+    "recordsLoadError": "تعذر تحميل سجلات الحضور."
   }
 }

@@ -33,7 +33,9 @@
     "expandSidebar": "Expand sidebar",
     "switchToLightTheme": "Switch to light theme",
     "switchToDarkTheme": "Switch to dark theme",
-    "attendance": "Attendance"
+    "attendance": "Attendance",
+    "takeAttendance": "Take attendance",
+    "attendanceHistory": "Attendance history"
   },
   "LoginPage": {
     "heading": "Log in",
@@ -855,5 +857,25 @@
     "statusExcused": "Excused",
     "loadError": "Couldn't load classrooms.",
     "rosterLoadError": "Couldn't load the student list."
+  },
+  "AttendanceHistoryPage": {
+    "heading": "Attendance history",
+    "description": "Pick a classroom and date range to review past attendance.",
+    "classroomLabel": "Classroom",
+    "classroomPlaceholder": "Select a classroom",
+    "fromLabel": "From",
+    "toLabel": "To",
+    "noClassrooms": "No classrooms are assigned to you.",
+    "dateColumn": "Date",
+    "studentColumn": "Student",
+    "statusColumn": "Status",
+    "notesColumn": "Notes",
+    "noRecords": "No attendance recorded for this range.",
+    "statusPresent": "Present",
+    "statusAbsent": "Absent",
+    "statusLate": "Late",
+    "statusExcused": "Excused",
+    "loadError": "Couldn't load classrooms.",
+    "recordsLoadError": "Couldn't load attendance records."
   }
 }

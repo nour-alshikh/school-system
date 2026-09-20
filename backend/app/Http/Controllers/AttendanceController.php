@@ -8,6 +8,7 @@ use App\Http\Resources\ClassroomResource;
 use App\Models\Attendance;
 use App\Models\Classroom;
 use App\Models\Student;
+use App\TypeScript\AttendanceRecordType;
 use App\TypeScript\AttendanceRosterEntryType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -98,6 +99,31 @@ class AttendanceController extends Controller
         });
 
         return response()->json(['saved_count' => count($data['records'])], 201);
+    }
+
+    /**
+     * Past records for one classroom over a date range — same access rule
+     * as marking (authorizeClassroom), just read-only. Defaults to the
+     * last 30 days when no range is given.
+     */
+    public function history(Request $request, Classroom $classroom)
+    {
+        $this->authorizeClassroom($request, $classroom);
+
+        $from = $request->query('from', now()->subDays(30)->toDateString());
+        $to = $request->query('to', now()->toDateString());
+
+        $records = Attendance::with('student')
+            ->where('classroom_id', $classroom->id)
+            ->whereBetween('date', [$from, $to])
+            ->orderByDesc('date')
+            ->get();
+
+        return response()->json([
+            'records' => $records->map(fn (Attendance $a) => AttendanceRecordType::fromModel($a))->values()->all(),
+            'from' => $from,
+            'to' => $to,
+        ]);
     }
 
     private function authorizeClassroom(Request $request, Classroom $classroom): void
