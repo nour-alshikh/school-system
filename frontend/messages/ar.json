@@ -600,6 +600,7 @@
     "feeColumn": "الرسم",
     "dueColumn": "المستحق",
     "paidColumn": "المدفوع",
+    "waivedColumn": "معفى",
     "balanceColumn": "الرصيد",
     "statusColumn": "الحالة",
     "status_unpaid": "غير مدفوع",

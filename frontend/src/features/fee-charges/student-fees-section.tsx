@@ -45,6 +45,16 @@ function chargeBalance(charge: FeeCharge): number {
   return Math.max(0, Number(charge.amount_due) - Number(charge.amount_paid));
 }
 
+// What was excused when this charge got waived — the unpaid remainder at
+// that point, not the full amount_due (a charge can carry a partial payment
+// before being waived). Zero for anything not waived. Keeping this as its
+// own figure (rather than folding it into balance) is what makes
+// due − paid − waived = balance hold, both per row and summed in totals.
+function chargeWaivedAmount(charge: FeeCharge): number {
+  if (charge.status !== "waived") return 0;
+  return Math.max(0, Number(charge.amount_due) - Number(charge.amount_paid));
+}
+
 function methodLabel(t: (key: string) => string, method: string): string {
   const map: Record<string, string> = {
     cash: t("methodCash"),
@@ -75,9 +85,10 @@ function FeesPrintReport({
     (acc, charge) => ({
       due: acc.due + Number(charge.amount_due),
       paid: acc.paid + Number(charge.amount_paid),
+      waived: acc.waived + chargeWaivedAmount(charge),
       balance: acc.balance + chargeBalance(charge),
     }),
-    { due: 0, paid: 0, balance: 0 }
+    { due: 0, paid: 0, waived: 0, balance: 0 }
   );
 
   const allPayments = charges
@@ -109,6 +120,7 @@ function FeesPrintReport({
               <th className="p-1 text-start">{t("feeColumn")}</th>
               <th className="p-1 text-start">{t("dueColumn")}</th>
               <th className="p-1 text-start">{t("paidColumn")}</th>
+              <th className="p-1 text-start">{t("waivedColumn")}</th>
               <th className="p-1 text-start">{t("balanceColumn")}</th>
               <th className="p-1 text-start">{t("statusColumn")}</th>
             </tr>
@@ -116,6 +128,7 @@ function FeesPrintReport({
           <tbody>
             {charges.map((charge) => {
               const balance = chargeBalance(charge).toFixed(2);
+              const waived = chargeWaivedAmount(charge).toFixed(2);
               return (
                 <tr key={charge.id} className="border-b">
                   <td className="p-1">
@@ -123,6 +136,7 @@ function FeesPrintReport({
                   </td>
                   <td className="p-1">{Number(charge.amount_due).toFixed(2)}</td>
                   <td className="p-1">{Number(charge.amount_paid).toFixed(2)}</td>
+                  <td className="p-1">{waived}</td>
                   <td className="p-1">{balance}</td>
                   <td className="p-1">{t(`status_${charge.status}`)}</td>
                 </tr>
@@ -134,6 +148,7 @@ function FeesPrintReport({
               <td className="p-1">{t("printTotalsLabel")}</td>
               <td className="p-1">{totals.due.toFixed(2)}</td>
               <td className="p-1">{totals.paid.toFixed(2)}</td>
+              <td className="p-1">{totals.waived.toFixed(2)}</td>
               <td className="p-1">{totals.balance.toFixed(2)}</td>
               <td className="p-1" />
             </tr>

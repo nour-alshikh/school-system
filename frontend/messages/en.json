@@ -600,6 +600,7 @@
     "feeColumn": "Fee",
     "dueColumn": "Due",
     "paidColumn": "Paid",
+    "waivedColumn": "Waived",
     "balanceColumn": "Balance",
     "statusColumn": "Status",
     "status_unpaid": "Unpaid",
