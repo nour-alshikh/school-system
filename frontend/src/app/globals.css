@@ -69,12 +69,14 @@ html[dir="rtl"] {
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* Brand color (lime-600) — the app's one accent, driving every
-     component that keys off --primary/--ring (Button's default variant,
-     Checkbox/RadioGroup/Slider's checked state, focus rings, "link"-style
-     buttons) rather than being hand-applied per component. */
-  --primary: oklch(0.648 0.2 131.684);
-  --primary-foreground: oklch(0.145 0 0);
+  /* Brand color (lime-700, not the lighter lime-600) — dark enough that
+     white text on it clears AA contrast, unlike lime-600 which needed
+     dark text and looked off on a button. Drives every component keyed
+     off --primary/--ring (Button's default variant, Checkbox/RadioGroup/
+     Slider's checked state, focus rings, "link"-style buttons) rather
+     than being hand-applied per component. */
+  --primary: oklch(0.532 0.157 131.589);
+  --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -84,7 +86,7 @@ html[dir="rtl"] {
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.648 0.2 131.684);
+  --ring: oklch(0.532 0.157 131.589);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -117,8 +119,8 @@ html[dir="rtl"] {
   /* Same brand lime as :root — a brand accent stays the same color in
      both themes rather than inverting like the grayscale surface tokens
      around it. */
-  --primary: oklch(0.648 0.2 131.684);
-  --primary-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.532 0.157 131.589);
+  --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -128,7 +130,7 @@ html[dir="rtl"] {
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.648 0.2 131.684);
+  --ring: oklch(0.532 0.157 131.589);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
