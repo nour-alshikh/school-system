@@ -105,6 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/students/{student}/fee-charges', [FeeChargeController::class, 'store']);
         Route::delete('/fee-charges/{feeCharge}', [FeeChargeController::class, 'destroy']);
         Route::post('/fee-charges/{feeCharge}/waive', [FeeChargeController::class, 'waive']);
+        Route::post('/fee-charges/{feeCharge}/unwaive', [FeeChargeController::class, 'unwaive']);
         Route::post('/fee-charges/{feeCharge}/payments', [FeeChargeController::class, 'storePayment']);
     });
 

@@ -61,6 +61,26 @@ class FeeChargeController extends Controller
         ]);
     }
 
+    public function unwaive(FeeCharge $feeCharge)
+    {
+        if ($feeCharge->status !== FeeChargeStatus::Waived) {
+            return response()->json([
+                'message' => 'This charge has not been waived.',
+            ], 422);
+        }
+
+        // recomputeStatus() no-ops while status is Waived, so this clears
+        // the flag first, then lets it recompute from the payment ledger —
+        // a charge waived after a partial payment goes back to Partial, not
+        // straight to Unpaid.
+        $feeCharge->status = FeeChargeStatus::Unpaid;
+        $feeCharge->recomputeStatus();
+
+        return response()->json([
+            'fee_charge' => new FeeChargeResource($feeCharge->load(['fee', 'payments.recordedBy'])),
+        ]);
+    }
+
     public function storePayment(StoreFeePaymentRequest $request, FeeCharge $feeCharge)
     {
         if ($feeCharge->status === FeeChargeStatus::Waived) {

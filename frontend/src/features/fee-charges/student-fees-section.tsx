@@ -114,6 +114,21 @@ export function StudentFeesSection({ student }: { student: Student }) {
     },
   });
 
+  const unwaiveMutation = useMutation({
+    mutationFn: (charge: FeeCharge) =>
+      apiFetch<{ fee_charge: FeeCharge }>(
+        `/api/fee-charges/${charge.id}/unwaive`,
+        { method: "POST" }
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fee-charges", student.id] });
+      toast.success(t("unwaiveSuccess"));
+    },
+    onError: (err) => {
+      toast.error(err instanceof ApiError ? err.message : t("unwaiveError"));
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (charge: FeeCharge) =>
       apiFetch<void>(`/api/fee-charges/${charge.id}`, { method: "DELETE" }),
@@ -163,6 +178,7 @@ export function StudentFeesSection({ student }: { student: Student }) {
                 const canPay =
                   charge.status !== "paid" && charge.status !== "waived";
                 const canWaive = canPay;
+                const canUnwaive = charge.status === "waived";
                 const canDelete = charge.payments.length === 0;
 
                 return (
@@ -233,6 +249,25 @@ export function StudentFeesSection({ student }: { student: Student }) {
                             onClick={() => setWaivingCharge(charge)}
                           >
                             {t("waive")}
+                          </Button>
+                        )}
+                        {canUnwaive && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={
+                              unwaiveMutation.isPending &&
+                              unwaiveMutation.variables?.id === charge.id
+                            }
+                            onClick={() => unwaiveMutation.mutate(charge)}
+                          >
+                            {unwaiveMutation.isPending &&
+                            unwaiveMutation.variables?.id === charge.id ? (
+                              <Loader2 className="size-4 animate-spin" />
+                            ) : (
+                              t("unwaive")
+                            )}
                           </Button>
                         )}
                       </div>
