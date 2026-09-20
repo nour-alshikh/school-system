@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -56,6 +57,16 @@ class User extends Authenticatable implements HasMedia
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Set only for a user created via TeacherService::createLogin() — used
+     * by AttendanceController to scope a teacher's role to the classrooms
+     * they're actually assigned to teach.
+     */
+    public function teacher(): HasOne
+    {
+        return $this->hasOne(Teacher::class);
     }
 
     public function registerMediaCollections(): void

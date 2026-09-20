@@ -6,6 +6,7 @@ import {
   Award,
   BookOpen,
   CalendarRange,
+  CheckSquare,
   ChevronDown,
   DoorOpen,
   DollarSign,
@@ -327,6 +328,15 @@ export function SiteSidebar() {
           href="/fees"
           icon={DollarSign}
           label={t("fees")}
+          collapsed={collapsed}
+        />
+      )}
+
+      {(can("manage-attendance") || hasRole("teacher")) && (
+        <SidebarLink
+          href="/attendance"
+          icon={CheckSquare}
+          label={t("attendance")}
           collapsed={collapsed}
         />
       )}

@@ -8,10 +8,13 @@ use App\Http\Requests\Teacher\UpdateTeacherRequest;
 use App\Http\Requests\Teacher\UpdateTeacherSubjectsRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Teacher;
+use App\Services\TeacherService;
 use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
+    public function __construct(private readonly TeacherService $teacherService) {}
+
     public function index(Request $request)
     {
         $query = Teacher::with('subjects')->orderBy('id');
@@ -45,9 +48,9 @@ class TeacherController extends Controller
 
     public function store(StoreTeacherRequest $request)
     {
-        $teacher = Teacher::create($request->validated());
+        $teacher = $this->teacherService->create($request);
 
-        return response()->json(['teacher' => new TeacherResource($teacher->load('subjects'))], 201);
+        return response()->json(['teacher' => new TeacherResource($teacher)], 201);
     }
 
     /**
@@ -65,9 +68,9 @@ class TeacherController extends Controller
             ], 422);
         }
 
-        $teacher->update($data);
+        $teacher = $this->teacherService->update($teacher, $request);
 
-        return response()->json(['teacher' => new TeacherResource($teacher->load('subjects'))]);
+        return response()->json(['teacher' => new TeacherResource($teacher)]);
     }
 
     /**
@@ -90,7 +93,7 @@ class TeacherController extends Controller
             ], 422);
         }
 
-        $teacher->delete();
+        $this->teacherService->delete($teacher);
 
         return response()->noContent();
     }
@@ -112,7 +115,9 @@ class TeacherController extends Controller
             ], 422);
         }
 
-        Teacher::whereIn('id', $validated['ids'])->delete();
+        foreach ($teachers as $teacher) {
+            $this->teacherService->delete($teacher);
+        }
 
         return response()->noContent();
     }

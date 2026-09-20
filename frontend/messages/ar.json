@@ -32,7 +32,8 @@
     "collapseSidebar": "طي الشريط الجانبي",
     "expandSidebar": "توسيع الشريط الجانبي",
     "switchToLightTheme": "التبديل إلى الوضع الفاتح",
-    "switchToDarkTheme": "التبديل إلى الوضع الداكن"
+    "switchToDarkTheme": "التبديل إلى الوضع الداكن",
+    "attendance": "الحضور والغياب"
   },
   "LoginPage": {
     "heading": "تسجيل الدخول",
@@ -437,7 +438,13 @@
     "createTeacher": "إنشاء معلم",
     "cancel": "إلغاء",
     "createdToast": "تم إنشاء المعلم.",
-    "updatedToast": "تم تحديث المعلم."
+    "updatedToast": "تم تحديث المعلم.",
+    "loginSectionLabel": "صلاحية الدخول",
+    "loginSectionHasLoginHint": "يمكن لهذا المعلم تسجيل الدخول بالفعل. اترك كلمة المرور فارغة للإبقاء عليها كما هي.",
+    "loginSectionNoLoginHint": "لا يملك هذا المعلم حساب دخول بعد. عيّن كلمة مرور للسماح له بتسجيل الدخول وتسجيل الحضور.",
+    "passwordLabel": "كلمة المرور",
+    "newPasswordLabel": "كلمة مرور جديدة",
+    "passwordConfirmationLabel": "تأكيد كلمة المرور"
   },
   "TeacherSubjectsPage": {
     "heading": "تعيين المواد",
@@ -466,11 +473,11 @@
     "allGrades": "كل الصفوف",
     "classroomFilterLabel": "الفصل",
     "allClassrooms": "كل الفصول",
-  "statusFilterLabel": "الحالة",
-  "activeBadge": "نشط",
-  "graduatedBadge": "متخرج",
-  "allStatuses": "كل الحالات",
-  "statusColumn": "الحالة",
+    "statusFilterLabel": "الحالة",
+    "activeBadge": "نشط",
+    "graduatedBadge": "متخرج",
+    "allStatuses": "كل الحالات",
+    "statusColumn": "الحالة",
     "noStudents": "لا يوجد طلاب بعد.",
     "noResults": "لا يوجد طلاب مطابقون لعوامل التصفية.",
     "loadError": "فشل تحميل الطلاب.",
@@ -484,8 +491,8 @@
     "promoteClassroom": "ترقية الفصل",
     "promoteSelected": "{count, plural, one {ترقية طالب واحد} other {ترقية # طالب}}",
     "promoteMixedClassrooms": "اختر طلابًا من فصل واحد فقط لنقلهم معًا.",
-  "graduateClassroom": "تخريج الفصل",
-  "graduateSelected": "{count, plural, one {تخريج طالب واحد} other {تخريج # طالب}}",
+    "graduateClassroom": "تخريج الفصل",
+    "graduateSelected": "{count, plural, one {تخريج طالب واحد} other {تخريج # طالب}}",
     "editStudent": "تعديل بيانات الطالب",
     "confirmDeleteTitle": "حذف هذا الطالب؟",
     "confirmDeleteDescription": "سيؤدي هذا إلى حذف بيانات {name} نهائيًا مع حسابي الطالب وولي الأمر. لا يمكن التراجع عن هذا الإجراء.",
@@ -508,7 +515,6 @@
     "stepMother": "بيانات الأم",
     "stepAttachments": "المرفقات",
     "stepConfirm": "التأكيد",
-
     "sectionPersonalInfo": "البيانات الشخصية",
     "sectionLocation": "الموقع",
     "sectionAccount": "الحساب",
@@ -520,7 +526,6 @@
     "submit": "تسجيل الطالب",
     "submitting": "جارٍ التسجيل…",
     "successToast": "تم تسجيل الطالب.",
-
     "studentNameEnLabel": "اسم الطالب (إنجليزي)",
     "studentNameArLabel": "اسم الطالب (عربي)",
     "studentEmailLabel": "بريد الطالب الإلكتروني",
@@ -536,7 +541,6 @@
     "governoratePlaceholder": "اختر المحافظة",
     "bloodTypeLabel": "فصيلة الدم",
     "bloodTypePlaceholder": "اختر فصيلة الدم",
-
     "stageLabel": "المرحلة",
     "stagePlaceholder": "اختر المرحلة",
     "gradeLabel": "الصف",
@@ -545,11 +549,9 @@
     "classroomPlaceholder": "اختر الفصل",
     "academicYearLabel": "العام الدراسي",
     "academicYearPlaceholder": "اختر العام الدراسي",
-
     "parentEmailLabel": "بريد ولي الأمر الإلكتروني",
     "parentPasswordLabel": "كلمة مرور ولي الأمر",
     "parentPasswordConfirmationLabel": "تأكيد كلمة المرور",
-
     "guardianNameLabel": "الاسم",
     "guardianJobLabel": "الوظيفة",
     "guardianNationalIdLabel": "الرقم القومي",
@@ -563,10 +565,8 @@
     "guardianReligionLabel": "الديانة",
     "guardianReligionPlaceholder": "اختر الديانة",
     "guardianAddressLabel": "العنوان",
-
     "attachmentsLabel": "الصور",
     "attachmentsHint": "اختياري. يمكنك رفع أكثر من صورة، بحد أقصى 1 ميجابايت لكل صورة.",
-
     "confirmHeading": "المراجعة والتأكيد",
     "confirmDescription": "راجع البيانات أدناه قبل تسجيل هذا الطالب.",
     "confirmStudentSection": "الطالب",
@@ -810,7 +810,8 @@
     "feeChargeRowsRequired": "أضف رسمًا واحدًا على الأقل",
     "feePaymentAmountRequired": "المبلغ مطلوب",
     "feePaymentAmountInvalid": "أدخل مبلغًا صحيحًا وغير صفري",
-    "feePaymentDateRequired": "التاريخ مطلوب"
+    "feePaymentDateRequired": "التاريخ مطلوب",
+    "attendanceRowsRequired": "أضف طالبًا واحدًا على الأقل."
   },
   "Errors": {
     "somethingWentWrong": "حدث خطأ ما."
@@ -827,12 +828,32 @@
     "saving": "جارٍ الحفظ…",
     "profileUpdated": "تم تحديث بياناتك.",
     "profileUpdateError": "تعذّر تحديث بياناتك.",
-
     "studentHeading": "بيانات ابني/ابنتي",
     "overviewTab": "نظرة عامة",
     "loadError": "تعذّر تحميل بيانات الطالب.",
     "saveGuardians": "حفظ التغييرات",
     "guardiansUpdated": "تم التحديث.",
     "guardiansUpdateError": "تعذّر حفظ التغييرات."
+  },
+  "AttendancePage": {
+    "heading": "الحضور والغياب",
+    "description": "اختر الفصل والتاريخ، ثم حدد حالة كل طالب واحفظ.",
+    "classroomLabel": "الفصل",
+    "classroomPlaceholder": "اختر فصلاً",
+    "dateLabel": "التاريخ",
+    "noClassrooms": "لا توجد فصول مخصصة لك.",
+    "studentColumn": "الطالب",
+    "statusColumn": "الحالة",
+    "notesColumn": "ملاحظات",
+    "notesPlaceholder": "ملاحظة اختيارية",
+    "noStudents": "لا يوجد طلاب نشطون في هذا الفصل.",
+    "saveAttendance": "حفظ الحضور",
+    "savedToast": "{count, plural, one {تم حفظ حضور طالب واحد.} other {تم حفظ الحضور لعدد # طالب.}}",
+    "statusPresent": "حاضر",
+    "statusAbsent": "غائب",
+    "statusLate": "متأخر",
+    "statusExcused": "معذور",
+    "loadError": "تعذر تحميل الفصول.",
+    "rosterLoadError": "تعذر تحميل قائمة الطلاب."
   }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AvatarController;
@@ -145,6 +146,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/graduations', [GraduationController::class, 'index']);
         Route::post('/graduations', [GraduationController::class, 'store']);
         Route::post('/graduations/rollback', [GraduationController::class, 'rollback']);
+    });
+
+    // Attendance is shared between admin (manage-attendance, any classroom)
+    // and the teacher role (only classrooms they hold a subject slot in) —
+    // that per-classroom split can't be expressed by route middleware
+    // alone, so AttendanceController checks it directly. See
+    // AttendanceController::authorizeClassroom().
+    Route::middleware('role_or_permission:teacher|manage-attendance')->group(function () {
+        Route::get('/attendance/classrooms', [AttendanceController::class, 'classrooms']);
+        Route::get('/classrooms/{classroom}/attendance', [AttendanceController::class, 'index']);
+        Route::post('/classrooms/{classroom}/attendance', [AttendanceController::class, 'store']);
     });
 
     // A parent's self-service corner: their own account, and the one child

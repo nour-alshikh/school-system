@@ -32,7 +32,8 @@
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
     "switchToLightTheme": "Switch to light theme",
-    "switchToDarkTheme": "Switch to dark theme"
+    "switchToDarkTheme": "Switch to dark theme",
+    "attendance": "Attendance"
   },
   "LoginPage": {
     "heading": "Log in",
@@ -437,7 +438,13 @@
     "createTeacher": "Create teacher",
     "cancel": "Cancel",
     "createdToast": "Teacher created.",
-    "updatedToast": "Teacher updated."
+    "updatedToast": "Teacher updated.",
+    "loginSectionLabel": "Login access",
+    "loginSectionHasLoginHint": "This teacher can already log in. Leave the password blank to keep it unchanged.",
+    "loginSectionNoLoginHint": "This teacher has no login yet. Set a password to let them log in and mark attendance.",
+    "passwordLabel": "Password",
+    "newPasswordLabel": "New password",
+    "passwordConfirmationLabel": "Confirm password"
   },
   "TeacherSubjectsPage": {
     "heading": "Subject assignments",
@@ -508,7 +515,6 @@
     "stepMother": "Mother's details",
     "stepAttachments": "Attachments",
     "stepConfirm": "Confirm",
-
     "sectionPersonalInfo": "Personal info",
     "sectionLocation": "Location",
     "sectionAccount": "Account",
@@ -520,7 +526,6 @@
     "submit": "Register student",
     "submitting": "Registering…",
     "successToast": "Student registered.",
-
     "studentNameEnLabel": "Student name (English)",
     "studentNameArLabel": "Student name (Arabic)",
     "studentEmailLabel": "Student email",
@@ -536,7 +541,6 @@
     "governoratePlaceholder": "Select governorate",
     "bloodTypeLabel": "Blood type",
     "bloodTypePlaceholder": "Select blood type",
-
     "stageLabel": "Stage",
     "stagePlaceholder": "Select a stage",
     "gradeLabel": "Grade",
@@ -545,11 +549,9 @@
     "classroomPlaceholder": "Select a classroom",
     "academicYearLabel": "Academic year",
     "academicYearPlaceholder": "Select academic year",
-
     "parentEmailLabel": "Parent email",
     "parentPasswordLabel": "Parent password",
     "parentPasswordConfirmationLabel": "Confirm password",
-
     "guardianNameLabel": "Name",
     "guardianJobLabel": "Job",
     "guardianNationalIdLabel": "National ID",
@@ -563,10 +565,8 @@
     "guardianReligionLabel": "Religion",
     "guardianReligionPlaceholder": "Select religion",
     "guardianAddressLabel": "Address",
-
     "attachmentsLabel": "Photos",
     "attachmentsHint": "Optional. You can upload multiple images, up to 1MB each.",
-
     "confirmHeading": "Review and confirm",
     "confirmDescription": "Check the details below before registering this student.",
     "confirmStudentSection": "Student",
@@ -810,7 +810,8 @@
     "feeChargeRowsRequired": "Add at least one fee",
     "feePaymentAmountRequired": "Amount is required",
     "feePaymentAmountInvalid": "Enter a valid, non-zero amount",
-    "feePaymentDateRequired": "Date is required"
+    "feePaymentDateRequired": "Date is required",
+    "attendanceRowsRequired": "Add at least one student."
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
@@ -827,12 +828,32 @@
     "saving": "Saving…",
     "profileUpdated": "Your info has been updated.",
     "profileUpdateError": "Couldn't update your info.",
-
     "studentHeading": "My student",
     "overviewTab": "Overview",
     "loadError": "Couldn't load your student's info.",
     "saveGuardians": "Save changes",
     "guardiansUpdated": "Updated.",
     "guardiansUpdateError": "Couldn't save changes."
+  },
+  "AttendancePage": {
+    "heading": "Attendance",
+    "description": "Pick a classroom and date, mark each student, then save.",
+    "classroomLabel": "Classroom",
+    "classroomPlaceholder": "Select a classroom",
+    "dateLabel": "Date",
+    "noClassrooms": "No classrooms are assigned to you.",
+    "studentColumn": "Student",
+    "statusColumn": "Status",
+    "notesColumn": "Notes",
+    "notesPlaceholder": "Optional note",
+    "noStudents": "No active students in this classroom.",
+    "saveAttendance": "Save attendance",
+    "savedToast": "{count, plural, one {Saved attendance for 1 student.} other {Saved attendance for # students.}}",
+    "statusPresent": "Present",
+    "statusAbsent": "Absent",
+    "statusLate": "Late",
+    "statusExcused": "Excused",
+    "loadError": "Couldn't load classrooms.",
+    "rosterLoadError": "Couldn't load the student list."
   }
 }

@@ -18,6 +18,15 @@ readonly id: number,
 readonly url: string,
 readonly name: string,
 };
+export type AttendanceRosterEntryType = {
+readonly student_id: number,
+readonly student_name_en: string,
+readonly student_name_ar: string,
+readonly attendance_id: number | null,
+readonly status: AttendanceStatus | null,
+readonly notes: string | null,
+};
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
 export type BloodTypeType = {
 readonly id: number,
 readonly name_en: string,
@@ -234,6 +243,7 @@ readonly phone: string | null,
 readonly joining_date: string,
 readonly status: TeacherStatus,
 readonly subject_ids: number[],
+readonly has_login: boolean,
 readonly created_at: string,
 readonly updated_at: string,
 };

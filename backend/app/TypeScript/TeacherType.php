@@ -18,6 +18,11 @@ final class TeacherType
         public readonly TeacherStatus $status,
         /** @var int[] */
         public readonly array $subject_ids,
+        // Null until a login is created for this teacher (see
+        // TeacherService::createLogin) — the frontend uses this to switch
+        // the form's password field between "create login" and "change
+        // password" wording.
+        public readonly bool $has_login,
         public readonly string $created_at,
         public readonly string $updated_at,
     ) {}
@@ -32,6 +37,7 @@ final class TeacherType
             joining_date: $teacher->joining_date->toDateString(),
             status: $teacher->status,
             subject_ids: $teacher->subjects->pluck('id')->all(),
+            has_login: $teacher->user_id !== null,
             created_at: $teacher->created_at->toJSON(),
             updated_at: $teacher->updated_at->toJSON(),
         );

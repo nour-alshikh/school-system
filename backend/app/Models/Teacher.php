@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Enums\TeacherStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Teacher extends Model
 {
     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'phone',
@@ -21,6 +23,16 @@ class Teacher extends Model
         'joining_date' => 'date',
         'status' => TeacherStatus::class,
     ];
+
+    /**
+     * Nullable — see the add_user_id_to_teachers_table migration. A teacher
+     * without one can't log in or be assigned attendance-marking access
+     * (AttendanceController checks this).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function subjects(): BelongsToMany
     {

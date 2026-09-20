@@ -40,6 +40,8 @@ const defaultValues: TeacherFormValues = {
   phone: "",
   joining_date: "",
   status: "active",
+  password: "",
+  password_confirmation: "",
 };
 
 function valuesFromTeacher(teacher: Teacher): TeacherFormValues {
@@ -49,6 +51,8 @@ function valuesFromTeacher(teacher: Teacher): TeacherFormValues {
     phone: teacher.phone ?? "",
     joining_date: teacher.joining_date,
     status: teacher.status,
+    password: "",
+    password_confirmation: "",
   };
 }
 
@@ -85,6 +89,8 @@ export function TeacherForm({
         phone: values.phone || null,
         joining_date: values.joining_date,
         status: values.status,
+        password: values.password || undefined,
+        password_confirmation: values.password_confirmation || undefined,
       };
 
       return teacher
@@ -107,7 +113,7 @@ export function TeacherForm({
       const message = applyServerErrors(
         form,
         err,
-        ["name", "email", "phone", "joining_date", "status"],
+        ["name", "email", "phone", "joining_date", "status", "password", "password_confirmation"],
         tErrors("somethingWentWrong")
       );
       if (message) toast.error(message);
@@ -203,6 +209,45 @@ export function TeacherForm({
             </FormItem>
           )}
         />
+
+        <div className="flex flex-col gap-4 rounded-lg border border-input p-3">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-medium">{t("loginSectionLabel")}</span>
+            <span className="text-sm text-muted-foreground">
+              {teacher?.has_login ? t("loginSectionHasLoginHint") : t("loginSectionNoLoginHint")}
+            </span>
+          </div>
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {teacher?.has_login ? t("newPasswordLabel") : t("passwordLabel")}
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} type="password" dir="ltr" className="h-10" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password_confirmation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("passwordConfirmationLabel")}</FormLabel>
+                <FormControl>
+                  <Input {...field} type="password" dir="ltr" className="h-10" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="flex gap-2">
           <Button type="submit" disabled={mutation.isPending}>
