@@ -107,7 +107,7 @@ function SidebarGroup({
         type="button"
         onClick={toggle}
         aria-expanded={open}
-        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent-blue/10 dark:hover:bg-sidebar-accent"
+        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-primary/10"
       >
         <Icon className="size-4 shrink-0" />
         <span className="flex-1 truncate text-start">{label}</span>
@@ -146,8 +146,8 @@ function SidebarLink({
         "flex items-center gap-2 truncate rounded-md px-3 py-2 text-sm transition-colors",
         collapsed && "justify-center px-2",
         isActive
-          ? "bg-accent-blue font-medium text-accent-blue-foreground dark:bg-sidebar-accent dark:text-sidebar-accent-foreground"
-          : "hover:bg-accent-blue/10 dark:hover:bg-sidebar-accent"
+          ? "bg-primary font-medium text-primary-foreground"
+          : "hover:bg-primary/10"
       )}
     >
       <Icon className="size-4 shrink-0" />
@@ -183,7 +183,7 @@ export function SiteSidebar() {
       ref={ref}
       className={cn(
         "hidden shrink-0 flex-col gap-1 border-e p-2 transition-[width] duration-150 print:hidden md:flex",
-        "border-accent-blue/15 bg-accent-blue/[0.05] dark:border-sidebar-border dark:bg-sidebar dark:text-sidebar-foreground",
+        "border-primary/15 bg-primary/[0.05] dark:border-sidebar-border dark:bg-sidebar dark:text-sidebar-foreground",
         collapsed ? "w-12 items-center" : "w-64 p-4"
       )}
     >
