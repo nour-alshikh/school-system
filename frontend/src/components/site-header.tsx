@@ -72,16 +72,31 @@ export function SiteHeader() {
                 />
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-64">
                 {/* A plain div, not DropdownMenuLabel — that renders
                     Base UI's Menu.GroupLabel, which throws unless wrapped
                     in a <Menu.Group> (there's nothing to group here, just
-                    a static info line above the actions). */}
-                <div className="flex flex-col gap-0.5 px-1.5 py-1">
-                  <span className="text-sm font-medium">{user.name}</span>
-                  <span className="text-xs text-muted-foreground" dir="ltr">
-                    {user.email}
-                  </span>
+                    a static info block above the actions). */}
+                <div className="flex items-center gap-3 px-2 py-3">
+                  <div className="size-10 shrink-0">
+                    <UserAvatar
+                      name={user.name}
+                      avatarUrl={user.avatar_url}
+                      alt=""
+                      className="text-sm"
+                    />
+                  </div>
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <span className="truncate text-sm font-medium">
+                      {user.name}
+                    </span>
+                    <span
+                      className="truncate text-xs text-muted-foreground"
+                      dir="ltr"
+                    >
+                      {user.email}
+                    </span>
+                  </div>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
