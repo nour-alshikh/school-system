@@ -38,6 +38,19 @@ readonly subject_teachers: ClassroomSubjectTeacherType[],
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type FeeType = {
+readonly id: number,
+readonly name_en: string,
+readonly name_ar: string,
+readonly academic_year_id: number,
+readonly amount: string,
+readonly is_active: boolean,
+readonly is_for_all: boolean,
+readonly stage_id: number | null,
+readonly grade_id: number | null,
+readonly created_at: string,
+readonly updated_at: string,
+};
 export type Gender = 'male' | 'female';
 export type GovernorateType = {
 readonly id: number,

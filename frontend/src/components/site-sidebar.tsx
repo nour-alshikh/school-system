@@ -8,6 +8,7 @@ import {
   CalendarRange,
   ChevronDown,
   DoorOpen,
+  DollarSign,
   GraduationCap,
   History,
   LayoutDashboard,
@@ -319,6 +320,15 @@ export function SiteSidebar() {
             collapsed={false}
           />
         </SidebarGroup>
+      )}
+
+      {can("manage-fees") && (
+        <SidebarLink
+          href="/fees"
+          icon={DollarSign}
+          label={t("fees")}
+          collapsed={collapsed}
+        />
       )}
 
       {can("manage-users") && (

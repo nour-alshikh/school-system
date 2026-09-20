@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\BloodTypeController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\FeeController;
 use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\GraduationController;
@@ -84,6 +85,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/subjects/bulk-delete', [SubjectController::class, 'bulkDestroy']);
         Route::put('/subjects/{subject}', [SubjectController::class, 'update']);
         Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy']);
+    });
+
+    // Fees are their own admin territory, separate from the academic
+    // structure and from manage-students — a registrar managing fee amounts
+    // doesn't need (and shouldn't get) write access to stages/grades/students.
+    Route::middleware('permission:manage-fees')->group(function () {
+        Route::get('/fees', [FeeController::class, 'index']);
+        Route::post('/fees', [FeeController::class, 'store']);
+        Route::post('/fees/bulk-delete', [FeeController::class, 'bulkDestroy']);
+        Route::put('/fees/{fee}', [FeeController::class, 'update']);
+        Route::delete('/fees/{fee}', [FeeController::class, 'destroy']);
     });
 
     // Teachers are their own admin territory, separate from the academic

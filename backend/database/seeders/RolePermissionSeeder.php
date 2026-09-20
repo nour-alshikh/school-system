@@ -14,12 +14,14 @@ class RolePermissionSeeder extends Seeder
         $manageAcademics = Permission::firstOrCreate(['name' => 'manage-academics']);
         $manageStudents = Permission::firstOrCreate(['name' => 'manage-students']);
         $manageTeachers = Permission::firstOrCreate(['name' => 'manage-teachers']);
+        $manageFees = Permission::firstOrCreate(['name' => 'manage-fees']);
 
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->givePermissionTo($manageUsers);
         $admin->givePermissionTo($manageAcademics);
         $admin->givePermissionTo($manageStudents);
         $admin->givePermissionTo($manageTeachers);
+        $admin->givePermissionTo($manageFees);
 
         Role::firstOrCreate(['name' => 'user']);
         Role::firstOrCreate(['name' => 'student']);
