@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { applyServerErrors } from "@/lib/form-errors";
+import { Loader2 } from "lucide-react";
 import { createLoginSchema, type LoginPayload } from "@/lib/schemas";
 import {
   Form,
@@ -28,6 +29,11 @@ function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  // Set the instant login() resolves, so the form (which stays mounted
+  // until the router finishes swapping routes) doesn't linger on screen
+  // alongside the now-authenticated sidebar — see loading.tsx, which
+  // doesn't fire here since both routes are plain client components.
+  const [redirecting, setRedirecting] = useState(false);
 
   const schema = useMemo(() => createLoginSchema(tValidation), [tValidation]);
 
@@ -39,6 +45,7 @@ function LoginForm() {
   async function onSubmit(values: LoginPayload) {
     try {
       await login(values);
+      setRedirecting(true);
       router.push(searchParams.get("redirect") ?? "/dashboard");
       router.refresh();
     } catch (err) {
@@ -50,6 +57,13 @@ function LoginForm() {
       );
       if (message) toast.error(message);
     }
+  }
+
+  // No <main> here — the LoginPage wrapper below already provides and
+  // centers one; nesting PageLoader's own <main> inside it would be
+  // invalid HTML.
+  if (redirecting) {
+    return <Loader2 className="size-6 animate-spin text-muted-foreground" />;
   }
 
   return (

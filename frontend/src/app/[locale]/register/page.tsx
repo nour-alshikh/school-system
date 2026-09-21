@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useForm } from "react-hook-form";
@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { applyServerErrors } from "@/lib/form-errors";
+import { Loader2 } from "lucide-react";
 import { createRegisterSchema, type RegisterPayload } from "@/lib/schemas";
 import {
   Form,
@@ -26,6 +27,8 @@ export default function RegisterPage() {
   const tErrors = useTranslations("Errors");
   const { register: registerUser } = useAuth();
   const router = useRouter();
+  // See login/page.tsx's redirecting state for why this is needed.
+  const [redirecting, setRedirecting] = useState(false);
 
   const schema = useMemo(
     () => createRegisterSchema(tValidation),
@@ -45,6 +48,7 @@ export default function RegisterPage() {
   async function onSubmit(values: RegisterPayload) {
     try {
       await registerUser(values);
+      setRedirecting(true);
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
@@ -56,6 +60,14 @@ export default function RegisterPage() {
       );
       if (message) toast.error(message);
     }
+  }
+
+  if (redirecting) {
+    return (
+      <main className="flex flex-1 items-center justify-center p-6">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </main>
+    );
   }
 
   return (
