@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class TeacherSeeder extends Seeder
 {
@@ -41,6 +43,17 @@ class TeacherSeeder extends Seeder
                     'status' => $row['status'] ?? 'active',
                 ]
             );
+
+            if (! $teacher->user_id) {
+                $user = User::create([
+                    'name' => $teacher->name,
+                    'email' => $teacher->email,
+                    'password' => Hash::make('password'),
+                ]);
+                $user->assignRole('teacher');
+
+                $teacher->update(['user_id' => $user->id]);
+            }
 
             $subjectIds = collect($row['subjects'])
                 ->map(fn (string $subjectName) => $subjectsByEnName->get($subjectName)?->id)
