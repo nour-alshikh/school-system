@@ -4,71 +4,56 @@ namespace App\TypeScript;
 
 use App\Enums\StudentStatus;
 use App\Models\Attendance;
-use App\Models\Classroom;
 use App\Models\Exam;
 use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Support\Carbon;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+/**
+ * The dashboard's landing summary — counts and the latest exam only. Full
+ * classroom listings and exams live behind their own endpoints/pages (see
+ * TeacherPortal\ClassroomController and the shared /api/exams list) so this
+ * stays a fast, small fetch.
+ */
 #[TypeScript]
 final class TeacherDashboardType
 {
     public function __construct(
         public readonly TeacherType $teacher,
-        /** @var ExamTeachingAssignmentType[] */
-        public readonly array $assignments,
+        public readonly int $classrooms_count,
+        public readonly int $subjects_count,
         public readonly int $students_total,
-        /** @var TeacherClassroomStatusType[] */
-        public readonly array $classrooms,
-        /** @var TeacherExamSummaryType[] */
-        public readonly array $exams,
+        public readonly int $attendance_marked_count,
+        public readonly int $exams_total,
+        public readonly ?TeacherExamSummaryType $latest_exam,
     ) {}
 
     public static function build(Teacher $teacher): self
     {
-        $assignments = $teacher->classroomSubjects()->with(['classroom.grade', 'subject'])->get();
+        $assignments = $teacher->classroomSubjects()->get();
+        $classroomIds = $assignments->pluck('classroom_id')->unique();
 
-        $classrooms = Classroom::with('grade')
-            ->whereIn('id', $assignments->pluck('classroom_id')->unique())
-            ->get();
-
-        $studentsByClassroom = Student::whereIn('classroom_id', $classrooms->pluck('id'))
+        $studentsTotal = Student::whereIn('classroom_id', $classroomIds)
             ->where('status', StudentStatus::Active)
-            ->get()
-            ->groupBy('classroom_id');
+            ->count();
 
-        $today = Carbon::today();
-        $classroomsWithAttendanceToday = Attendance::whereIn('classroom_id', $classrooms->pluck('id'))
-            ->whereDate('date', $today)
-            ->pluck('classroom_id')
-            ->unique();
+        $attendanceMarkedCount = Attendance::whereIn('classroom_id', $classroomIds)
+            ->whereDate('date', Carbon::today())
+            ->distinct('classroom_id')
+            ->count('classroom_id');
 
-        $exams = Exam::with(['subject', 'attempts'])
-            ->where('created_by', $teacher->user_id)
-            ->orderByDesc('id')
-            ->take(5)
-            ->get();
+        $examsQuery = Exam::where('created_by', $teacher->user_id);
+        $latestExam = (clone $examsQuery)->with(['subject', 'attempts'])->orderByDesc('id')->first();
 
         return new self(
             teacher: TeacherType::fromModel($teacher),
-            assignments: $assignments
-                ->map(fn ($assignment) => ExamTeachingAssignmentType::fromModel($assignment))
-                ->values()
-                ->all(),
-            students_total: $studentsByClassroom->flatten()->unique('id')->count(),
-            classrooms: $classrooms
-                ->map(fn (Classroom $classroom) => TeacherClassroomStatusType::build(
-                    $classroom,
-                    $studentsByClassroom->get($classroom->id, collect())->count(),
-                    $classroomsWithAttendanceToday->contains($classroom->id),
-                ))
-                ->values()
-                ->all(),
-            exams: $exams
-                ->map(fn (Exam $exam) => TeacherExamSummaryType::build($exam, self::eligibleCount($exam)))
-                ->values()
-                ->all(),
+            classrooms_count: $classroomIds->count(),
+            subjects_count: $assignments->pluck('subject_id')->unique()->count(),
+            students_total: $studentsTotal,
+            attendance_marked_count: $attendanceMarkedCount,
+            exams_total: $examsQuery->count(),
+            latest_exam: $latestExam ? TeacherExamSummaryType::build($latestExam, self::eligibleCount($latestExam)) : null,
         );
     }
 

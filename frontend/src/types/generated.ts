@@ -376,10 +376,12 @@ readonly attendance_marked_today: boolean,
 };
 export type TeacherDashboardType = {
 readonly teacher: TeacherType,
-readonly assignments: ExamTeachingAssignmentType[],
+readonly classrooms_count: number,
+readonly subjects_count: number,
 readonly students_total: number,
-readonly classrooms: TeacherClassroomStatusType[],
-readonly exams: TeacherExamSummaryType[],
+readonly attendance_marked_count: number,
+readonly exams_total: number,
+readonly latest_exam: TeacherExamSummaryType | null,
 };
 export type TeacherExamSummaryType = {
 readonly id: number,

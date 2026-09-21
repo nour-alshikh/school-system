@@ -36,6 +36,7 @@
     "attendance": "الحضور والغياب",
     "takeAttendance": "تسجيل الحضور",
     "attendanceHistory": "سجل الحضور",
+    "myClassrooms": "فصولي",
     "myPortal": "بوابتي",
     "myExams": "اختباراتي",
     "myAttendance": "حضوري",
@@ -1062,11 +1063,23 @@
     "loadError": "تعذر تحميل رسومك."
   },
   "TeacherDashboardPage": {
-    "summaryHeading": "نظرة عامة",
-    "classroomsLabel": "الفصول",
-    "subjectsLabel": "المواد التي أدرّسها",
+    "classroomsHeading": "الفصول",
+    "viewClassrooms": "عرض الفصول",
+    "subjectsLabel": "المواد",
     "studentsLabel": "الطلاب",
-    "classroomsHeading": "فصولي",
+    "attendanceHeading": "الحضور",
+    "takeAttendance": "تسجيل الحضور",
+    "markedTodayLabel": "فصول سُجِّل حضورها اليوم",
+    "examsHeading": "الاختبارات",
+    "viewAllExams": "عرض الكل",
+    "noExams": "لم تُنشئ أي اختبارات بعد.",
+    "examStatusDraft": "مسودة",
+    "examStatusPublished": "منشور",
+    "loadError": "تعذر تحميل لوحة التحكم الخاصة بك."
+  },
+  "TeacherClassroomsPage": {
+    "heading": "فصولي",
+    "description": "الفصول التي تُدرِّسها، مع حالة حضور اليوم.",
     "takeAttendance": "تسجيل الحضور",
     "noClassrooms": "لم يتم تعيينك لأي فصل بعد.",
     "classroomColumn": "الفصل",
@@ -1075,16 +1088,7 @@
     "attendanceTodayColumn": "حضور اليوم",
     "marked": "تم التسجيل",
     "notMarked": "لم يُسجَّل",
-    "examsHeading": "اختباراتي",
-    "viewAllExams": "عرض الكل",
-    "noExams": "لم تُنشئ أي اختبارات بعد.",
-    "titleColumn": "العنوان",
-    "subjectColumn": "المادة",
-    "statusColumn": "الحالة",
-    "submittedColumn": "تم التسليم",
-    "examStatusDraft": "مسودة",
-    "examStatusPublished": "منشور",
-    "loadError": "تعذر تحميل لوحة التحكم الخاصة بك."
+    "loadError": "تعذر تحميل فصولك."
   },
   "TakeExamPage": {
     "questionNumber": "السؤال {number}",

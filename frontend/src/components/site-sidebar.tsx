@@ -371,6 +371,15 @@ export function SiteSidebar() {
         />
       )}
 
+      {hasRole("teacher") && (
+        <SidebarLink
+          href="/my-classrooms"
+          icon={DoorOpen}
+          label={t("myClassrooms")}
+          collapsed={collapsed}
+        />
+      )}
+
       {(can("manage-attendance") || hasRole("teacher")) && (
         <SidebarGroup
           icon={CheckSquare}

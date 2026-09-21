@@ -29,6 +29,7 @@ use App\Http\Controllers\StudentPortal\FeeController as StudentFeeController;
 use App\Http\Controllers\StudentPortal\SubjectController as StudentSubjectController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TeacherPortal\ClassroomController as TeacherClassroomController;
 use App\Http\Controllers\TeacherPortal\DashboardController as TeacherDashboardController;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
@@ -208,6 +209,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // role:student block above.
     Route::middleware('role:teacher')->group(function () {
         Route::get('/teacher/dashboard', [TeacherDashboardController::class, 'show']);
+        Route::get('/teacher/classrooms', [TeacherClassroomController::class, 'index']);
     });
 
     Route::get('/nationalities', [NationalityController::class, 'index']);

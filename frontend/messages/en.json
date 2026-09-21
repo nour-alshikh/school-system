@@ -36,6 +36,7 @@
     "attendance": "Attendance",
     "takeAttendance": "Take attendance",
     "attendanceHistory": "Attendance history",
+    "myClassrooms": "My classrooms",
     "myPortal": "My portal",
     "myExams": "My exams",
     "myAttendance": "My attendance",
@@ -1062,11 +1063,23 @@
     "loadError": "Couldn't load your fees."
   },
   "TeacherDashboardPage": {
-    "summaryHeading": "Overview",
-    "classroomsLabel": "Classrooms",
-    "subjectsLabel": "Subjects taught",
+    "classroomsHeading": "Classrooms",
+    "viewClassrooms": "View classrooms",
+    "subjectsLabel": "Subjects",
     "studentsLabel": "Students",
-    "classroomsHeading": "My classrooms",
+    "attendanceHeading": "Attendance",
+    "takeAttendance": "Take attendance",
+    "markedTodayLabel": "classrooms marked today",
+    "examsHeading": "Exams",
+    "viewAllExams": "View all",
+    "noExams": "You haven't created any exams yet.",
+    "examStatusDraft": "Draft",
+    "examStatusPublished": "Published",
+    "loadError": "Couldn't load your dashboard."
+  },
+  "TeacherClassroomsPage": {
+    "heading": "My classrooms",
+    "description": "Classrooms you teach, with today's attendance status.",
     "takeAttendance": "Take attendance",
     "noClassrooms": "You're not assigned to any classroom yet.",
     "classroomColumn": "Classroom",
@@ -1075,16 +1088,7 @@
     "attendanceTodayColumn": "Attendance today",
     "marked": "Marked",
     "notMarked": "Not marked",
-    "examsHeading": "My exams",
-    "viewAllExams": "View all",
-    "noExams": "You haven't created any exams yet.",
-    "titleColumn": "Title",
-    "subjectColumn": "Subject",
-    "statusColumn": "Status",
-    "submittedColumn": "Submitted",
-    "examStatusDraft": "Draft",
-    "examStatusPublished": "Published",
-    "loadError": "Couldn't load your dashboard."
+    "loadError": "Couldn't load your classrooms."
   },
   "TakeExamPage": {
     "questionNumber": "Question {number}",
