@@ -198,6 +198,22 @@ readonly blood_type_id: number,
 readonly religion_id: number,
 readonly address: string,
 };
+export type MeetingClassroomType = {
+readonly id: number,
+readonly name: string,
+};
+export type MeetingType = {
+readonly id: number,
+readonly title: string,
+readonly description: string | null,
+readonly start_time: string,
+readonly duration_minutes: number,
+readonly join_url: string,
+readonly start_url: string,
+readonly created_by: number,
+readonly creator_name: string,
+readonly classrooms: MeetingClassroomType[],
+};
 export type NationalityType = {
 readonly id: number,
 readonly name_en: string,
@@ -327,6 +343,15 @@ export type StudentFeesSummaryType = {
 readonly total_due: string,
 readonly total_paid: string,
 readonly total_outstanding: string,
+};
+export type StudentMeetingType = {
+readonly id: number,
+readonly title: string,
+readonly description: string | null,
+readonly start_time: string,
+readonly duration_minutes: number,
+readonly join_url: string,
+readonly teacher_name: string,
 };
 export type StudentStatus = 'active' | 'graduated';
 export type StudentType = {

@@ -44,7 +44,9 @@
     "myFees": "رسومي",
     "exams": "الاختبارات",
     "allExams": "كل الاختبارات",
-    "createExam": "إنشاء اختبار"
+    "createExam": "إنشاء اختبار",
+    "meetings": "الاجتماعات",
+    "myMeetings": "اجتماعاتي"
   },
   "LoginPage": {
     "heading": "تسجيل الدخول",
@@ -833,7 +835,9 @@
     "opensAtRequired": "تاريخ ووقت الفتح مطلوب",
     "closesAtRequired": "تاريخ ووقت الإغلاق مطلوب",
     "questionsMin": "أضف سؤالاً واحداً على الأقل",
-    "closesAfterOpens": "يجب أن يكون وقت الإغلاق بعد وقت الفتح"
+    "closesAfterOpens": "يجب أن يكون وقت الإغلاق بعد وقت الفتح",
+    "meetingClassroomsRequired": "اختر فصلاً واحداً على الأقل",
+    "meetingStartTimeRequired": "وقت البدء مطلوب"
   },
   "Errors": {
     "somethingWentWrong": "حدث خطأ ما."
@@ -1109,5 +1113,58 @@
     "submitted": "لقد قمت بتسليم هذا الاختبار. إليك درجتك:",
     "backToList": "العودة إلى اختباراتي",
     "loadError": "تعذر تحميل اختباراتك."
+  },
+  "MeetingsPage": {
+    "heading": "الاجتماعات",
+    "description": "جدولة اجتماعات Zoom ومعرفة الفصول المخصصة لها.",
+    "newMeeting": "اجتماع جديد",
+    "loadError": "تعذر تحميل الاجتماعات.",
+    "noMeetings": "لا توجد اجتماعات مجدولة بعد.",
+    "titleColumn": "العنوان",
+    "classroomsColumn": "الفصول",
+    "startTimeColumn": "يبدأ في",
+    "durationColumn": "المدة",
+    "actionsColumn": "الإجراءات",
+    "minutes": "{count, plural, one {# دقيقة} other {# دقيقة}}",
+    "start": "بدء الاجتماع",
+    "delete": "إلغاء",
+    "deleteConfirmTitle": "إلغاء هذا الاجتماع؟",
+    "deleteConfirmDescription": "لا يمكن التراجع عن هذا. سيتم إلغاء اجتماع Zoom وإزالته من قائمة كل طالب مخصص له.",
+    "deleteSuccess": "تم إلغاء الاجتماع.",
+    "deleteError": "تعذر إلغاء الاجتماع.",
+    "zoomNotConnected": "لا يوجد حساب Zoom متصل بعد. قم بتوصيل حساب لجدولة الاجتماعات.",
+    "zoomNotConnectedTeacher": "لا يوجد حساب Zoom متصل بعد — اطلب من المسؤول توصيل حساب.",
+    "connectZoom": "توصيل Zoom",
+    "zoomConnected": "تم توصيل Zoom.",
+    "zoomConnectedBy": "تم توصيل Zoom بواسطة {name}.",
+    "disconnectZoom": "فصل الاتصال",
+    "zoomConnectSuccess": "تم توصيل حساب Zoom.",
+    "zoomConnectError": "تعذر بدء توصيل Zoom.",
+    "zoomDisconnectSuccess": "تم فصل حساب Zoom.",
+    "zoomDisconnectError": "تعذر فصل حساب Zoom."
+  },
+  "MeetingFormPage": {
+    "titleLabel": "العنوان",
+    "descriptionLabel": "الوصف (اختياري)",
+    "classroomsLabel": "الفصول",
+    "classroomsPlaceholder": "اختر فصلاً واحداً أو أكثر",
+    "noClassrooms": "لم يتم تعيينك لتدريس أي فصل بعد.",
+    "startTimeLabel": "وقت البدء",
+    "durationLabel": "المدة (بالدقائق)",
+    "createMeeting": "جدولة الاجتماع",
+    "createSuccess": "تمت جدولة الاجتماع."
+  },
+  "StudentMeetingsPage": {
+    "heading": "اجتماعاتي",
+    "description": "اجتماعات Zoom التي جدولها معلموك لفصلك.",
+    "noMeetings": "لا توجد اجتماعات مجدولة حالياً.",
+    "titleColumn": "العنوان",
+    "teacherColumn": "المعلم",
+    "startTimeColumn": "يبدأ في",
+    "durationColumn": "المدة",
+    "actionsColumn": "الإجراءات",
+    "minutes": "{count, plural, one {# دقيقة} other {# دقيقة}}",
+    "join": "انضمام",
+    "loadError": "تعذر تحميل اجتماعاتك."
   }
 }

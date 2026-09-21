@@ -14,6 +14,7 @@ use App\Http\Controllers\FeeController;
 use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\GraduationController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NationalityController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
@@ -26,11 +27,13 @@ use App\Http\Controllers\StudentPortal\AttendanceController as StudentAttendance
 use App\Http\Controllers\StudentPortal\DashboardController as StudentDashboardController;
 use App\Http\Controllers\StudentPortal\ExamController as StudentExamController;
 use App\Http\Controllers\StudentPortal\FeeController as StudentFeeController;
+use App\Http\Controllers\StudentPortal\MeetingController as StudentMeetingController;
 use App\Http\Controllers\StudentPortal\SubjectController as StudentSubjectController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TeacherPortal\ClassroomController as TeacherClassroomController;
 use App\Http\Controllers\TeacherPortal\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\ZoomController;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +43,12 @@ Route::middleware('throttle:10,1')->group(function () {
     Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 });
+
+// Deliberately outside auth:sanctum — Zoom's redirect back here is a plain
+// top-level browser navigation from zoom.us, which Sanctum's cookie-based
+// "fromFrontend" check would never recognize as authenticated. See
+// ZoomController::callback()'s doc comment for how it's secured instead.
+Route::middleware('throttle:30,1')->get('/zoom/callback', [ZoomController::class, 'callback']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -192,6 +201,31 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/exams/{exam}/results', [ExamController::class, 'results']);
     });
 
+    // Meetings are shared between admin (manage-meetings, any classroom) and
+    // the teacher role (only classrooms they hold a subject slot in) — same
+    // split as attendance/exams, enforced in MeetingController since route
+    // middleware alone can't express the per-classroom scoping.
+    Route::middleware('role_or_permission:teacher|manage-meetings')->group(function () {
+        Route::get('/meetings/classrooms', [MeetingController::class, 'classrooms']);
+        Route::get('/meetings', [MeetingController::class, 'index']);
+        Route::post('/meetings', [MeetingController::class, 'store']);
+        Route::delete('/meetings/{meeting}', [MeetingController::class, 'destroy']);
+
+        // Read-only: a teacher can't connect/disconnect the shared Zoom
+        // account (see the manage-meetings-only group below) but still
+        // needs to know whether one exists before trying to schedule.
+        Route::get('/zoom/status', [ZoomController::class, 'status']);
+    });
+
+    // Managing the one shared Zoom account (connect/disconnect) is admin
+    // territory — see ZoomService's class doc for why it's one shared
+    // account rather than per-teacher Zoom logins. callback() itself lives
+    // outside auth:sanctum entirely — see the top of this file.
+    Route::middleware('permission:manage-meetings')->group(function () {
+        Route::get('/zoom/connect-url', [ZoomController::class, 'connectUrl']);
+        Route::delete('/zoom/connection', [ZoomController::class, 'disconnect']);
+    });
+
     // A student's self-service corner, same shape as the role:parent block
     // above — their own eligible exams, taking one, and submitting it.
     Route::middleware('role:student')->group(function () {
@@ -202,6 +236,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/student/exams', [StudentExamController::class, 'index']);
         Route::get('/student/exams/{exam}', [StudentExamController::class, 'show']);
         Route::post('/student/exams/{exam}/submit', [StudentExamController::class, 'submit']);
+        Route::get('/student/meetings', [StudentMeetingController::class, 'index']);
     });
 
     // A teacher's self-service landing page — their own assignments,

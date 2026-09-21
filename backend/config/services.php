@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    // A regular (user) OAuth app, not Server-to-Server — that app type
+    // needs a paid Zoom plan, which this project can't assume. One admin
+    // authorizes it once (see ZoomController/ZoomService); the resulting
+    // token pair is stored in zoom_connections and reused for everyone.
+    'zoom' => [
+        'client_id' => env('ZOOM_CLIENT_ID'),
+        'client_secret' => env('ZOOM_CLIENT_SECRET'),
+        'redirect_uri' => env('ZOOM_REDIRECT_URI'),
+    ],
+
 ];

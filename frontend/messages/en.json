@@ -44,7 +44,9 @@
     "myFees": "My fees",
     "exams": "Exams",
     "allExams": "All exams",
-    "createExam": "Create exam"
+    "createExam": "Create exam",
+    "meetings": "Meetings",
+    "myMeetings": "My meetings"
   },
   "LoginPage": {
     "heading": "Log in",
@@ -833,7 +835,9 @@
     "opensAtRequired": "Opening date/time is required",
     "closesAtRequired": "Closing date/time is required",
     "questionsMin": "Add at least one question",
-    "closesAfterOpens": "Closing time must be after the opening time"
+    "closesAfterOpens": "Closing time must be after the opening time",
+    "meetingClassroomsRequired": "Select at least one classroom",
+    "meetingStartTimeRequired": "Start time is required"
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
@@ -1109,5 +1113,58 @@
     "submitted": "You've submitted this exam. Here's your score:",
     "backToList": "Back to my exams",
     "loadError": "Couldn't load your exams."
+  },
+  "MeetingsPage": {
+    "heading": "Meetings",
+    "description": "Schedule Zoom meetings and see who they're assigned to.",
+    "newMeeting": "New meeting",
+    "loadError": "Couldn't load meetings.",
+    "noMeetings": "No meetings scheduled yet.",
+    "titleColumn": "Title",
+    "classroomsColumn": "Classrooms",
+    "startTimeColumn": "Starts",
+    "durationColumn": "Duration",
+    "actionsColumn": "Actions",
+    "minutes": "{count, plural, one {# minute} other {# minutes}}",
+    "start": "Start meeting",
+    "delete": "Cancel",
+    "deleteConfirmTitle": "Cancel this meeting?",
+    "deleteConfirmDescription": "This can't be undone. The Zoom meeting will be cancelled and removed from every assigned student's list.",
+    "deleteSuccess": "Meeting cancelled.",
+    "deleteError": "Couldn't cancel the meeting.",
+    "zoomNotConnected": "No Zoom account is connected yet. Connect one to schedule meetings.",
+    "zoomNotConnectedTeacher": "No Zoom account is connected yet — ask an admin to connect one.",
+    "connectZoom": "Connect Zoom",
+    "zoomConnected": "Zoom connected.",
+    "zoomConnectedBy": "Zoom connected by {name}.",
+    "disconnectZoom": "Disconnect",
+    "zoomConnectSuccess": "Zoom account connected.",
+    "zoomConnectError": "Couldn't start the Zoom connection.",
+    "zoomDisconnectSuccess": "Zoom account disconnected.",
+    "zoomDisconnectError": "Couldn't disconnect the Zoom account."
+  },
+  "MeetingFormPage": {
+    "titleLabel": "Title",
+    "descriptionLabel": "Description (optional)",
+    "classroomsLabel": "Classrooms",
+    "classroomsPlaceholder": "Select one or more classrooms",
+    "noClassrooms": "You aren't assigned to teach any classroom yet.",
+    "startTimeLabel": "Start time",
+    "durationLabel": "Duration (minutes)",
+    "createMeeting": "Schedule meeting",
+    "createSuccess": "Meeting scheduled."
+  },
+  "StudentMeetingsPage": {
+    "heading": "My meetings",
+    "description": "Zoom meetings your teachers have scheduled for your classroom.",
+    "noMeetings": "No meetings scheduled right now.",
+    "titleColumn": "Title",
+    "teacherColumn": "Teacher",
+    "startTimeColumn": "Starts",
+    "durationColumn": "Duration",
+    "actionsColumn": "Actions",
+    "minutes": "{count, plural, one {# minute} other {# minutes}}",
+    "join": "Join",
+    "loadError": "Couldn't load your meetings."
   }
 }

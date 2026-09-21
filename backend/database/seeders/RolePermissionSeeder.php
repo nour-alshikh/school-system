@@ -17,6 +17,7 @@ class RolePermissionSeeder extends Seeder
         $manageFees = Permission::firstOrCreate(['name' => 'manage-fees']);
         $manageAttendance = Permission::firstOrCreate(['name' => 'manage-attendance']);
         $manageExams = Permission::firstOrCreate(['name' => 'manage-exams']);
+        $manageMeetings = Permission::firstOrCreate(['name' => 'manage-meetings']);
 
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->givePermissionTo($manageUsers);
@@ -26,6 +27,7 @@ class RolePermissionSeeder extends Seeder
         $admin->givePermissionTo($manageFees);
         $admin->givePermissionTo($manageAttendance);
         $admin->givePermissionTo($manageExams);
+        $admin->givePermissionTo($manageMeetings);
 
         Role::firstOrCreate(['name' => 'user']);
         Role::firstOrCreate(['name' => 'student']);
