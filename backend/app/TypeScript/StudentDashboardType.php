@@ -6,18 +6,20 @@ use App\Models\Attendance;
 use App\Models\Student;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+/**
+ * The dashboard's landing summary — latest/aggregate figures only. Full
+ * history and listings live behind their own endpoints/pages (see
+ * StudentPortal\AttendanceController, SubjectController, FeeController) so
+ * this stays a fast, small fetch.
+ */
 #[TypeScript]
 final class StudentDashboardType
 {
     public function __construct(
         public readonly StudentType $student,
         public readonly StudentAttendanceSummaryType $attendance_summary,
-        /** @var AttendanceRecordType[] */
-        public readonly array $recent_attendance,
-        /** @var StudentClassSubjectType[] */
-        public readonly array $subjects,
-        /** @var FeeChargeType[] */
-        public readonly array $fee_charges,
+        public readonly ?AttendanceRecordType $latest_attendance,
+        public readonly int $subjects_count,
         public readonly StudentFeesSummaryType $fees_summary,
     ) {}
 
@@ -29,28 +31,17 @@ final class StudentDashboardType
             ->orderByDesc('date')
             ->get();
 
-        $subjectAssignments = $student->classroom
-            ? $student->classroom->subjectTeachers()->with(['subject', 'teacher'])->get()
-            : collect();
+        $subjectsCount = $student->classroom ? $student->classroom->subjectTeachers()->count() : 0;
 
-        $feeCharges = $student->feeCharges()->with(['fee', 'payments.recordedBy'])->orderByDesc('id')->get();
+        $feeCharges = $student->feeCharges;
 
         return new self(
             student: StudentType::fromModel($student),
             attendance_summary: StudentAttendanceSummaryType::fromRecords($attendanceRecords),
-            recent_attendance: $attendanceRecords
-                ->take(20)
-                ->map(fn (Attendance $a) => AttendanceRecordType::fromModel($a))
-                ->values()
-                ->all(),
-            subjects: $subjectAssignments
-                ->map(fn ($assignment) => StudentClassSubjectType::fromModel($assignment))
-                ->values()
-                ->all(),
-            fee_charges: $feeCharges
-                ->map(fn ($charge) => FeeChargeType::fromModel($charge))
-                ->values()
-                ->all(),
+            latest_attendance: $attendanceRecords->first()
+                ? AttendanceRecordType::fromModel($attendanceRecords->first())
+                : null,
+            subjects_count: $subjectsCount,
             fees_summary: StudentFeesSummaryType::fromCharges($feeCharges),
         );
     }

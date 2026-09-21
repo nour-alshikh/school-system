@@ -220,12 +220,38 @@ export function SiteSidebar() {
       )}
 
       {hasRole("student") && (
-        <SidebarLink
-          href="/my-exams"
-          icon={ClipboardList}
-          label={t("myExams")}
+        <SidebarGroup
+          icon={UserIcon}
+          label={t("myPortal")}
           collapsed={collapsed}
-        />
+          storageKey="sidebar-student-group-open"
+          fallbackHref="/my-exams"
+        >
+          <SidebarLink
+            href="/my-exams"
+            icon={ClipboardList}
+            label={t("myExams")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/my-attendance"
+            icon={CheckSquare}
+            label={t("myAttendance")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/my-subjects"
+            icon={BookOpen}
+            label={t("mySubjects")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/my-fees"
+            icon={DollarSign}
+            label={t("myFees")}
+            collapsed={false}
+          />
+        </SidebarGroup>
       )}
 
       {/* The academic structure is admin territory — same gate as its API

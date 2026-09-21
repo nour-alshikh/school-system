@@ -93,8 +93,12 @@ export function TakeExamPage({ id }: { id: string }) {
           })),
         }),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["student-exams"], exact: false });
+    onSuccess: async () => {
+      // Awaited: the result page reads this same query's cache to confirm
+      // attempt_status is "submitted" before rendering (see
+      // exam-result-page.tsx). Navigating before the refetch lands means it
+      // reads pre-submit data and bounces straight back here.
+      await queryClient.invalidateQueries({ queryKey: ["student-exams"], exact: false });
       router.push(`/my-exams/${id}/result`);
     },
     onError: (err) => {

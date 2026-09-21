@@ -281,9 +281,8 @@ readonly teacher_phone: string | null,
 export type StudentDashboardType = {
 readonly student: StudentType,
 readonly attendance_summary: StudentAttendanceSummaryType,
-readonly recent_attendance: AttendanceRecordType[],
-readonly subjects: StudentClassSubjectType[],
-readonly fee_charges: FeeChargeType[],
+readonly latest_attendance: AttendanceRecordType | null,
+readonly subjects_count: number,
 readonly fees_summary: StudentFeesSummaryType,
 };
 export type StudentExamAttemptType = {

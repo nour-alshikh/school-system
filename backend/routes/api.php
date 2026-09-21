@@ -22,8 +22,11 @@ use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentPortal\AttendanceController as StudentAttendanceController;
 use App\Http\Controllers\StudentPortal\DashboardController as StudentDashboardController;
 use App\Http\Controllers\StudentPortal\ExamController as StudentExamController;
+use App\Http\Controllers\StudentPortal\FeeController as StudentFeeController;
+use App\Http\Controllers\StudentPortal\SubjectController as StudentSubjectController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\TeacherPortal\DashboardController as TeacherDashboardController;
@@ -192,6 +195,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // above — their own eligible exams, taking one, and submitting it.
     Route::middleware('role:student')->group(function () {
         Route::get('/student/dashboard', [StudentDashboardController::class, 'show']);
+        Route::get('/student/attendance', [StudentAttendanceController::class, 'index']);
+        Route::get('/student/subjects', [StudentSubjectController::class, 'index']);
+        Route::get('/student/fees', [StudentFeeController::class, 'index']);
         Route::get('/student/exams', [StudentExamController::class, 'index']);
         Route::get('/student/exams/{exam}', [StudentExamController::class, 'show']);
         Route::post('/student/exams/{exam}/submit', [StudentExamController::class, 'submit']);
