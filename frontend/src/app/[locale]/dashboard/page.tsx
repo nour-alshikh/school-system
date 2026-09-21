@@ -6,10 +6,12 @@ import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { AvatarUploader } from "@/components/avatar-uploader";
 import { PageLoader } from "@/components/page-loader";
+import { StudentDashboardPage } from "@/features/student-dashboard/student-dashboard-page";
+import { TeacherDashboardPage } from "@/features/teacher-dashboard/teacher-dashboard-page";
 
 export default function DashboardPage() {
   const t = useTranslations("DashboardPage");
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, hasRole } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -23,12 +25,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-      <AvatarUploader />
-      <h1 className="text-xl font-semibold">
-        {t("welcome", { name: user.name })}
-      </h1>
-      <p className="text-sm text-muted-foreground">{user.email}</p>
-    </main>
+    <div className="flex flex-1 flex-col">
+      <div className="flex flex-col items-center justify-center gap-4 p-6">
+        <AvatarUploader />
+        <h1 className="text-xl font-semibold">
+          {t("welcome", { name: user.name })}
+        </h1>
+        <p className="text-sm text-muted-foreground">{user.email}</p>
+      </div>
+      {hasRole("student") && <StudentDashboardPage />}
+      {hasRole("teacher") && <TeacherDashboardPage />}
+    </div>
   );
 }

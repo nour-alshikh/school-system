@@ -22,9 +22,11 @@ use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentPortal\DashboardController as StudentDashboardController;
 use App\Http\Controllers\StudentPortal\ExamController as StudentExamController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\TeacherPortal\DashboardController as TeacherDashboardController;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
 
@@ -189,9 +191,17 @@ Route::middleware('auth:sanctum')->group(function () {
     // A student's self-service corner, same shape as the role:parent block
     // above — their own eligible exams, taking one, and submitting it.
     Route::middleware('role:student')->group(function () {
+        Route::get('/student/dashboard', [StudentDashboardController::class, 'show']);
         Route::get('/student/exams', [StudentExamController::class, 'index']);
         Route::get('/student/exams/{exam}', [StudentExamController::class, 'show']);
         Route::post('/student/exams/{exam}/submit', [StudentExamController::class, 'submit']);
+    });
+
+    // A teacher's self-service landing page — their own assignments,
+    // classroom attendance status, and recent exams. Same shape as the
+    // role:student block above.
+    Route::middleware('role:teacher')->group(function () {
+        Route::get('/teacher/dashboard', [TeacherDashboardController::class, 'show']);
     });
 
     Route::get('/nationalities', [NationalityController::class, 'index']);

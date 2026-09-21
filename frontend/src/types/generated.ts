@@ -263,6 +263,29 @@ readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type StudentAttendanceSummaryType = {
+readonly present: number,
+readonly absent: number,
+readonly late: number,
+readonly excused: number,
+readonly total: number,
+};
+export type StudentClassSubjectType = {
+readonly subject_id: number,
+readonly subject_name_en: string,
+readonly subject_name_ar: string,
+readonly teacher_name: string | null,
+readonly teacher_email: string | null,
+readonly teacher_phone: string | null,
+};
+export type StudentDashboardType = {
+readonly student: StudentType,
+readonly attendance_summary: StudentAttendanceSummaryType,
+readonly recent_attendance: AttendanceRecordType[],
+readonly subjects: StudentClassSubjectType[],
+readonly fee_charges: FeeChargeType[],
+readonly fees_summary: StudentFeesSummaryType,
+};
 export type StudentExamAttemptType = {
 readonly attempt_id: number,
 readonly exam_id: number,
@@ -301,6 +324,11 @@ readonly score: number,
 readonly total_marks: number,
 readonly submitted_at: string,
 };
+export type StudentFeesSummaryType = {
+readonly total_due: string,
+readonly total_paid: string,
+readonly total_outstanding: string,
+};
 export type StudentStatus = 'active' | 'graduated';
 export type StudentType = {
 readonly id: number,
@@ -338,6 +366,33 @@ readonly stage_ids: number[],
 readonly grade_ids: number[],
 readonly created_at: string,
 readonly updated_at: string,
+};
+export type TeacherClassroomStatusType = {
+readonly classroom_id: number,
+readonly classroom_name: string,
+readonly grade_name_en: string,
+readonly grade_name_ar: string,
+readonly student_count: number,
+readonly attendance_marked_today: boolean,
+};
+export type TeacherDashboardType = {
+readonly teacher: TeacherType,
+readonly assignments: ExamTeachingAssignmentType[],
+readonly students_total: number,
+readonly classrooms: TeacherClassroomStatusType[],
+readonly exams: TeacherExamSummaryType[],
+};
+export type TeacherExamSummaryType = {
+readonly id: number,
+readonly title: string,
+readonly type: ExamType,
+readonly status: ExamStatus,
+readonly subject_name_en: string,
+readonly subject_name_ar: string,
+readonly opens_at: string,
+readonly closes_at: string,
+readonly submitted_count: number,
+readonly eligible_count: number,
 };
 export type TeacherStatus = 'active' | 'inactive' | 'on_leave';
 export type TeacherType = {
