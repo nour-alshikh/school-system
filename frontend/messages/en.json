@@ -1090,6 +1090,13 @@
     "notMarked": "Not marked",
     "loadError": "Couldn't load your classrooms."
   },
+  "ParentDashboardPage": {
+    "profileHeading": "My profile",
+    "editProfile": "Edit profile",
+    "studentHeading": "My student",
+    "viewStudent": "View details",
+    "loadError": "Couldn't load your student's info."
+  },
   "TakeExamPage": {
     "questionNumber": "Question {number}",
     "submit": "Submit",

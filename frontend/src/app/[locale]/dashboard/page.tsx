@@ -8,6 +8,7 @@ import { AvatarUploader } from "@/components/avatar-uploader";
 import { PageLoader } from "@/components/page-loader";
 import { StudentDashboardPage } from "@/features/student-dashboard/student-dashboard-page";
 import { TeacherDashboardPage } from "@/features/teacher-dashboard/teacher-dashboard-page";
+import { ParentDashboardPage } from "@/features/parent-dashboard/parent-dashboard-page";
 
 export default function DashboardPage() {
   const t = useTranslations("DashboardPage");
@@ -35,6 +36,7 @@ export default function DashboardPage() {
       </div>
       {hasRole("student") && <StudentDashboardPage />}
       {hasRole("teacher") && <TeacherDashboardPage />}
+      {hasRole("parent") && <ParentDashboardPage />}
     </div>
   );
 }

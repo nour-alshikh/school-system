@@ -1090,6 +1090,13 @@
     "notMarked": "لم يُسجَّل",
     "loadError": "تعذر تحميل فصولك."
   },
+  "ParentDashboardPage": {
+    "profileHeading": "ملفي الشخصي",
+    "editProfile": "تعديل الملف الشخصي",
+    "studentHeading": "ابني/ابنتي",
+    "viewStudent": "عرض التفاصيل",
+    "loadError": "تعذر تحميل معلومات ابنك/ابنتك."
+  },
   "TakeExamPage": {
     "questionNumber": "السؤال {number}",
     "submit": "تسليم",
