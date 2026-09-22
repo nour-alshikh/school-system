@@ -27,6 +27,10 @@ class SettingSeeder extends Seeder
             ['key' => 'instagram_url', 'value' => null, 'group' => SettingGroup::Social->value],
             ['key' => 'youtube_url', 'value' => null, 'group' => SettingGroup::Social->value],
             ['key' => 'linkedin_url', 'value' => null, 'group' => SettingGroup::Social->value],
+
+            ['key' => 'meta_title', 'value' => null, 'group' => SettingGroup::Seo->value],
+            ['key' => 'meta_description', 'value' => null, 'group' => SettingGroup::Seo->value],
+            ['key' => 'og_image', 'value' => null, 'group' => SettingGroup::Seo->value],
         ];
 
         foreach ($defaults as $setting) {

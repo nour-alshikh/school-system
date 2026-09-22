@@ -8,4 +8,5 @@ enum SettingGroup: string
     case Branding = 'branding';
     case Contact = 'contact';
     case Social = 'social';
+    case Seo = 'seo';
 }

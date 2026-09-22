@@ -31,6 +31,44 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Server-only: talks to Laravel directly (not through the BFF proxy in
+// src/app/api/[...path]/route.ts — that exists to attach the browser's
+// auth cookie, which this render-time fetch has no use for) since
+// /api/settings is public. `revalidate` keeps every page render from
+// re-fetching it — an admin's own settings save invalidates the client's
+// react-query cache instantly, but the site's <head> metadata catching up
+// within 5 minutes is an acceptable trade-off for not hitting Laravel on
+// every request.
+async function fetchSeoSettings(): Promise<{
+  meta_title: string | null;
+  meta_description: string | null;
+  og_image: string | null;
+}> {
+  const LARAVEL_API_URL = process.env.LARAVEL_API_URL ?? "http://localhost:8000";
+
+  try {
+    const response = await fetch(`${LARAVEL_API_URL}/api/settings`, {
+      next: { revalidate: 300 },
+    });
+    if (!response.ok) throw new Error("Failed to load settings");
+
+    const { settings } = (await response.json()) as {
+      settings: { key: string; value: string | null; file_url: string | null }[];
+    };
+    const byKey = new Map(settings.map((s) => [s.key, s]));
+
+    return {
+      meta_title: byKey.get("meta_title")?.value ?? null,
+      meta_description: byKey.get("meta_description")?.value ?? null,
+      og_image: byKey.get("og_image")?.file_url ?? null,
+    };
+  } catch {
+    // Laravel unreachable at build/render time — fall back to the i18n
+    // defaults below rather than failing the whole page render.
+    return { meta_title: null, meta_description: null, og_image: null };
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -38,8 +76,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Metadata" });
+  const seo = await fetchSeoSettings();
 
-  return { title: t("title"), description: t("description") };
+  const title = seo.meta_title || t("title");
+  const description = seo.meta_description || t("description");
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      ...(seo.og_image && { images: [{ url: seo.og_image }] }),
+    },
+  };
 }
 
 export default async function RootLayout({

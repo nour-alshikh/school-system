@@ -37,6 +37,9 @@ export function createSettingsSchema(t: Translate) {
     linkedin_url: z
       .union([z.literal(""), z.string().url(t("invalidUrl"))])
       .optional(),
+
+    meta_title: optionalText(255),
+    meta_description: optionalText(500),
   });
 }
 
@@ -54,4 +57,6 @@ export const SETTING_TEXT_KEYS = [
   "instagram_url",
   "youtube_url",
   "linkedin_url",
+  "meta_title",
+  "meta_description",
 ] as const satisfies readonly (keyof SettingsFormValues)[];

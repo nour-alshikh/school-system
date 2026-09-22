@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -51,6 +52,7 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
 
   const logo = settings.find((s) => s.key === "logo");
   const favicon = settings.find((s) => s.key === "favicon");
+  const ogImage = settings.find((s) => s.key === "og_image");
 
   const mutation = useMutation({
     mutationFn: (values: SettingsFormValues) =>
@@ -90,9 +92,10 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
             <TabsTrigger value="branding">{t("brandingTab")}</TabsTrigger>
             <TabsTrigger value="contact">{t("contactTab")}</TabsTrigger>
             <TabsTrigger value="social">{t("socialTab")}</TabsTrigger>
+            <TabsTrigger value="seo">{t("seoTab")}</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="general">
+          <TabsContent value="general" className="mt-4">
             <FormField
               control={form.control}
               name="school_name"
@@ -121,7 +124,7 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
             />
           </TabsContent>
 
-          <TabsContent value="branding">
+          <TabsContent value="branding" className="mt-4">
             <SettingFileField
               settingKey="logo"
               label={t("logoLabel")}
@@ -147,7 +150,7 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
             />
           </TabsContent>
 
-          <TabsContent value="contact">
+          <TabsContent value="contact" className="mt-4">
             <FormField
               control={form.control}
               name="address"
@@ -189,7 +192,7 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
             />
           </TabsContent>
 
-          <TabsContent value="social">
+          <TabsContent value="social" className="mt-4">
             <FormField
               control={form.control}
               name="facebook_url"
@@ -254,6 +257,40 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+          </TabsContent>
+
+          <TabsContent value="seo" className="mt-4">
+            <FormField
+              control={form.control}
+              name="meta_title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("metaTitleLabel")}</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="h-10" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="meta_description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("metaDescriptionLabel")}</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} rows={3} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <SettingFileField
+              settingKey="og_image"
+              label={t("ogImageLabel")}
+              fileUrl={ogImage?.file_url ?? null}
             />
           </TabsContent>
         </Tabs>
