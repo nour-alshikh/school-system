@@ -1150,6 +1150,11 @@
     "deleteError": "Couldn't delete this event.",
     "confirmDeleteTitle": "Delete this event?",
     "confirmDeleteDescription": "\"{title}\" will be permanently removed from the calendar.",
+    "move": "Move",
+    "moveSuccess": "Event moved.",
+    "moveError": "Couldn't move this event.",
+    "confirmMoveTitle": "Move this event?",
+    "confirmMoveDescription": "Move \"{title}\" from {from} to {to}?",
     "loadError": "Couldn't load the calendar."
   },
   "CalendarEventForm": {

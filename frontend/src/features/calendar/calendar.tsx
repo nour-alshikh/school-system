@@ -69,6 +69,11 @@ export function Calendar() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<CalendarEvent | null>(null);
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+  const [pendingMove, setPendingMove] = useState<{
+    event: CalendarEvent;
+    newDate: string;
+  } | null>(null);
 
   const { data: events = [], error } = useQuery({
     queryKey: ["calendar-events"],
@@ -106,6 +111,38 @@ export function Calendar() {
     },
   });
 
+  const moveMutation = useMutation({
+    mutationFn: ({ event, newDate }: { event: CalendarEvent; newDate: string }) =>
+      apiFetch<{ calendar_event: CalendarEvent }>(`/api/calendar-events/${event.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ date: newDate }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
+      toast.success(t("moveSuccess"));
+      setPendingMove(null);
+    },
+    onError: (err) => {
+      toast.error(err instanceof ApiError ? err.message : t("moveError"));
+    },
+  });
+
+  function handleEventDragStart(e: React.DragEvent, event: CalendarEvent) {
+    e.dataTransfer.setData("text/plain", String(event.id));
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDayDrop(e: React.DragEvent, dateKey: string) {
+    e.preventDefault();
+    setDragOverDate(null);
+
+    const id = Number(e.dataTransfer.getData("text/plain"));
+    const event = events.find((ev) => ev.id === id);
+    if (!event || event.date === dateKey) return;
+
+    setPendingMove({ event, newDate: dateKey });
+  }
+
   const grid = useMemo(() => getMonthGrid(currentMonth), [currentMonth]);
   const weekdays = useMemo(() => weekdayLabels(locale), [locale]);
   const today = new Date();
@@ -124,15 +161,17 @@ export function Calendar() {
     setEditingEvent(null);
   }
 
+  function formatDate(dateKey: string): string {
+    return new Intl.DateTimeFormat(locale === "ar" ? "ar-EG" : "en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }).format(new Date(`${dateKey}T00:00:00`));
+  }
+
   const selectedDateEvents = selectedDate ? (eventsByDate.get(selectedDate) ?? []) : [];
-  const selectedDateLabel = selectedDate
-    ? new Intl.DateTimeFormat(locale === "ar" ? "ar-EG" : "en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      }).format(new Date(`${selectedDate}T00:00:00`))
-    : "";
+  const selectedDateLabel = selectedDate ? formatDate(selectedDate) : "";
 
   return (
     <section className="flex flex-col gap-4 rounded-lg border p-4">
@@ -177,9 +216,19 @@ export function Calendar() {
               key={dateKey}
               type="button"
               onClick={() => openDay(dateKey)}
+              onDragOver={(e) => {
+                if (!canManage) return;
+                e.preventDefault();
+                setDragOverDate(dateKey);
+              }}
+              onDragLeave={() =>
+                setDragOverDate((prev) => (prev === dateKey ? null : prev))
+              }
+              onDrop={(e) => canManage && handleDayDrop(e, dateKey)}
               className={cn(
                 "flex min-h-16 flex-col items-start gap-1 bg-background p-1 text-start hover:bg-accent",
-                !inCurrentMonth && "text-muted-foreground/50"
+                !inCurrentMonth && "text-muted-foreground/50",
+                dragOverDate === dateKey && "bg-accent ring-2 ring-inset ring-primary/50"
               )}
             >
               <span
@@ -193,7 +242,12 @@ export function Calendar() {
               {dayEvents.slice(0, 2).map((event) => (
                 <span
                   key={event.id}
-                  className="w-full truncate rounded bg-primary/10 px-1 text-[10px] text-primary"
+                  draggable={canManage}
+                  onDragStart={(e) => handleEventDragStart(e, event)}
+                  className={cn(
+                    "w-full truncate rounded bg-primary/10 px-1 text-[10px] text-primary",
+                    canManage && "cursor-grab active:cursor-grabbing"
+                  )}
                 >
                   {event.title}
                 </span>
@@ -300,6 +354,26 @@ export function Calendar() {
         cancelLabel={t("cancel")}
         isLoading={deleteMutation.isPending}
         onConfirm={() => deletingEvent && deleteMutation.mutate(deletingEvent)}
+      />
+
+      <ConfirmDialog
+        open={!!pendingMove}
+        onOpenChange={(open) => !open && setPendingMove(null)}
+        title={t("confirmMoveTitle")}
+        description={
+          pendingMove
+            ? t("confirmMoveDescription", {
+                title: pendingMove.event.title,
+                from: formatDate(pendingMove.event.date),
+                to: formatDate(pendingMove.newDate),
+              })
+            : ""
+        }
+        confirmLabel={t("move")}
+        cancelLabel={t("cancel")}
+        isLoading={moveMutation.isPending}
+        onConfirm={() => pendingMove && moveMutation.mutate(pendingMove)}
+        variant="default"
       />
     </section>
   );

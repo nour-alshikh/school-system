@@ -21,6 +21,7 @@ export function ConfirmDialog({
   cancelLabel,
   onConfirm,
   isLoading,
+  variant = "destructive",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,6 +31,7 @@ export function ConfirmDialog({
   cancelLabel: string;
   onConfirm: () => void;
   isLoading?: boolean;
+  variant?: "destructive" | "default";
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -44,7 +46,7 @@ export function ConfirmDialog({
           </DialogClose>
           <Button
             type="button"
-            variant="destructive"
+            variant={variant}
             disabled={isLoading}
             onClick={onConfirm}
           >

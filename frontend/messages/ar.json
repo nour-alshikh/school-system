@@ -1150,6 +1150,11 @@
     "deleteError": "تعذر حذف هذا الحدث.",
     "confirmDeleteTitle": "حذف هذا الحدث؟",
     "confirmDeleteDescription": "سيتم حذف \"{title}\" نهائيًا من التقويم.",
+    "move": "نقل",
+    "moveSuccess": "تم نقل الحدث.",
+    "moveError": "تعذر نقل هذا الحدث.",
+    "confirmMoveTitle": "نقل هذا الحدث؟",
+    "confirmMoveDescription": "نقل \"{title}\" من {from} إلى {to}؟",
     "loadError": "تعذر تحميل التقويم."
   },
   "CalendarEventForm": {
