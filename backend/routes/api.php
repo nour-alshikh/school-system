@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\BloodTypeController;
+use App\Http\Controllers\CalendarEventController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FeeChargeController;
@@ -286,6 +288,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('permission:manage-settings')->group(function () {
         Route::put('/settings', [AdminSettingController::class, 'update']);
         Route::post('/settings/{setting:key}/file', [AdminSettingController::class, 'updateFile']);
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/dashboard', [AdminDashboardController::class, 'show']);
+    });
+
+    Route::middleware('permission:manage-calendar')->group(function () {
+        Route::get('/calendar-events', [CalendarEventController::class, 'index']);
+        Route::post('/calendar-events', [CalendarEventController::class, 'store']);
+        Route::put('/calendar-events/{calendarEvent}', [CalendarEventController::class, 'update']);
+        Route::delete('/calendar-events/{calendarEvent}', [CalendarEventController::class, 'destroy']);
     });
 
     Route::get('/nationalities', [NationalityController::class, 'index']);

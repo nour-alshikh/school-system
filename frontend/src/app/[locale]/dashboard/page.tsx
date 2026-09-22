@@ -9,6 +9,7 @@ import { PageLoader } from "@/components/page-loader";
 import { StudentDashboardPage } from "@/features/student-dashboard/student-dashboard-page";
 import { TeacherDashboardPage } from "@/features/teacher-dashboard/teacher-dashboard-page";
 import { ParentDashboardPage } from "@/features/parent-dashboard/parent-dashboard-page";
+import { AdminDashboardPage } from "@/features/admin-dashboard/admin-dashboard-page";
 
 export default function DashboardPage() {
   const t = useTranslations("DashboardPage");
@@ -34,6 +35,7 @@ export default function DashboardPage() {
         </h1>
         <p className="text-sm text-muted-foreground">{user.email}</p>
       </div>
+      {hasRole("admin") && <AdminDashboardPage />}
       {hasRole("student") && <StudentDashboardPage />}
       {hasRole("teacher") && <TeacherDashboardPage />}
       {hasRole("parent") && <ParentDashboardPage />}

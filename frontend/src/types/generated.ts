@@ -7,6 +7,19 @@ readonly is_current: boolean,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type AdminDashboardType = {
+readonly students_count: number,
+readonly teachers_count: number,
+readonly parents_count: number,
+readonly classrooms_count: number,
+readonly current_academic_year: number | null,
+readonly fees_collected: string,
+readonly fees_outstanding: string,
+readonly attendance_present_today: number,
+readonly attendance_marked_today: number,
+readonly upcoming_meetings_count: number,
+readonly library_resources_count: number,
+};
 export type AdminUserType = {
 readonly id: number,
 readonly name: string,
@@ -40,6 +53,15 @@ export type BloodTypeType = {
 readonly id: number,
 readonly name_en: string,
 readonly name_ar: string,
+readonly created_at: string,
+readonly updated_at: string,
+};
+export type CalendarEventType = {
+readonly id: number,
+readonly title: string,
+readonly description: string | null,
+readonly date: string,
+readonly created_by_name: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
@@ -293,7 +315,7 @@ export type RoleType = {
 readonly id: number,
 readonly name: string,
 };
-export type SettingGroup = 'general' | 'branding' | 'contact' | 'social';
+export type SettingGroup = 'general' | 'branding' | 'contact' | 'social' | 'seo';
 export type SettingType = {
 readonly id: number,
 readonly key: string,
