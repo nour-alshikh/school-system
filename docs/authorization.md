@@ -11,6 +11,35 @@ layered on top of the [authentication](./authentication.md) Sanctum sets up.
 > area, or delete them if you don't need one yet. See
 > [SETUP.md](../SETUP.md#decide-what-to-keep-from-the-example-content).
 
+## Role-scoped login
+
+There's no single shared login form. Each of the four fixed roles —
+`admin`, `teacher`, `student`, `parent` — has its own route
+(`/login/admin`, `/login/teacher`, `/login/student`, `/login/parent`), and a
+correct email/password only logs you in through the form for the role your
+account actually has. `/login` itself is just a chooser page linking to the
+four.
+
+This is enforced server-side, not just by which form the frontend happens to
+show:
+
+- `app/Http/Requests/Auth/LoginRequest.php` — requires a `role` field, one of
+  the four role names.
+- `app/Services/AuthService.php::login()` — checks `$user->hasRole($request->role)`
+  alongside the password. A right password on the wrong role's form fails
+  with the same generic "credentials do not match" message as a wrong
+  password would — it doesn't reveal that the account exists under a
+  different role.
+- `tests/Feature/Auth/LoginTest.php` — covers own-role login, cross-role
+  login, and an invalid role value.
+- `src/features/auth/role-login-page.tsx` — the one form component, reused by
+  the four thin `src/app/[locale]/login/{role}/page.tsx` pages, which each
+  hardcode which role they submit (not a field the user can edit).
+
+This is school-specific, not core template plumbing — see
+[SETUP.md](../SETUP.md#decide-what-to-keep-from-the-example-content) for what
+to do with it in a project that doesn't have these four fixed roles.
+
 ## Enforcement boundary
 
 The Laravel API is the only thing that actually enforces anything. Anything on the

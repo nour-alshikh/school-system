@@ -50,6 +50,15 @@ whether to rename-and-keep or delete them:
   [docs/production-readiness.md](./docs/production-readiness.md)).
 - Seeded `test@example.com` user in `DatabaseSeeder` — remove once you don't
   need a throwaway dev login.
+- Role-scoped login routes (`/login/admin`, `/login/teacher`, `/login/student`,
+  `/login/parent`, plus the `/login` chooser page) — built for this project's
+  fixed set of four roles, not generic scaffolding. If your project doesn't
+  have these same roles, update all of: the role list in
+  `backend/app/Http/Requests/Auth/LoginRequest.php`, the `hasRole()` check in
+  `backend/app/Services/AuthService.php::login()`, the `loginRoles` array in
+  `frontend/src/lib/schemas.ts`, and the per-role page folders under
+  `frontend/src/app/[locale]/login/` (see
+  [docs/authorization.md](./docs/authorization.md#role-scoped-login)).
 
 ## Bootstrap
 
