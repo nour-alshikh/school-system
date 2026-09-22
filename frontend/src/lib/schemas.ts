@@ -24,6 +24,9 @@ export const postTagOptions = [
 // components (see createXSchema usages), not imported as static constants.
 type Translate = (key: string) => string;
 
+export const loginRoles = ["admin", "teacher", "student", "parent"] as const;
+export type LoginRole = (typeof loginRoles)[number];
+
 export function createLoginSchema(t: Translate) {
   return z.object({
     email: z.email(t("emailInvalid")),
@@ -31,7 +34,8 @@ export function createLoginSchema(t: Translate) {
   });
 }
 
-export type LoginPayload = z.infer<ReturnType<typeof createLoginSchema>>;
+export type LoginFormValues = z.infer<ReturnType<typeof createLoginSchema>>;
+export type LoginPayload = LoginFormValues & { role: LoginRole };
 
 export function createRegisterSchema(t: Translate) {
   return z

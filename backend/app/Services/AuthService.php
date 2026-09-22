@@ -43,7 +43,9 @@ class AuthService
         // cross-domain caller (the Next.js BFF) has no session on the
         // request at all, since Sanctum only attaches one for requests it
         // recognizes as coming from a stateful (first-party) domain.
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        // Same message either way — a wrong-role login shouldn't reveal
+        // that the email/password were actually correct for another role.
+        if (! $user || ! Hash::check($request->password, $user->password) || ! $user->hasRole($request->role)) {
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);

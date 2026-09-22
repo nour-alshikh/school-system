@@ -51,14 +51,23 @@
     "settings": "الإعدادات"
   },
   "LoginPage": {
-    "heading": "تسجيل الدخول",
+    "headingAdmin": "تسجيل دخول المشرف",
+    "headingTeacher": "تسجيل دخول المعلم",
+    "headingStudent": "تسجيل دخول الطالب",
+    "headingParent": "تسجيل دخول ولي الأمر",
     "emailLabel": "البريد الإلكتروني",
     "passwordLabel": "كلمة المرور",
     "submit": "تسجيل الدخول",
     "submitting": "جارٍ تسجيل الدخول…",
     "forgotPassword": "نسيت كلمة المرور؟",
-    "noAccount": "ليس لديك حساب؟",
-    "registerLink": "إنشاء حساب"
+    "backToChooser": "لست أنت؟ اختر تسجيل دخول آخر"
+  },
+  "LoginChooserPage": {
+    "heading": "تسجيل الدخول باسم",
+    "admin": "مشرف",
+    "teacher": "معلم",
+    "student": "طالب",
+    "parent": "ولي أمر"
   },
   "RegisterPage": {
     "heading": "إنشاء حساب",

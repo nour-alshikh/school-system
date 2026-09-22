@@ -51,14 +51,23 @@
     "settings": "Settings"
   },
   "LoginPage": {
-    "heading": "Log in",
+    "headingAdmin": "Admin log in",
+    "headingTeacher": "Teacher log in",
+    "headingStudent": "Student log in",
+    "headingParent": "Parent log in",
     "emailLabel": "Email",
     "passwordLabel": "Password",
     "submit": "Log in",
     "submitting": "Logging in…",
     "forgotPassword": "Forgot password?",
-    "noAccount": "No account?",
-    "registerLink": "Register"
+    "backToChooser": "Not you? Choose a different login"
+  },
+  "LoginChooserPage": {
+    "heading": "Log in as",
+    "admin": "Admin",
+    "teacher": "Teacher",
+    "student": "Student",
+    "parent": "Parent"
   },
   "RegisterPage": {
     "heading": "Create an account",
