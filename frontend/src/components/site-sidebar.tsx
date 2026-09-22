@@ -162,6 +162,7 @@ function SidebarLink({
 export function SiteSidebar() {
   const t = useTranslations("Nav");
   const { user, isLoading, can, hasRole } = useAuth();
+  const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(readStoredCollapsed);
   const ref = useStaggerIn<HTMLElement>({ selector: "[data-animate='sidebar-link']" });
 
@@ -178,8 +179,10 @@ export function SiteSidebar() {
   }
 
   // Same guest/loading gate as SiteHeader's user menu — no sidebar until
-  // there's someone logged in to show nav for.
-  if (isLoading || !user) return null;
+  // there's someone logged in to show nav for. The landing page is a
+  // full-width marketing page even for logged-in users, so it never gets
+  // a sidebar either.
+  if (isLoading || !user || pathname === "/") return null;
 
   return (
     <nav
