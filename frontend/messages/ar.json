@@ -46,7 +46,8 @@
     "allExams": "كل الاختبارات",
     "createExam": "إنشاء اختبار",
     "meetings": "الاجتماعات",
-    "myMeetings": "اجتماعاتي"
+    "myMeetings": "اجتماعاتي",
+    "library": "المكتبة"
   },
   "LoginPage": {
     "heading": "تسجيل الدخول",
@@ -837,7 +838,13 @@
     "questionsMin": "أضف سؤالاً واحداً على الأقل",
     "closesAfterOpens": "يجب أن يكون وقت الإغلاق بعد وقت الفتح",
     "meetingClassroomsRequired": "اختر فصلاً واحداً على الأقل",
-    "meetingStartTimeRequired": "وقت البدء مطلوب"
+    "meetingStartTimeRequired": "وقت البدء مطلوب",
+    "libraryTitleRequired": "العنوان مطلوب",
+    "libraryUrlRequired": "الرابط مطلوب",
+    "libraryUrlInvalid": "أدخل رابطاً صحيحاً",
+    "libraryFileRequired": "الملف مطلوب",
+    "libraryFileTooLarge": "يجب ألا يتجاوز حجم الملف 1 ميجابايت",
+    "libraryGradeRequired": "الصف مطلوب"
   },
   "Errors": {
     "somethingWentWrong": "حدث خطأ ما."
@@ -1166,5 +1173,73 @@
     "minutes": "{count, plural, one {# دقيقة} other {# دقيقة}}",
     "join": "انضمام",
     "loadError": "تعذر تحميل اجتماعاتك."
+  },
+  "LibraryResourcesPage": {
+    "heading": "المكتبة",
+    "description": "موارد على مستوى الصف مصنّفة حسب المادة — ملفات وروابط للطلاب وأولياء الأمور.",
+    "newResource": "مورد جديد",
+    "editResource": "تعديل المورد",
+    "loadError": "تعذر تحميل موارد المكتبة.",
+    "noResources": "لا توجد موارد بعد.",
+    "allGrades": "كل الصفوف",
+    "allSubjects": "كل المواد",
+    "titleColumn": "العنوان",
+    "gradeColumn": "الصف",
+    "subjectsColumn": "المواد",
+    "uploaderColumn": "بواسطة",
+    "actionsColumn": "الإجراءات",
+    "openLink": "فتح الرابط",
+    "download": "تنزيل",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "confirmDeleteTitle": "حذف هذا المورد؟",
+    "confirmDeleteDescription": "سيتم حذف \"{title}\" لكل طالب وولي أمر يمكنه رؤيته. لا يمكن التراجع عن هذا.",
+    "deleteSuccess": "تم حذف المورد.",
+    "deleteError": "تعذر حذف المورد."
+  },
+  "LibraryResourceForm": {
+    "titleLabel": "العنوان",
+    "descriptionLabel": "الوصف (اختياري)",
+    "gradeLabel": "الصف",
+    "gradePlaceholder": "اختر صفاً",
+    "noGrades": "لست مكلفاً بتدريس أي صف بعد.",
+    "subjectsLabel": "المواد",
+    "subjectsPlaceholder": "اختر مادة واحدة أو أكثر",
+    "typeLabel": "نوع المورد",
+    "typeLink": "رابط",
+    "typeFile": "ملف",
+    "urlLabel": "الرابط",
+    "urlPlaceholder": "https://example.com/resource",
+    "fileLabel": "الملف",
+    "fileHint": "PDF أو مستند أو صورة أو فيديو — بحد أقصى 1 ميجابايت.",
+    "createResource": "إضافة مورد",
+    "saveChanges": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "createdToast": "تمت إضافة المورد.",
+    "updatedToast": "تم تحديث المورد."
+  },
+  "StudentLibraryPage": {
+    "heading": "المكتبة",
+    "description": "الموارد التي شاركها معلموك لصفك.",
+    "loadError": "تعذر تحميل المكتبة.",
+    "noResources": "لا توجد موارد بعد.",
+    "allSubjects": "كل المواد",
+    "titleColumn": "العنوان",
+    "subjectsColumn": "المواد",
+    "actionsColumn": "الإجراءات",
+    "openLink": "فتح الرابط",
+    "download": "تنزيل"
+  },
+  "ParentLibraryPage": {
+    "heading": "المكتبة",
+    "description": "الموارد التي شاركها معلمو ابنك لصفه.",
+    "loadError": "تعذر تحميل المكتبة.",
+    "noResources": "لا توجد موارد بعد.",
+    "allSubjects": "كل المواد",
+    "titleColumn": "العنوان",
+    "subjectsColumn": "المواد",
+    "actionsColumn": "الإجراءات",
+    "openLink": "فتح الرابط",
+    "download": "تنزيل"
   }
 }

@@ -13,6 +13,7 @@ import {
   DollarSign,
   GraduationCap,
   History,
+  Library,
   LayoutDashboard,
   Layers,
   Link2,
@@ -211,12 +212,20 @@ export function SiteSidebar() {
       />
 
       {hasRole("parent") && (
-        <SidebarLink
-          href="/parent"
-          icon={UserIcon}
-          label={t("myInfo")}
-          collapsed={collapsed}
-        />
+        <>
+          <SidebarLink
+            href="/parent"
+            icon={UserIcon}
+            label={t("myInfo")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/parent-library"
+            icon={Library}
+            label={t("library")}
+            collapsed={collapsed}
+          />
+        </>
       )}
 
       {hasRole("student") && (
@@ -249,6 +258,12 @@ export function SiteSidebar() {
             href="/my-fees"
             icon={DollarSign}
             label={t("myFees")}
+            collapsed={false}
+          />
+          <SidebarLink
+            href="/my-library"
+            icon={Library}
+            label={t("library")}
             collapsed={false}
           />
         </SidebarGroup>
@@ -424,6 +439,15 @@ export function SiteSidebar() {
             collapsed={false}
           />
         </SidebarGroup>
+      )}
+
+      {(can("manage-academics") || hasRole("teacher")) && (
+        <SidebarLink
+          href="/library"
+          icon={Library}
+          label={t("library")}
+          collapsed={collapsed}
+        />
       )}
 
       {can("manage-users") && (

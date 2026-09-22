@@ -198,6 +198,27 @@ readonly blood_type_id: number,
 readonly religion_id: number,
 readonly address: string,
 };
+export type LibraryResourceKind = 'file' | 'link';
+export type LibraryResourceSubjectType = {
+readonly id: number,
+readonly name_en: string,
+readonly name_ar: string,
+};
+export type LibraryResourceType = {
+readonly id: number,
+readonly title: string,
+readonly description: string | null,
+readonly type: LibraryResourceKind,
+readonly url: string | null,
+readonly file: AttachmentType | null,
+readonly grade_id: number,
+readonly grade: GradeType,
+readonly subject_ids: number[],
+readonly subjects: LibraryResourceSubjectType[],
+readonly uploader: PostAuthorType,
+readonly created_at: string,
+readonly updated_at: string,
+};
 export type MeetingClassroomType = {
 readonly id: number,
 readonly name: string,

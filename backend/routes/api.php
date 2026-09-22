@@ -14,8 +14,10 @@ use App\Http\Controllers\FeeController;
 use App\Http\Controllers\GovernorateController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\GraduationController;
+use App\Http\Controllers\LibraryResourceController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NationalityController;
+use App\Http\Controllers\ParentPortal\LibraryController as ParentLibraryController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
 use App\Http\Controllers\PostController;
@@ -27,6 +29,7 @@ use App\Http\Controllers\StudentPortal\AttendanceController as StudentAttendance
 use App\Http\Controllers\StudentPortal\DashboardController as StudentDashboardController;
 use App\Http\Controllers\StudentPortal\ExamController as StudentExamController;
 use App\Http\Controllers\StudentPortal\FeeController as StudentFeeController;
+use App\Http\Controllers\StudentPortal\LibraryController as StudentLibraryController;
 use App\Http\Controllers\StudentPortal\MeetingController as StudentMeetingController;
 use App\Http\Controllers\StudentPortal\SubjectController as StudentSubjectController;
 use App\Http\Controllers\SubjectController;
@@ -184,6 +187,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/parent/profile', [ProfileController::class, 'update']);
         Route::get('/parent/student', [ParentStudentController::class, 'show']);
         Route::put('/parent/student', [ParentStudentController::class, 'update']);
+        Route::get('/parent/library-resources', [ParentLibraryController::class, 'index']);
     });
 
     // Exams/quizzes are shared between admin (manage-exams, any grade or
@@ -226,6 +230,29 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/zoom/connection', [ZoomController::class, 'disconnect']);
     });
 
+    // Library resources are grade-level (not per-classroom — see
+    // Subject::stages()/grades() for the same "shared across a grade's
+    // classrooms" idea) and subject-tagged. Shared between admin
+    // (manage-academics, any grade) and the teacher role (only grades they
+    // hold a subject slot in) — same split as attendance/exams/meetings,
+    // enforced in LibraryResourceController since route middleware alone
+    // can't express the per-grade scoping.
+    Route::middleware('role_or_permission:teacher|manage-academics')->group(function () {
+        Route::get('/library-resources/grades', [LibraryResourceController::class, 'grades']);
+        Route::get('/library-resources/subjects', [LibraryResourceController::class, 'subjects']);
+        Route::get('/library-resources', [LibraryResourceController::class, 'index']);
+        Route::post('/library-resources', [LibraryResourceController::class, 'store']);
+        Route::put('/library-resources/{libraryResource}', [LibraryResourceController::class, 'update']);
+        Route::post('/library-resources/{libraryResource}/file', [LibraryResourceController::class, 'updateFile']);
+        Route::delete('/library-resources/{libraryResource}', [LibraryResourceController::class, 'destroy']);
+    });
+
+    // Downloading a resource's file is shared by every role that can see it
+    // (admin, teacher, student, parent) — LibraryResourceController::
+    // download() does the per-role grade check itself since route
+    // middleware can't express it across four different roles at once.
+    Route::get('/library-resources/{libraryResource}/download', [LibraryResourceController::class, 'download']);
+
     // A student's self-service corner, same shape as the role:parent block
     // above — their own eligible exams, taking one, and submitting it.
     Route::middleware('role:student')->group(function () {
@@ -237,6 +264,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/student/exams/{exam}', [StudentExamController::class, 'show']);
         Route::post('/student/exams/{exam}/submit', [StudentExamController::class, 'submit']);
         Route::get('/student/meetings', [StudentMeetingController::class, 'index']);
+        Route::get('/student/library-resources', [StudentLibraryController::class, 'index']);
     });
 
     // A teacher's self-service landing page — their own assignments,

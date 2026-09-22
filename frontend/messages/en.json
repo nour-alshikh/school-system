@@ -46,7 +46,8 @@
     "allExams": "All exams",
     "createExam": "Create exam",
     "meetings": "Meetings",
-    "myMeetings": "My meetings"
+    "myMeetings": "My meetings",
+    "library": "Library"
   },
   "LoginPage": {
     "heading": "Log in",
@@ -837,7 +838,13 @@
     "questionsMin": "Add at least one question",
     "closesAfterOpens": "Closing time must be after the opening time",
     "meetingClassroomsRequired": "Select at least one classroom",
-    "meetingStartTimeRequired": "Start time is required"
+    "meetingStartTimeRequired": "Start time is required",
+    "libraryTitleRequired": "Title is required",
+    "libraryUrlRequired": "A link is required",
+    "libraryUrlInvalid": "Enter a valid URL",
+    "libraryFileRequired": "A file is required",
+    "libraryFileTooLarge": "File must be 1MB or smaller",
+    "libraryGradeRequired": "Grade is required"
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
@@ -1166,5 +1173,73 @@
     "minutes": "{count, plural, one {# minute} other {# minutes}}",
     "join": "Join",
     "loadError": "Couldn't load your meetings."
+  },
+  "LibraryResourcesPage": {
+    "heading": "Library",
+    "description": "Grade-level resources tagged by subject — files and links for students and parents.",
+    "newResource": "New resource",
+    "editResource": "Edit resource",
+    "loadError": "Couldn't load library resources.",
+    "noResources": "No resources yet.",
+    "allGrades": "All grades",
+    "allSubjects": "All subjects",
+    "titleColumn": "Title",
+    "gradeColumn": "Grade",
+    "subjectsColumn": "Subjects",
+    "uploaderColumn": "Uploaded by",
+    "actionsColumn": "Actions",
+    "openLink": "Open link",
+    "download": "Download",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDeleteTitle": "Delete this resource?",
+    "confirmDeleteDescription": "\"{title}\" will be removed for every student and parent who can see it. This can't be undone.",
+    "deleteSuccess": "Resource deleted.",
+    "deleteError": "Couldn't delete the resource."
+  },
+  "LibraryResourceForm": {
+    "titleLabel": "Title",
+    "descriptionLabel": "Description (optional)",
+    "gradeLabel": "Grade",
+    "gradePlaceholder": "Select a grade",
+    "noGrades": "You aren't assigned to teach any grade yet.",
+    "subjectsLabel": "Subject tags",
+    "subjectsPlaceholder": "Select one or more subjects",
+    "typeLabel": "Resource type",
+    "typeLink": "Link",
+    "typeFile": "File",
+    "urlLabel": "URL",
+    "urlPlaceholder": "https://example.com/resource",
+    "fileLabel": "File",
+    "fileHint": "PDF, document, image or video — 1MB max.",
+    "createResource": "Add resource",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "createdToast": "Resource added.",
+    "updatedToast": "Resource updated."
+  },
+  "StudentLibraryPage": {
+    "heading": "Library",
+    "description": "Resources your teachers have shared for your grade.",
+    "loadError": "Couldn't load the library.",
+    "noResources": "No resources yet.",
+    "allSubjects": "All subjects",
+    "titleColumn": "Title",
+    "subjectsColumn": "Subjects",
+    "actionsColumn": "Actions",
+    "openLink": "Open link",
+    "download": "Download"
+  },
+  "ParentLibraryPage": {
+    "heading": "Library",
+    "description": "Resources your child's teachers have shared for their grade.",
+    "loadError": "Couldn't load the library.",
+    "noResources": "No resources yet.",
+    "allSubjects": "All subjects",
+    "titleColumn": "Title",
+    "subjectsColumn": "Subjects",
+    "actionsColumn": "Actions",
+    "openLink": "Open link",
+    "download": "Download"
   }
 }
