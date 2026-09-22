@@ -19,6 +19,8 @@ use App\Http\Controllers\GraduationController;
 use App\Http\Controllers\LibraryResourceController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\NationalityController;
+use App\Http\Controllers\ParentPortal\AttendanceController as ParentAttendanceController;
+use App\Http\Controllers\ParentPortal\FeeController as ParentFeeController;
 use App\Http\Controllers\ParentPortal\LibraryController as ParentLibraryController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
@@ -198,6 +200,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/parent/student', [ParentStudentController::class, 'show']);
         Route::put('/parent/student', [ParentStudentController::class, 'update']);
         Route::get('/parent/library-resources', [ParentLibraryController::class, 'index']);
+        Route::get('/parent/fees', [ParentFeeController::class, 'index']);
+        Route::get('/parent/attendance', [ParentAttendanceController::class, 'index']);
     });
 
     // Exams/quizzes are shared between admin (manage-exams, any grade or
@@ -294,11 +298,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'show']);
     });
 
-    // Reading the calendar is shared more broadly than managing it — a
-    // teacher needs to see school-wide events (exam windows, holidays) on
-    // their own dashboard even though only manage-calendar can add/edit/
-    // remove them.
-    Route::middleware('role_or_permission:teacher|manage-calendar')->group(function () {
+    // Reading the calendar is shared more broadly than managing it —
+    // teachers and parents both need to see school-wide events (exam
+    // windows, holidays) on their own dashboards even though only
+    // manage-calendar can add/edit/remove them.
+    Route::middleware('role_or_permission:teacher|parent|manage-calendar')->group(function () {
         Route::get('/calendar-events', [CalendarEventController::class, 'index']);
     });
     Route::middleware('permission:manage-calendar')->group(function () {

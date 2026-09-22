@@ -1120,7 +1120,15 @@
     "editProfile": "Edit profile",
     "studentHeading": "My student",
     "viewStudent": "View details",
-    "loadError": "Couldn't load your student's info."
+    "loadError": "Couldn't load your student's info.",
+    "attendanceHeading": "Attendance",
+    "viewAttendance": "View attendance",
+    "presentLabel": "days present this year",
+    "attendanceLoadError": "Couldn't load your child's attendance.",
+    "feesHeading": "Fees",
+    "viewFees": "View fees",
+    "outstandingLabel": "outstanding",
+    "feesLoadError": "Couldn't load your child's fees."
   },
   "AdminDashboardPage": {
     "view": "View",
@@ -1371,5 +1379,35 @@
     "finalCtaSubtext": "Create an account and set up your school in minutes.",
     "footerTagline": "One system for your whole school.",
     "footerCopyright": "© {year} {brand}. All rights reserved."
+  },
+  "ParentFeesPage": {
+    "heading": "Fees",
+    "description": "Your child's fee charges and payment status.",
+    "noFees": "No fees charged yet.",
+    "feeColumn": "Fee",
+    "dueColumn": "Due",
+    "paidColumn": "Paid",
+    "statusColumn": "Status",
+    "statusUnpaid": "Unpaid",
+    "statusPartial": "Partial",
+    "statusPaid": "Paid",
+    "statusWaived": "Waived",
+    "totalDueLabel": "Total due",
+    "totalPaidLabel": "Total paid",
+    "totalOutstandingLabel": "Total outstanding",
+    "loadError": "Couldn't load your child's fees."
+  },
+  "ParentAttendancePage": {
+    "heading": "Attendance",
+    "description": "Your child's full attendance record for this academic year.",
+    "statusPresent": "Present",
+    "statusAbsent": "Absent",
+    "statusLate": "Late",
+    "statusExcused": "Excused",
+    "noRecords": "No attendance recorded yet.",
+    "dateColumn": "Date",
+    "statusColumn": "Status",
+    "notesColumn": "Notes",
+    "loadError": "Couldn't load your child's attendance."
   }
 }

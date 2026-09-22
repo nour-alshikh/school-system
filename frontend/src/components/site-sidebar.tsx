@@ -224,6 +224,18 @@ export function SiteSidebar() {
             collapsed={collapsed}
           />
           <SidebarLink
+            href="/parent-attendance"
+            icon={CheckSquare}
+            label={t("myAttendance")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/parent-fees"
+            icon={DollarSign}
+            label={t("myFees")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
             href="/parent-library"
             icon={Library}
             label={t("library")}

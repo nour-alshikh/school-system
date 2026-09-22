@@ -1120,7 +1120,15 @@
     "editProfile": "تعديل الملف الشخصي",
     "studentHeading": "ابني/ابنتي",
     "viewStudent": "عرض التفاصيل",
-    "loadError": "تعذر تحميل معلومات ابنك/ابنتك."
+    "loadError": "تعذر تحميل معلومات ابنك/ابنتك.",
+    "attendanceHeading": "الحضور",
+    "viewAttendance": "عرض الحضور",
+    "presentLabel": "يوم حضور هذا العام",
+    "attendanceLoadError": "تعذر تحميل حضور ابنك/ابنتك.",
+    "feesHeading": "الرسوم",
+    "viewFees": "عرض الرسوم",
+    "outstandingLabel": "المتبقي",
+    "feesLoadError": "تعذر تحميل رسوم ابنك/ابنتك."
   },
   "AdminDashboardPage": {
     "view": "عرض",
@@ -1371,5 +1379,35 @@
     "finalCtaSubtext": "أنشئ حسابًا وجهّز مدرستك خلال دقائق.",
     "footerTagline": "نظام واحد لمدرستك بأكملها.",
     "footerCopyright": "© {year} {brand}. جميع الحقوق محفوظة."
+  },
+  "ParentFeesPage": {
+    "heading": "الرسوم",
+    "description": "رسوم ابنك/ابنتك وحالة السداد.",
+    "noFees": "لا توجد رسوم بعد.",
+    "feeColumn": "الرسم",
+    "dueColumn": "المستحق",
+    "paidColumn": "المدفوع",
+    "statusColumn": "الحالة",
+    "statusUnpaid": "غير مدفوع",
+    "statusPartial": "مدفوع جزئيًا",
+    "statusPaid": "مدفوع",
+    "statusWaived": "معفى",
+    "totalDueLabel": "إجمالي المستحق",
+    "totalPaidLabel": "إجمالي المدفوع",
+    "totalOutstandingLabel": "إجمالي المتبقي",
+    "loadError": "تعذر تحميل رسوم ابنك/ابنتك."
+  },
+  "ParentAttendancePage": {
+    "heading": "الحضور",
+    "description": "سجل حضور ابنك/ابنتك الكامل لهذا العام الدراسي.",
+    "statusPresent": "حاضر",
+    "statusAbsent": "غائب",
+    "statusLate": "متأخر",
+    "statusExcused": "غياب بعذر",
+    "noRecords": "لا يوجد حضور مسجل بعد.",
+    "dateColumn": "التاريخ",
+    "statusColumn": "الحالة",
+    "notesColumn": "ملاحظات",
+    "loadError": "تعذر تحميل حضور ابنك/ابنتك."
   }
 }
