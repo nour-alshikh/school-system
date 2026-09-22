@@ -294,8 +294,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'show']);
     });
 
-    Route::middleware('permission:manage-calendar')->group(function () {
+    // Reading the calendar is shared more broadly than managing it — a
+    // teacher needs to see school-wide events (exam windows, holidays) on
+    // their own dashboard even though only manage-calendar can add/edit/
+    // remove them.
+    Route::middleware('role_or_permission:teacher|manage-calendar')->group(function () {
         Route::get('/calendar-events', [CalendarEventController::class, 'index']);
+    });
+    Route::middleware('permission:manage-calendar')->group(function () {
         Route::post('/calendar-events', [CalendarEventController::class, 'store']);
         Route::put('/calendar-events/{calendarEvent}', [CalendarEventController::class, 'update']);
         Route::delete('/calendar-events/{calendarEvent}', [CalendarEventController::class, 'destroy']);

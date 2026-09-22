@@ -1132,7 +1132,6 @@
     "feesOutstandingLabel": "{amount} متبقٍ",
     "attendanceTodayHeading": "الحضور اليوم",
     "presentTodayLabel": "حاضر / مسجّل",
-    "meetingsHeading": "الاجتماعات القادمة",
     "libraryHeading": "موارد المكتبة",
     "academicYearLabel": "العام الدراسي {year}",
     "loadError": "تعذر تحميل لوحة التحكم."
@@ -1352,8 +1351,6 @@
     "feesBody": "حدد الرسوم واجمعها وطابقها لكل طالب.",
     "libraryTitle": "المكتبة",
     "libraryBody": "فهرس الموارد ودع الطلاب وأولياء الأمور يستعيرون عبر الإنترنت.",
-    "meetingsTitle": "الاجتماعات",
-    "meetingsBody": "حدد مواعيد اجتماعات أولياء الأمور مع المعلمين وأدر التوفر.",
     "structureTitle": "الهيكل الأكاديمي",
     "structureBody": "نظّم المراحل والصفوف والفصول والأعوام الدراسية.",
     "rolesHeading": "سجّل الدخول بحسب دورك",

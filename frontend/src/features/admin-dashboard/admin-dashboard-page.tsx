@@ -81,7 +81,6 @@ export function AdminDashboardPage() {
     fees_outstanding,
     attendance_present_today,
     attendance_marked_today,
-    upcoming_meetings_count,
     library_resources_count,
   } = dashboard;
 
@@ -119,12 +118,6 @@ export function AdminDashboardPage() {
           value={`${attendance_present_today}/${attendance_marked_today}`}
           subtext={t("presentTodayLabel")}
           href="/attendance"
-          linkLabel={t("view")}
-        />
-        <StatCard
-          heading={t("meetingsHeading")}
-          value={upcoming_meetings_count}
-          href="/meetings"
           linkLabel={t("view")}
         />
         <StatCard

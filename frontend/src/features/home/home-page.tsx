@@ -40,7 +40,6 @@ const features: {
   { icon: ClipboardList, titleKey: "examsTitle", bodyKey: "examsBody", featured: true },
   { icon: DollarSign, titleKey: "feesTitle", bodyKey: "feesBody" },
   { icon: Library, titleKey: "libraryTitle", bodyKey: "libraryBody" },
-  { icon: CalendarRange, titleKey: "meetingsTitle", bodyKey: "meetingsBody" },
   { icon: Layers, titleKey: "structureTitle", bodyKey: "structureBody" },
 ];
 
@@ -154,14 +153,14 @@ function Features() {
           <p className="text-muted-foreground">{t("featuresSubtext")}</p>
         </div>
 
-        <div ref={ref} className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+        <div ref={ref} className="grid grid-cols-1 gap-4 sm:grid-cols-6">
           {features.map(({ icon: Icon, titleKey, bodyKey, featured }) => (
             <div
               key={titleKey}
               data-animate="feature"
               className={
                 "flex flex-col gap-3 rounded-lg border p-5 " +
-                (featured ? "sm:col-span-2 bg-primary/[0.06]" : "sm:col-span-2")
+                (featured ? "sm:col-span-3 bg-primary/[0.06]" : "sm:col-span-2")
               }
             >
               <Icon className="size-5 text-primary" />

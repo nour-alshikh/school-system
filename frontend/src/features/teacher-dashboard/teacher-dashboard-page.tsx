@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/features/calendar/calendar";
 import type { ExamStatus, TeacherDashboard } from "./types";
 
 const examStatusBadgeClass: Record<ExamStatus, string> = {
@@ -21,17 +22,19 @@ function Card({
   children,
 }: {
   heading: string;
-  href: string;
-  linkLabel: string;
+  href?: string;
+  linkLabel?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-4 rounded-lg border p-4">
+    <section className="flex flex-col gap-2 rounded-lg border p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">{heading}</h3>
-        <Button variant="outline" size="sm" render={<Link href={href} />}>
-          {linkLabel}
-        </Button>
+        {href && linkLabel && (
+          <Button variant="outline" size="sm" render={<Link href={href} />}>
+            {linkLabel}
+          </Button>
+        )}
       </div>
       {children}
     </section>
@@ -66,11 +69,11 @@ export function TeacherDashboardPage() {
 
   if (isLoading || !dashboard) {
     return (
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="h-32 animate-pulse rounded-lg border bg-muted/30" />
-          <div className="h-32 animate-pulse rounded-lg border bg-muted/30" />
-          <div className="h-32 animate-pulse rounded-lg border bg-muted/30" />
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg border bg-muted/30" />
+          ))}
         </div>
       </main>
     );
@@ -86,13 +89,18 @@ export function TeacherDashboardPage() {
   } = dashboard;
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card heading={t("classroomsHeading")} href="/my-classrooms" linkLabel={t("viewClassrooms")}>
           <p className="text-2xl font-bold">{classrooms_count}</p>
-          <p className="text-sm text-muted-foreground">
-            {t("subjectsLabel")}: {subjects_count} · {t("studentsLabel")}: {students_total}
-          </p>
+        </Card>
+
+        <Card heading={t("subjectsLabel")}>
+          <p className="text-2xl font-bold">{subjects_count}</p>
+        </Card>
+
+        <Card heading={t("studentsLabel")}>
+          <p className="text-2xl font-bold">{students_total}</p>
         </Card>
 
         <Card
@@ -123,6 +131,8 @@ export function TeacherDashboardPage() {
           )}
         </Card>
       </div>
+
+      <Calendar />
     </main>
   );
 }

@@ -1132,7 +1132,6 @@
     "feesOutstandingLabel": "{amount} outstanding",
     "attendanceTodayHeading": "Attendance today",
     "presentTodayLabel": "present / marked",
-    "meetingsHeading": "Upcoming meetings",
     "libraryHeading": "Library resources",
     "academicYearLabel": "Academic year {year}",
     "loadError": "Couldn't load the dashboard."
@@ -1352,8 +1351,6 @@
     "feesBody": "Charge, collect, and reconcile tuition and other fees per student.",
     "libraryTitle": "Library",
     "libraryBody": "Catalog resources and let students and parents borrow online.",
-    "meetingsTitle": "Meetings",
-    "meetingsBody": "Schedule parent-teacher meetings and manage availability.",
     "structureTitle": "Academic structure",
     "structureBody": "Organize stages, grades, classrooms, and academic years.",
     "rolesHeading": "Sign in as your role",
