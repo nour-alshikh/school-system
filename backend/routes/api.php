@@ -22,7 +22,9 @@ use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\ReligionController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentPortal\AttendanceController as StudentAttendanceController;
@@ -52,6 +54,12 @@ Route::middleware('throttle:10,1')->group(function () {
 // "fromFrontend" check would never recognize as authenticated. See
 // ZoomController::callback()'s doc comment for how it's secured instead.
 Route::middleware('throttle:30,1')->get('/zoom/callback', [ZoomController::class, 'callback']);
+
+// Public — the frontend needs branding (logo, school name, social links)
+// before a user is authenticated at all (e.g. the login page header), so
+// this deliberately sits outside auth:sanctum like /zoom/callback above.
+// Nothing sensitive lives on this table; only writes need gating.
+Route::get('/settings', [SettingController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -273,6 +281,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:teacher')->group(function () {
         Route::get('/teacher/dashboard', [TeacherDashboardController::class, 'show']);
         Route::get('/teacher/classrooms', [TeacherClassroomController::class, 'index']);
+    });
+
+    Route::middleware('permission:manage-settings')->group(function () {
+        Route::put('/settings', [AdminSettingController::class, 'update']);
+        Route::post('/settings/{setting:key}/file', [AdminSettingController::class, 'updateFile']);
     });
 
     Route::get('/nationalities', [NationalityController::class, 'index']);

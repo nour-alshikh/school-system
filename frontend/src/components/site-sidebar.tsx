@@ -21,6 +21,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
+  Settings,
   TrendingUp,
   User as UserIcon,
   UserCog,
@@ -455,6 +456,15 @@ export function SiteSidebar() {
           href="/admin/users"
           icon={Users}
           label={t("manageUsers")}
+          collapsed={collapsed}
+        />
+      )}
+
+      {can("manage-settings") && (
+        <SidebarLink
+          href="/admin/settings"
+          icon={Settings}
+          label={t("settings")}
           collapsed={collapsed}
         />
       )}

@@ -47,7 +47,8 @@
     "createExam": "Create exam",
     "meetings": "Meetings",
     "myMeetings": "My meetings",
-    "library": "Library"
+    "library": "Library",
+    "settings": "Settings"
   },
   "LoginPage": {
     "heading": "Log in",
@@ -777,6 +778,8 @@
     "readingMinutesMax": "Must be 180 minutes or less",
     "stageNameEnRequired": "English name is required",
     "stageNameArRequired": "Arabic name is required",
+    "schoolNameRequired": "School name is required",
+    "invalidUrl": "Enter a valid URL",
     "gradeStageRequired": "Stage is required",
     "gradeNameEnRequired": "English name is required",
     "gradeNameArRequired": "Arabic name is required",
@@ -1241,5 +1244,33 @@
     "actionsColumn": "Actions",
     "openLink": "Open link",
     "download": "Download"
+  },
+  "SettingsPage": {
+    "heading": "Settings",
+    "loadError": "Couldn't load settings.",
+    "saveSuccess": "Settings saved.",
+    "saveChanges": "Save changes",
+    "generalTab": "General",
+    "brandingTab": "Branding",
+    "contactTab": "Contact",
+    "socialTab": "Social media",
+    "schoolNameLabel": "School name",
+    "taglineLabel": "Tagline",
+    "logoLabel": "Logo",
+    "faviconLabel": "Favicon",
+    "primaryColorLabel": "Primary color",
+    "addressLabel": "Address",
+    "phoneLabel": "Phone",
+    "emailLabel": "Email",
+    "facebookLabel": "Facebook",
+    "twitterLabel": "X (Twitter)",
+    "instagramLabel": "Instagram",
+    "youtubeLabel": "YouTube",
+    "linkedinLabel": "LinkedIn",
+    "noFile": "None",
+    "changeFile": "Upload",
+    "uploading": "Uploading…",
+    "fileUploadSuccess": "File uploaded.",
+    "fileUploadError": "Failed to upload file."
   }
 }

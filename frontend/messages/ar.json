@@ -47,7 +47,8 @@
     "createExam": "إنشاء اختبار",
     "meetings": "الاجتماعات",
     "myMeetings": "اجتماعاتي",
-    "library": "المكتبة"
+    "library": "المكتبة",
+    "settings": "الإعدادات"
   },
   "LoginPage": {
     "heading": "تسجيل الدخول",
@@ -777,6 +778,8 @@
     "readingMinutesMax": "يجب ألا تزيد عن 180 دقيقة",
     "stageNameEnRequired": "الاسم بالإنجليزية مطلوب",
     "stageNameArRequired": "الاسم بالعربية مطلوب",
+    "schoolNameRequired": "اسم المدرسة مطلوب",
+    "invalidUrl": "أدخل رابطًا صحيحًا",
     "gradeStageRequired": "المرحلة مطلوبة",
     "gradeNameEnRequired": "الاسم بالإنجليزية مطلوب",
     "gradeNameArRequired": "الاسم بالعربية مطلوب",
@@ -1241,5 +1244,33 @@
     "actionsColumn": "الإجراءات",
     "openLink": "فتح الرابط",
     "download": "تنزيل"
+  },
+  "SettingsPage": {
+    "heading": "الإعدادات",
+    "loadError": "تعذر تحميل الإعدادات.",
+    "saveSuccess": "تم حفظ الإعدادات.",
+    "saveChanges": "حفظ التغييرات",
+    "generalTab": "عام",
+    "brandingTab": "الهوية",
+    "contactTab": "التواصل",
+    "socialTab": "التواصل الاجتماعي",
+    "schoolNameLabel": "اسم المدرسة",
+    "taglineLabel": "الشعار النصي",
+    "logoLabel": "الشعار",
+    "faviconLabel": "أيقونة الموقع",
+    "primaryColorLabel": "اللون الأساسي",
+    "addressLabel": "العنوان",
+    "phoneLabel": "الهاتف",
+    "emailLabel": "البريد الإلكتروني",
+    "facebookLabel": "فيسبوك",
+    "twitterLabel": "إكس (تويتر)",
+    "instagramLabel": "إنستغرام",
+    "youtubeLabel": "يوتيوب",
+    "linkedinLabel": "لينكدإن",
+    "noFile": "لا يوجد",
+    "changeFile": "رفع",
+    "uploading": "جارٍ الرفع…",
+    "fileUploadSuccess": "تم رفع الملف.",
+    "fileUploadError": "فشل رفع الملف."
   }
 }

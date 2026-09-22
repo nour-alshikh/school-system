@@ -293,6 +293,14 @@ export type RoleType = {
 readonly id: number,
 readonly name: string,
 };
+export type SettingGroup = 'general' | 'branding' | 'contact' | 'social';
+export type SettingType = {
+readonly id: number,
+readonly key: string,
+readonly value: string | null,
+readonly group: SettingGroup,
+readonly file_url: string | null,
+};
 export type StageType = {
 readonly id: number,
 readonly name_en: string,
