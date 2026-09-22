@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/features/calendar/calendar";
 import type { AttendanceStatus, StudentDashboard } from "./types";
 
 const attendanceBadgeClass: Record<AttendanceStatus, string> = {
@@ -70,22 +71,30 @@ export function StudentDashboardPage() {
 
   if (isLoading || !dashboard) {
     return (
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
         <div className="h-24 animate-pulse rounded-lg border bg-muted/30" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="h-32 animate-pulse rounded-lg border bg-muted/30" />
-          <div className="h-32 animate-pulse rounded-lg border bg-muted/30" />
-          <div className="h-32 animate-pulse rounded-lg border bg-muted/30" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-32 animate-pulse rounded-lg border bg-muted/30" />
+          ))}
         </div>
       </main>
     );
   }
 
-  const { student, attendance_summary, latest_attendance, subjects_count, fees_summary } =
-    dashboard;
+  const {
+    student,
+    attendance_summary,
+    latest_attendance,
+    subjects_count,
+    fees_summary,
+    exams_total,
+    exams_pending_count,
+    next_exam,
+  } = dashboard;
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
       <section className="flex flex-col gap-4 rounded-lg border p-4">
         <h3 className="text-sm font-semibold">{t("profileHeading")}</h3>
         <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
@@ -110,7 +119,7 @@ export function StudentDashboardPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card heading={t("attendanceHeading")} href="/my-attendance" linkLabel={t("viewHistory")}>
           <div className="flex flex-wrap gap-2">
             {(["present", "absent", "late", "excused"] as const).map((status) => (
@@ -148,7 +157,24 @@ export function StudentDashboardPage() {
             {t("totalDueLabel")}: {Number(fees_summary.total_due).toFixed(2)}
           </p>
         </Card>
+
+        <Card heading={t("examsHeading")} href="/my-exams" linkLabel={t("viewExams")}>
+          <p className="text-2xl font-bold">
+            {exams_pending_count}/{exams_total}
+          </p>
+          <p className="text-sm text-muted-foreground">{t("examsPendingLabel")}</p>
+          {next_exam ? (
+            <p className="text-sm text-muted-foreground">
+              {t("nextExamLabel")}: {next_exam.title} (
+              {locale === "ar" ? next_exam.subject_name_ar : next_exam.subject_name_en})
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">{t("noNextExam")}</p>
+          )}
+        </Card>
       </div>
+
+      <Calendar />
     </main>
   );
 }

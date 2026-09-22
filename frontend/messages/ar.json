@@ -1045,6 +1045,11 @@
     "totalDueLabel": "إجمالي المستحق",
     "totalOutstandingLabel": "المتبقي",
     "viewFees": "عرض الرسوم",
+    "examsHeading": "الاختبارات",
+    "viewExams": "عرض الاختبارات",
+    "examsPendingLabel": "معلّقة / مكلّف بها",
+    "nextExamLabel": "التالي",
+    "noNextExam": "لا توجد اختبارات بانتظارك.",
     "loadError": "تعذر تحميل لوحة التحكم الخاصة بك."
   },
   "StudentAttendancePage": {

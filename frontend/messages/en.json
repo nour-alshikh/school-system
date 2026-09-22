@@ -1045,6 +1045,11 @@
     "totalDueLabel": "Total due",
     "totalOutstandingLabel": "Outstanding",
     "viewFees": "View fees",
+    "examsHeading": "Exams",
+    "viewExams": "View exams",
+    "examsPendingLabel": "pending / assigned",
+    "nextExamLabel": "Next",
+    "noNextExam": "No exams waiting for you.",
     "loadError": "Couldn't load your dashboard."
   },
   "StudentAttendancePage": {

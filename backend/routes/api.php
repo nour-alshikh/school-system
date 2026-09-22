@@ -299,10 +299,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Reading the calendar is shared more broadly than managing it —
-    // teachers and parents both need to see school-wide events (exam
-    // windows, holidays) on their own dashboards even though only
+    // teachers, parents, and students all need to see school-wide events
+    // (exam windows, holidays) on their own dashboards even though only
     // manage-calendar can add/edit/remove them.
-    Route::middleware('role_or_permission:teacher|parent|manage-calendar')->group(function () {
+    Route::middleware('role_or_permission:teacher|parent|student|manage-calendar')->group(function () {
         Route::get('/calendar-events', [CalendarEventController::class, 'index']);
     });
     Route::middleware('permission:manage-calendar')->group(function () {

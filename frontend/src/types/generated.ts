@@ -351,6 +351,9 @@ readonly attendance_summary: StudentAttendanceSummaryType,
 readonly latest_attendance: AttendanceRecordType | null,
 readonly subjects_count: number,
 readonly fees_summary: StudentFeesSummaryType,
+readonly exams_total: number,
+readonly exams_pending_count: number,
+readonly next_exam: StudentExamListEntryType | null,
 };
 export type StudentExamAttemptType = {
 readonly attempt_id: number,
