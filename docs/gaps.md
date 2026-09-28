@@ -33,7 +33,7 @@ portals. These are the gaps found reviewing the codebase.
 
 ## Known/documented gaps
 
-- `docs/multi-tenancy.md` — single-tenant today; a DB-per-tenant migration plan
+- `docs/multi-tenancy.md` — single-tenant today; a shared-DB (`school_id` + memberships) migration plan
   is written but not started.
 - `docs/production-readiness.md` — covers per-record authorization, general API
   rate limiting, and moving off SQLite; worth re-checking these are actually

@@ -1,147 +1,228 @@
-# Multi-Tenancy Migration Plan (Option 2: DB-per-tenant)
+# Multi-Tenancy Migration Plan (shared DB + `school_id`)
 
-Status: proposal, not implemented. Current app is single-tenant — no `school_id`/
-`tenant_id` column anywhere, one shared DB (SQLite locally, presumably MySQL/Postgres
-in prod via `DB_CONNECTION`).
+Status: proposal, not implemented. Current app is single-tenant — no `school_id`
+column anywhere, one DB (SQLite by default in `.env`; MySQL/MariaDB via XAMPP locally).
 
-This plan converts to **one database per school**, using
-[`stancl/tenancy`](https://tenancyforlaravel.com/) v3 (the standard Laravel package
-for this — don't hand-roll it, connection-switching + queue/storage/cache isolation
-has a lot of edge cases it already solves).
+This plan keeps **one database** and tags every school-owned row with `school_id`.
+People (users) are global; a school is a set of **memberships** linking users to it.
 
-## Why DB-per-tenant over shared-DB-with-`school_id`
+It replaces an earlier draft that proposed DB-per-school with `stancl/tenancy`. That
+option is still reachable later for a single school that needs physical isolation
+(see [Escape hatch](#escape-hatch-splitting-one-school-out)), but it is not the
+starting point.
 
-- Full data isolation — no risk of a missed `WHERE school_id = ?` leaking one school's
-  students/fees into another's response.
-- Per-school backup/restore/export/delete is trivial (dump/drop one DB).
-- `spatie/laravel-permission` roles/permissions table doesn't need the `teams` hack —
-  each tenant DB has its own roles table, scoped for free.
-- Cost: heavier ops (migrations run once per tenant DB, more connections), and cross-
-  tenant reporting/analytics gets harder (needs a fan-out query or a read replica that
-  aggregates across tenant DBs).
+## Why shared DB over DB-per-school
 
-## Complication specific to this app: the BFF
+- **People cross schools.** A parent with children at two schools, a teacher who
+  works at two schools, a student who transfers. With DB-per-school, `users` lives in
+  each school's DB, so each of those is two accounts with two passwords. With global
+  users + memberships it is one login and a school switcher.
+- **Ops stay simple.** One `php artisan migrate`, one backup, one connection pool.
+  No per-school DB provisioning, no fan-out migrations, no connection switching in
+  queue workers.
+- **Cross-school reporting** (platform admin, future school groups) is a normal query
+  instead of a fan-out across N databases.
+- **Tooling already exists.** `spatie/laravel-permission` has a built-in `teams`
+  mode (`config/permission.php`, currently `'teams' => false`) that scopes role
+  assignments per team — the team is the school.
 
-Per [authentication.md](./authentication.md), frontend and backend are on **unrelated
-domains** — a Next.js BFF (`frontend/src/app/api/[...path]/route.ts`) proxies every
-request to a single Laravel origin, holding the Sanctum token server-side. There's no
-browser-to-Laravel direct connection today, and no per-tenant subdomain on the
-Laravel side.
+Cost: isolation is logical, not physical. A missed scope leaks data silently. Most of
+this plan is about making that failure mode loud or impossible (see
+[Enforcement](#enforcement-layers)).
 
-That rules out `stancl/tenancy`'s default **domain-based** tenant identification
-(`InitializeTenancyByDomain`) unless Laravel itself grows per-school subdomains
-(`schoolA.school-system.reeras.site`) and the BFF is taught to route to them — bigger
-change. Simpler path for this architecture:
+## Data model
 
-- Each school gets a slug (`acme-academy`), surfaced on the frontend as its own
-  subdomain or path prefix (`acme-academy.vercel.app`, or a `/t/acme-academy` prefix
-  in the BFF route).
-- The BFF resolves the tenant slug from that and forwards it to Laravel as a header,
-  e.g. `X-Tenant: acme-academy`, on every proxied request.
-- Laravel uses `stancl/tenancy`'s `InitializeTenancyByRequestData` (or a small custom
-  identification middleware reading that header) instead of by-domain.
-
-This keeps the "browser never talks to Laravel directly" property intact and needs no
-new public DNS/subdomains on the Laravel side.
-
-## Migration steps
-
-### 1. Central DB (new)
-
-A small DB that lists tenants, separate from any tenant's data:
+### New tables
 
 ```
-tenants          id, slug, name, db_name, status, created_at...
-domains          (if/when direct-domain routing is added later — skip for now)
+schools              id, name, slug (unique), status (active|suspended), settings..., timestamps
+school_memberships   id, user_id, school_id, role (admin|teacher|parent|student),
+                     status (invited|active|suspended|left), started_at, ended_at, timestamps
+                     unique(user_id, school_id, role)
 ```
 
-`stancl/tenancy` ships the `Tenant` model + migration for this; extend it with
-`slug`, `name`, whatever central-admin fields you want (subscription plan, etc).
+- A user can have many memberships (parent at School A, teacher at School B).
+- Leaving/transferring sets `status = left` + `ended_at`; the row is never deleted,
+  so history (old grades, fee payments) still points at a real membership.
 
-### 2. Split migrations into central vs tenant
+### Stays global (no `school_id`)
 
-Everything in `backend/database/migrations/` today — `users`, `personal_access_tokens`,
-`permission_tables`, `posts`, `stages`, `grades`, `classrooms`, `students`, `teachers`,
-`fees`, `exams`, `attendance`, `calendar_events`, `meetings`, all of it — moves to
-`database/migrations/tenant/`. Only the new `tenants` table (and any future central-
-admin-only tables) stays in `database/migrations/` (central).
+- `users`, `personal_access_tokens`, `password_reset_tokens`, `sessions`
+- `permissions`, `roles` (role *definitions* are global; *assignments* are per-school
+  via spatie teams)
+- Lookup tables: `nationalities`, `religions`, `blood_types`, `governorates`
+- Laravel infra: `cache`, `jobs`, `failed_jobs`, `job_batches`
 
-`php artisan tenants:migrate` runs the tenant set against every tenant DB;
-`php artisan migrate` runs the central set.
+### Gets `school_id`
 
-### 3. Users, auth, roles all become tenant-scoped
+Everything else: `stages`, `grades`, `classrooms`, `subjects`, `subject_stage`,
+`subject_grade`, `teachers`, `subject_teacher`, `classroom_subject_teacher`,
+`academic_years`, `students`, `fathers`, `mothers`, `promotions`, `graduations`,
+`fees`, `fee_charges`, `fee_payments`, `attendances`, `exams`, `exam_questions`,
+`exam_question_options`, `exam_attempts`, `exam_attempt_answers`, `meetings`,
+`meeting_classroom`, `zoom_connections`, `library_resources`,
+`library_resource_subject`, `settings`, `calendar_events`, `posts`, `media`.
 
-- `User`, `PersonalAccessToken` (Sanctum), `roles`/`permissions`
-  (spatie/laravel-permission) all move to tenant DBs — a login belongs to exactly one
-  school.
-- Means: tenancy must be initialized **before** the `auth:sanctum` middleware runs, so
-  Sanctum resolves the token against the right tenant DB. Middleware order in
-  `bootstrap/app.php` / `routes/api.php`: `InitializeTenancyByRequestData` (or your
-  header-based equivalent) → `auth:sanctum`.
-- Login flow needs the tenant slug *before* authenticating — the frontend must know
-  which school it's on before calling `/api/login` (from the subdomain/path, not from
-  a login form field), otherwise you can't find the right `users` table to check the
-  password against.
-- Central "platform admin" (you, managing schools) is a separate concern — either a
-  small separate guard reading straight from the central DB, or its own tiny app.
+Child tables (`exam_attempt_answers`, `fee_payments`, …) get `school_id` too, even
+though it is derivable through the parent. That redundancy is what makes the
+composite foreign keys below possible.
 
-### 4. Storage & media isolation
+### Unique constraints that must become per-school
 
-`spatie/laravel-medialibrary` writes to disk paths keyed by model ID today — those IDs
-can collide across tenants once DBs are separate. Add `stancl/tenancy`'s filesystem
-tenancy bootstrapper so each tenant's media lives under its own storage prefix
-(`tenant-{id}/...`), and set `MEDIA_DISK` per tenant if schools should get isolated
-storage buckets too.
+These are globally unique today and would block a second school:
 
-### 5. Queues & cache
+| Table | Today | Becomes |
+|---|---|---|
+| `academic_years` | `unique(year)` | `unique(school_id, year)` |
+| `settings` | `unique(key)` | `unique(school_id, key)` |
+| `teachers` | `unique(email)` | `unique(school_id, email)` |
+| `roles` (spatie) | `unique(name, guard_name)` | handled by teams mode (`team_foreign_key`) |
 
-Any queued job (e.g. Zoom integration, notifications) needs to know which tenant DB to
-run against when it executes later — enable `stancl/tenancy`'s queue bootstrapper so
-the tenant context is serialized onto the job and re-initialized on the worker. Same
-idea for cache keys if `cache` is shared infra (Redis) across tenants — prefix by
-tenant to avoid collisions.
+`users.email` stays globally unique — that is the point of global identity.
 
-### 6. Tenant provisioning flow
+Existing composite uniques (`attendances(student_id, date)`,
+`fee_charges(student_id, fee_id)`, …) are already implicitly per-school because the
+referenced rows are per-school; leave them.
 
-New school signup/creation needs to, in order:
-1. Insert `tenants` row (central DB).
-2. Create the tenant's physical DB.
-3. Run tenant migrations against it (`tenants:migrate`).
-4. Seed default roles/permissions + an initial admin `User` for that school.
-5. (Optional) queue this instead of doing it synchronously in the request — DB
-   creation + migration can take a few seconds.
+## Enforcement layers
 
-`stancl/tenancy` fires `TenantCreated` — hook steps 2-4 onto that event.
+MySQL/MariaDB has no row-level security, so there is no single DB-engine backstop
+like Postgres RLS. Instead, four layers, each catching what the one before misses.
 
-### 7. Frontend changes
+### 1. Composite foreign keys — cross-school references are unrepresentable
 
-- Resolve tenant slug from subdomain (or path) on every request.
-- BFF route handler (`route.ts`) reads that and adds `X-Tenant` (or whatever header
-  name) before forwarding to Laravel — one-line change to the existing proxy, no new
-  auth model needed on the frontend side.
-- Login/register pages need the tenant context available before submit (can't ask the
-  user to type their school on the login form and also identify tenant from URL —
-  pick one; URL-based is what stancl/tenancy expects).
+Every tenant table gets `unique(school_id, id)`. Every FK between tenant tables
+includes `school_id`:
 
-### 8. Local dev
+```php
+$table->foreignId('school_id')->constrained();
+$table->unsignedBigInteger('classroom_id');
+$table->foreign(['school_id', 'classroom_id'])
+      ->references(['school_id', 'id'])->on('classrooms');
+```
 
-`stancl/tenancy` supports SQLite tenants (one `.sqlite` file per tenant) — fits this
-repo's current `DB_CONNECTION=sqlite` default well for local dev, even if prod uses
-MySQL/Postgres tenant DBs. Lets you spin up two fake schools locally without a real
-DB server.
+Now a student row in School A *cannot* point at a classroom in School B — the DB
+rejects the insert. This covers bugs in create/update paths, seeders, imports and
+tinker, which no app-level scope can.
 
-## Rollout order (suggested)
+(InnoDB requires the referenced columns to be indexed — the `unique(school_id, id)`
+on the parent satisfies that. SQLite also supports composite FKs, so tests can run on
+either.)
 
-1. Install `stancl/tenancy`, central `tenants` table, no behavior change yet
-   (single hardcoded tenant, feature-flagged).
-2. Move all existing migrations to `database/migrations/tenant/`, get
-   `tenants:migrate` working against one seeded tenant DB — app still behaves
-   single-tenant, just now DB-per-tenant with 1 tenant.
-3. Wire up request-header tenant identification + BFF header forwarding.
-4. Add tenant provisioning flow (steps in §6).
-5. Add filesystem/queue bootstrappers (§4, §5).
-6. Build minimal central-admin surface for creating/suspending schools.
-7. Only then open up self-serve signup, if that's ever a goal.
+### 2. `BelongsToSchool` trait — reads are scoped automatically
 
-Each step above is independently shippable and testable — don't do this as one big
-migration.
+One trait on every tenant model:
+
+- **Global scope** adding `where school_id = <current school>`. This also makes
+  route-model binding return 404 for another school's record (`/students/{id}`).
+- **`creating` hook** that fills `school_id` from the current school, so controllers
+  never set it by hand.
+- **Fail loud, not open:** if a tenant model is queried with no current school set
+  (e.g. a job that forgot to restore context), throw `MissingSchoolContext` — never
+  silently return all schools' rows.
+
+The current school comes from a request-scoped `TenantContext` singleton, **not** from
+`Auth::user()` directly, so the same trait works in queue workers and artisan
+commands.
+
+### 3. Tenant comes from the authenticated membership, never a header
+
+- Login is global (email + password against `users`).
+- After login the user has one or more active memberships. One → auto-select. More →
+  school picker. The chosen `membership_id` is stored on the Sanctum token
+  (`personal_access_tokens` gets a nullable `school_membership_id` column, or it goes
+  in token abilities).
+- `ResolveSchool` middleware runs right after `auth:sanctum`: loads the token's
+  membership, checks it is `active` and belongs to the token's user, then sets
+  `TenantContext` and spatie's team id (`setPermissionsTeamId($schoolId)`).
+- Switching schools = issue a new token for another membership. No re-login.
+- The BFF may still send a school slug (subdomain/path) for **pre-login branding
+  only** (logo, name on the login page). After login, if the slug disagrees with the
+  token's school → 403. The header never selects which data is read.
+
+### 4. Tests and guard rails
+
+- **One cross-school test per tenant model:** seed School A + School B, act as a
+  School A user, assert School B's record is 404 on show/update/delete and absent
+  from index.
+- **Arch test** (Pest `arch()`): forbid `DB::table(` / raw queries on tenant tables
+  outside an allow-listed set of files, since query-builder calls bypass Eloquent
+  scopes.
+- **`withoutSchoolScope()`** is the only sanctioned bypass, gated behind a
+  `platform-admin` permission and logged (actor, reason, time).
+
+## Things outside the DB that also need scoping
+
+- **Queued jobs:** capture `school_id` in the job constructor; a job middleware
+  restores `TenantContext` before `handle()` and clears it after. Layer 2 throws if a
+  job forgets.
+- **Cache keys:** prefix with school id for anything school-owned. The existing Zoom
+  OAuth state (`zoom_oauth_state:{$state}` in `app/Services/ZoomService.php`) is keyed
+  by a random state token, so it is safe, but it should also store `school_id` so the
+  callback restores the right school.
+- **Media:** `media` gets `school_id`; use a custom `PathGenerator` so files live under
+  `schools/{school_id}/...` instead of `{media_id}/...`.
+- **Settings:** become per-school (`unique(school_id, key)`); the public
+  `SettingController` endpoint reads the pre-login slug to pick the school.
+
+## Roles and permissions (spatie teams)
+
+- Set `'teams' => true` and `'team_foreign_key' => 'school_id'` in
+  `config/permission.php`, then publish/add the team column to `model_has_roles` and
+  `model_has_permissions`.
+- Role definitions (`admin`, `teacher`, `parent`, `student`) stay global.
+  Assignments carry `school_id`, so a user can be `teacher` at A and `parent` at B.
+- `ResolveSchool` calls `setPermissionsTeamId()` before any `permission:` route
+  middleware runs, so existing `Route::middleware('permission:manage-fees')` groups in
+  `routes/api.php` keep working unchanged.
+- `school_memberships.role` and the spatie assignment must stay in sync — write both
+  through one `MembershipService`, never separately.
+
+## Existing links to `users` that change meaning
+
+- `students.user_id` / `students.parent_user_id` and `teachers.user_id` stay as they
+  are — they point at global users. Because the student/teacher row itself has
+  `school_id`, a parent user with children at two schools naturally sees only the
+  active school's children through the global scope.
+- Parent/student portals (`ParentPortal\*`, `StudentPortal\*` controllers) need no
+  query changes; the scope does the filtering.
+
+## Migration steps (incremental, each shippable)
+
+1. **`schools` + `school_memberships` tables.** Seed one school; create a membership
+   for every existing user from their current spatie role. No behavior change.
+2. **Add nullable `school_id`** to all tenant tables; backfill with the seeded
+   school's id.
+3. **`TenantContext` + `ResolveSchool` middleware + `BelongsToSchool` trait**, with
+   the context hard-wired to the one school. Add the cross-school tests with a second
+   seeded school — they should pass.
+4. **Make `school_id` NOT NULL**, add `unique(school_id, id)` and switch FKs to
+   composite, one module at a time (academics → students → fees → exams → …).
+   Replace the global uniques in the table above.
+5. **Global login + school picker.** Token carries the membership; frontend adds the
+   picker and a school switcher in the user menu.
+6. **Spatie teams on.** Migrate existing role assignments to carry `school_id`.
+7. **Jobs, cache, media path generator.**
+8. **Platform admin surface:** create/suspend schools, invite a school's first admin.
+   Suspending a school = `schools.status = suspended`, checked in `ResolveSchool`.
+
+Steps 1–3 can merge without any visible change to users.
+
+## Escape hatch: splitting one school out
+
+If one school later needs physical isolation (contract, compliance, size), export its
+rows by `school_id` into a dedicated DB and point that school's connection there. The
+app code does not change, because the boundary was always `school_id`.
+
+## Open questions
+
+- **Is the tenant a school or a school group?** Many private schools belong to a group
+  with several campuses. If groups matter (shared admins, one fee statement per family,
+  cross-campus reports), add `school_groups` above `schools` now; retrofitting it
+  after `school_id` is in 35 tables is expensive.
+- **Local DB:** `.env` defaults to SQLite, but XAMPP means MySQL/MariaDB. Switching
+  local dev to MySQL is recommended before step 4, so composite FKs and index
+  behavior match production.
+- **Parent view across schools:** should a parent see all their children at once, or
+  only the active school's? This plan assumes active-school only (simpler, safer); an
+  all-schools summary would be an explicit, cross-school read path.
