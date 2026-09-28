@@ -165,14 +165,56 @@ class SchoolLoginTest extends TestCase
         $this->flushHeaders()->getJson('/api/settings')->assertOk()->assertDontSee('B Academy');
     }
 
+    public function test_roles_and_permissions_follow_the_signed_in_school(): void
+    {
+        // Step 6: admin at A, parent at B — the admin powers stay at A.
+        $user = $this->userWith([[$this->schoolA, MembershipRole::Admin], [$this->schoolB, MembershipRole::Parent]]);
+
+        $asParent = $this->login($user, 'parent')->assertOk()
+            ->assertJsonPath('user.roles', ['parent'])
+            ->assertJsonPath('user.permissions', []);
+        $this->forgetAuth();
+        $this->withToken($asParent->json('token'))->getJson('/api/stages')->assertForbidden();
+        $this->withToken($asParent->json('token'))->getJson('/api/admin/users')->assertForbidden();
+
+        $asAdmin = $this->login($user, 'admin')->assertOk()->assertJsonPath('user.roles', ['admin']);
+        $this->forgetAuth();
+        $this->withToken($asAdmin->json('token'))->getJson('/api/stages')->assertOk()->assertSee('Only In A');
+    }
+
+    public function test_switching_school_switches_roles_in_the_response(): void
+    {
+        $user = $this->userWith([[$this->schoolA, MembershipRole::Admin], [$this->schoolB, MembershipRole::Parent]]);
+        $token = $this->login($user, 'admin')->json('token');
+        $parentMembership = $user->memberships()->where('school_id', $this->schoolB->id)->sole();
+
+        $this->withToken($token)->postJson('/api/switch-school', ['membership_id' => $parentMembership->id])
+            ->assertOk()
+            ->assertJsonPath('user.roles', ['parent'])
+            ->assertJsonPath('user.current_membership.role', 'parent');
+    }
+
+    public function test_admin_user_list_only_shows_this_schools_users(): void
+    {
+        $adminA = $this->userWith([[$this->schoolA, MembershipRole::Admin]]);
+        $onlyInB = $this->userWith([[$this->schoolB, MembershipRole::Teacher]]);
+        $token = $this->login($adminA, 'admin')->json('token');
+
+        $this->withToken($token)->getJson('/api/admin/users')
+            ->assertOk()
+            ->assertSee($adminA->email)
+            ->assertDontSee($onlyInB->email);
+    }
+
     public function test_creating_a_teacher_login_grants_a_membership(): void
     {
         $user = User::factory()->create();
 
         $this->inSchool($this->schoolB, fn () => app(MembershipService::class)->grant($user, MembershipRole::Teacher));
 
-        $this->assertTrue($user->hasRole('teacher'));
         $this->assertSame($this->schoolB->id, $user->memberships()->sole()->school_id);
+        $this->assertTrue($this->inSchool($this->schoolB, fn () => $user->unsetRelation('roles')->hasRole('teacher')));
+        $this->assertFalse($this->inSchool($this->schoolA, fn () => $user->unsetRelation('roles')->hasRole('teacher')));
     }
 
     /** @param list<array{School, MembershipRole}> $memberships */

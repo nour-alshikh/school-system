@@ -15,8 +15,8 @@ php artisan migrate:fresh --seed
 
 | Role | Email | Password | What it can do |
 | --- | --- | --- | --- |
-| `admin` (+ `user`) | `test@example.com` | `password` | Full access: users, academic structure (stages/grades/classrooms/subjects), teachers, students. See [authorization.md](./authorization.md). |
-| `user` (plain) | `user@example.com` | `password` | Signed in, no admin permissions — demonstrates the 403-from-the-API case in [authorization.md](./authorization.md#enforcement-boundary). |
+| `admin` | `test@example.com` | `password` | Full access: users, academic structure (stages/grades/classrooms/subjects), teachers, students. See [authorization.md](./authorization.md). |
+| none (plain) | `user@example.com` | `password` | Signed in, no school and no roles — demonstrates the 403-from-the-API case in [authorization.md](./authorization.md#enforcement-boundary). |
 | `parent` | `ali.hassan1.parent@demo.school` | `password` | Parent self-service portal: own account info + their one student's guardian info. |
 | `student` | `ali.hassan1.student@demo.school` | `password` | Signed in, no dedicated portal yet — role exists for the student's own account created at registration. |
 | `teacher` | `mona.ali@teachers.demo` | `password` | Teacher self-service dashboard for their own classes/subjects. |

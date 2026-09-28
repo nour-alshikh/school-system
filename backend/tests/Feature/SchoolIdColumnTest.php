@@ -16,7 +16,9 @@ class SchoolIdColumnTest extends TestCase
             $this->assertTrue(Schema::hasColumn($table, 'school_id'), "{$table} should have school_id");
         }
 
-        foreach (['users', 'personal_access_tokens', 'roles', 'nationalities', 'religions', 'blood_types', 'governorates'] as $table) {
+        // `roles` has a nullable school_id (spatie teams) but every role is
+        // global (null); assignments carry the school instead.
+        foreach (['users', 'personal_access_tokens', 'nationalities', 'religions', 'blood_types', 'governorates'] as $table) {
             $this->assertFalse(Schema::hasColumn($table, 'school_id'), "{$table} should stay global");
         }
     }

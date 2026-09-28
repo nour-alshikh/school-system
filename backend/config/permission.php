@@ -97,7 +97,7 @@ return [
          * foreign key is other than `team_id`.
          */
 
-        'team_foreign_key' => 'team_id',
+        'team_foreign_key' => 'school_id',
     ],
 
     /*
@@ -135,7 +135,8 @@ return [
      * (view the latest version of this package's migration file)
      */
 
-    'teams' => false,
+    // On: a role is assigned *at a school* — see docs/multi-tenancy.md.
+    'teams' => true,
 
     /*
      * The class to use to resolve the permissions team id

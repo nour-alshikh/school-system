@@ -30,7 +30,7 @@ class AuthService
             'password' => Hash::make($request->password),
         ]);
 
-        $user->assignRole('user');
+        // No role: roles are assigned per school, and a plain account has none.
 
         $this->establishSessionIfAvailable($request, $user);
 

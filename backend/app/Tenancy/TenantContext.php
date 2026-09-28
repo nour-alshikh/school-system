@@ -8,6 +8,9 @@ use App\Models\School;
  * The school the current request, job or command is acting for. Bound as a
  * scoped singleton so it resets between queue jobs (and Octane requests).
  * See docs/multi-tenancy.md.
+ *
+ * Also spatie/laravel-permission's team id: roles are assigned per school,
+ * so role and permission checks always follow the current school.
  */
 class TenantContext
 {
@@ -15,12 +18,12 @@ class TenantContext
 
     public function set(School $school): void
     {
-        $this->school = $school;
+        $this->apply($school);
     }
 
     public function clear(): void
     {
-        $this->school = null;
+        $this->apply(null);
     }
 
     public function has(): bool
@@ -45,12 +48,18 @@ class TenantContext
     public function runAs(School $school, callable $callback): mixed
     {
         $previous = $this->school;
-        $this->school = $school;
+        $this->apply($school);
 
         try {
             return $callback();
         } finally {
-            $this->school = $previous;
+            $this->apply($previous);
         }
+    }
+
+    private function apply(?School $school): void
+    {
+        $this->school = $school;
+        setPermissionsTeamId($school?->id);
     }
 }

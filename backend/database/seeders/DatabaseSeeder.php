@@ -41,17 +41,14 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        $admin->assignRole('user');
         $admin->assignRole('admin');
 
-        // Base "user" role, no extra permissions — a plain registered account
-        // with none of the admin/parent/student territory. See docs/demo-accounts.md.
-        $plainUser = User::factory()->create([
+        // A plain registered account: no school, no roles, none of the
+        // admin/parent/student territory. See docs/demo-accounts.md.
+        User::factory()->create([
             'name' => 'Demo User',
             'email' => 'user@example.com',
         ]);
-
-        $plainUser->assignRole('user');
 
         $this->call(SchoolMembershipSeeder::class);
     }

@@ -206,10 +206,7 @@ As shipped (step 5):
 - **Zoom:** the OAuth `state` now carries `school_id`, and the unauthenticated callback
   runs the connect as that school.
 
-> **Before creating a second school, do step 6.** Spatie roles are still global: a
-> user who is a teacher at A and a parent at B has both roles everywhere, so
-> permission checks and the frontend's role-based navigation don't yet follow the
-> current membership.
+Step 6 (below) makes roles follow the current membership too.
 
 ### 4. Tests and guard rails
 
@@ -250,6 +247,29 @@ As shipped (step 5):
   `routes/api.php` keep working unchanged.
 - `school_memberships.role` and the spatie assignment must stay in sync — write both
   through one `MembershipService`, never separately.
+
+As shipped (step 6):
+
+- `config/permission.php`: `teams` on, `team_foreign_key` = `school_id`. A fresh
+  install gets team-shaped tables straight from spatie's own migration;
+  `2026_09_28_130000_scope_role_assignments_per_school.php` converts older databases
+  by rebuilding `model_has_roles` from `school_memberships` (one assignment per
+  membership). Assignments pointing at deleted users are dropped along the way.
+- `TenantContext` sets spatie's team id whenever it changes (`set`, `clear`,
+  `runAs`), so role and permission checks, `Gate::before`'s admin bypass,
+  `User::role(...)` and the `roles`/`permissions` in the user payload all follow the
+  current school. The frontend's navigation follows too, with no frontend changes.
+- Roles are created global (`school_id` null) in `RolePermissionSeeder`. With teams
+  on, spatie stamps the current school onto a newly created role unless told
+  otherwise, which would hide it from every other school.
+- The base `user` role is gone: it granted nothing, and every assignment now needs a
+  school, which a plain account doesn't have. Plain accounts have no roles.
+- Login and `/switch-school` build their response as the membership's school, since
+  the request itself was resolved for another school (or none).
+- `GET /api/admin/users` lists only users with a membership at the current school —
+  users are global, so it used to list everyone.
+- Model instances cache their `roles` relation. Code that changes school mid-request
+  must `unsetRelation('roles')` (and `permissions`) before checking again.
 
 ## Existing links to `users` that change meaning
 

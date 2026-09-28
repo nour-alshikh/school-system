@@ -45,7 +45,7 @@ to do with it in a project that doesn't have these four fixed roles.
 The Laravel API is the only thing that actually enforces anything. Anything on the
 frontend (`can()` checks, hiding a link) is UX — hiding a button doesn't stop an API
 call. A user who bypasses the frontend entirely (curl, devtools) still hits the same
-403 from Laravel. This was verified directly: a plain `user`-role account gets a 200
+403 from Laravel. This was verified directly: a plain account (no school, no roles) gets a 200
 through the frontend's `proxy.ts` cookie check (it doesn't know about permissions)
 but a 403 from the Laravel API itself when it actually tries to call an admin-only
 endpoint.
@@ -55,13 +55,17 @@ endpoint.
 - `bootstrap/app.php` — registers the `role`, `permission`, and
   `role_or_permission` middleware aliases.
 - `app/Models/User.php` — `HasRoles` trait.
-- `database/seeders/RolePermissionSeeder.php` — seeds a baseline `admin` / `user`
-  role setup: `admin` gets a `manage-users` permission, `user` gets nothing extra.
-  Called from `DatabaseSeeder`.
-- `app/Http/Controllers/Auth/AuthController.php` — new users are assigned the
-  `user` role on registration (`register()`); `formatUser()` includes `roles` and
-  `permissions` in every auth response (register/login/`/api/user`) so the frontend
-  doesn't need a second round trip.
+- `database/seeders/RolePermissionSeeder.php` — seeds the `admin`, `teacher`, `parent`
+  and `student` roles (global, `school_id` null) and the admin's `manage-*`
+  permissions. Called from `DatabaseSeeder`.
+- **Roles are assigned per school** (spatie teams, `team_foreign_key` = `school_id`):
+  a role and its permissions only apply while signed in to that school. Assign them
+  through `MembershipService::grant()`, never `assignRole()` alone — see
+  [multi-tenancy.md](./multi-tenancy.md).
+- `app/Http/Controllers/Auth/AuthController.php` — a registered account gets no role
+  (it belongs to no school). `UserResource` includes `roles` and `permissions` — for
+  the current school — in every auth response (register/login/`/api/user`) so the
+  frontend doesn't need a second round trip.
 - `app/Http/Controllers/Admin/UserController.php` — example endpoint gated by
   `permission:manage-users`.
 - `routes/api.php` — `/api/admin/users` wrapped in

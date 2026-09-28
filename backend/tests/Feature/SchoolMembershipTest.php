@@ -7,6 +7,7 @@ use App\Enums\MembershipStatus;
 use App\Models\School;
 use App\Models\SchoolMembership;
 use App\Models\User;
+use App\Tenancy\TenantContext;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\SchoolMembershipSeeder;
 use Illuminate\Database\QueryException;
@@ -34,11 +35,13 @@ class SchoolMembershipTest extends TestCase
     public function test_backfill_migration_gives_existing_users_a_membership_per_school_role(): void
     {
         $teacherAndParent = User::factory()->create();
-        $teacherAndParent->assignRole('teacher');
-        $teacherAndParent->assignRole('parent');
+        $this->inDefaultSchool(function () use ($teacherAndParent) {
+            $teacherAndParent->assignRole('teacher');
+            $teacherAndParent->assignRole('parent');
+        });
 
+        // A plain account: no roles at all.
         $plainUser = User::factory()->create();
-        $plainUser->assignRole('user');
 
         // Re-run the backfill as if these users existed before the upgrade.
         DB::table('schools')->delete();
@@ -60,8 +63,7 @@ class SchoolMembershipTest extends TestCase
     public function test_seeder_creates_memberships_from_roles_and_is_idempotent(): void
     {
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
-        $admin->assignRole('user');
+        $this->inDefaultSchool(fn () => $admin->assignRole('admin'));
 
         $this->seed(SchoolMembershipSeeder::class);
         $this->seed(SchoolMembershipSeeder::class);
@@ -94,5 +96,10 @@ class SchoolMembershipTest extends TestCase
 
         $this->expectException(QueryException::class);
         $user->memberships()->create(['school_id' => $school->id, 'role' => MembershipRole::Teacher]);
+    }
+
+    private function inDefaultSchool(callable $callback): void
+    {
+        app(TenantContext::class)->runAs(School::query()->oldest('id')->firstOrFail(), $callback);
     }
 }

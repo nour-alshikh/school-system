@@ -159,7 +159,8 @@ npm run dev
 ```
 
 Visit `http://localhost:3000/register` to create an account, or use the seeded
-`test@example.com` / `password` user (role `user`) from `php artisan migrate --seed`.
+`test@example.com` / `password` admin from `php artisan migrate --seed` (see
+[demo-accounts.md](./demo-accounts.md)).
 Locally the frontend still goes through the BFF (same code path as production) —
 `LARAVEL_API_URL=http://localhost:8000` in `frontend/.env.local` is what points it
 at the local Laravel server.

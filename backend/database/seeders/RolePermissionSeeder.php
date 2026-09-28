@@ -21,7 +21,10 @@ class RolePermissionSeeder extends Seeder
         $manageSettings = Permission::firstOrCreate(['name' => 'manage-settings']);
         $manageCalendar = Permission::firstOrCreate(['name' => 'manage-calendar']);
 
-        $admin = Role::firstOrCreate(['name' => 'admin']);
+        // school_id null = the role exists at every school. Without it,
+        // spatie (teams on) stamps the current school onto a new role and no
+        // other school could assign it. Assignments are per school instead.
+        $admin = Role::firstOrCreate(['name' => 'admin', 'school_id' => null]);
         $admin->givePermissionTo($manageUsers);
         $admin->givePermissionTo($manageAcademics);
         $admin->givePermissionTo($manageStudents);
@@ -33,15 +36,14 @@ class RolePermissionSeeder extends Seeder
         $admin->givePermissionTo($manageSettings);
         $admin->givePermissionTo($manageCalendar);
 
-        Role::firstOrCreate(['name' => 'user']);
-        Role::firstOrCreate(['name' => 'student']);
-        Role::firstOrCreate(['name' => 'parent']);
+        Role::firstOrCreate(['name' => 'student', 'school_id' => null]);
+        Role::firstOrCreate(['name' => 'parent', 'school_id' => null]);
 
         // No permissions of its own — a teacher's access to attendance and
         // exams is scoped per classroom (only ones they're assigned a
         // subject in via ClassroomSubjectTeacher), which a blanket
         // permission can't express. See AttendanceController's and
         // ExamController's ownership checks.
-        Role::firstOrCreate(['name' => 'teacher']);
+        Role::firstOrCreate(['name' => 'teacher', 'school_id' => null]);
     }
 }
