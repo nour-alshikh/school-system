@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -67,6 +68,22 @@ class User extends Authenticatable implements HasMedia
     public function teacher(): HasOne
     {
         return $this->hasOne(Teacher::class);
+    }
+
+    /**
+     * Which schools this (global) user belongs to, and as what. See
+     * docs/multi-tenancy.md.
+     */
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(SchoolMembership::class);
+    }
+
+    public function schools(): BelongsToMany
+    {
+        return $this->belongsToMany(School::class, 'school_memberships')
+            ->withPivot(['role', 'status'])
+            ->withTimestamps();
     }
 
     public function registerMediaCollections(): void

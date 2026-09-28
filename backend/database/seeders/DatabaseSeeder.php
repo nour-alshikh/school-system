@@ -48,5 +48,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $plainUser->assignRole('user');
+
+        $this->call(SchoolMembershipSeeder::class);
     }
 }
