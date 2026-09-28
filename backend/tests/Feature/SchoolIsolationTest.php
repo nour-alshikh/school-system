@@ -11,6 +11,7 @@ use App\Tenancy\MissingSchoolContext;
 use App\Tenancy\TenantContext;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -114,6 +115,21 @@ class SchoolIsolationTest extends TestCase
 
         $this->assertSame($this->schoolA->id, DB::table('subject_stage')->value('school_id'));
         $this->assertSame([$stage->id], $subject->stages()->pluck('stages.id')->all());
+    }
+
+    public function test_database_rejects_a_reference_to_another_schools_row(): void
+    {
+        $gradeInA = $this->context->runAs($this->schoolA, function () {
+            return $this->makeStage('A stage')->grades()->create(['name' => ['en' => 'G1', 'ar' => 'G1']]);
+        });
+
+        // Raw inserts bypass every app-level check, so only the composite
+        // (school_id, grade_id) foreign key can tell these two apart.
+        $row = ['grade_id' => $gradeInA->id, 'name' => 'X'];
+        DB::table('classrooms')->insert([...$row, 'school_id' => $this->schoolA->id]);
+
+        $this->expectException(QueryException::class);
+        DB::table('classrooms')->insert([...$row, 'school_id' => $this->schoolB->id]);
     }
 
     public function test_every_model_on_a_school_owned_table_uses_belongs_to_school(): void

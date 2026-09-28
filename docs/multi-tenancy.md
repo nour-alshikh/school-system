@@ -109,6 +109,23 @@ tinker, which no app-level scope can.
 on the parent satisfies that. SQLite also supports composite FKs, so tests can run on
 either.)
 
+As shipped (`2026_09_28_110000_enforce_school_id_with_composite_keys.php`):
+
+- `school_id` is NOT NULL on every school-owned table except `media`.
+- Every foreign key between two school-owned tables is composite, with the same
+  `ON DELETE` behavior as before. Keys to global tables (`users`, lookups) are
+  unchanged.
+- **One exception:** `exam_attempt_answers.selected_option_id` is `ON DELETE SET
+  NULL`. A composite key would null `school_id` too, so it keeps its single-column
+  key. The global scope still covers it.
+- `academic_years.year`, `settings.key` and `teachers.email` are unique per school
+  instead of globally.
+- MySQL/MariaDB silently drop the automatic index behind the `school_id` key once a
+  composite index starting with `school_id` exists. The migration's `down()` re-adds
+  a plain index first, otherwise rollback fails with error 1553.
+- Tested up, down and up again with data on SQLite and on MariaDB 10.4 (XAMPP).
+
+
 ### 2. `BelongsToSchool` trait — reads are scoped automatically
 
 One trait on every tenant model:
