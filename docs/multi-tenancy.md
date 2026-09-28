@@ -332,15 +332,23 @@ If one school later needs physical isolation (contract, compliance, size), expor
 rows by `school_id` into a dedicated DB and point that school's connection there. The
 app code does not change, because the boundary was always `school_id`.
 
+## Decisions
+
+- **The tenant is one school** (decided 2026-09-28). No `school_groups` layer. Several
+  campuses under one owner are separate schools; a person working across them has a
+  membership at each.
+- **A parent sees all their children in one view, across schools** (decided
+  2026-09-28). Not built yet. It needs:
+  - one parent account linked to several students: today student registration always
+    creates a new parent account, so a second child can't reuse it;
+  - a parent portal that lists children instead of assuming one: today
+    `ParentPortal\*` controllers load a single student with `firstOrFail()`;
+  - an explicit cross-school read path, limited to the signed-in parent's own
+    children at schools where they hold an active parent membership. This is the one
+    place `withoutSchoolScope()` is meant for.
+
 ## Open questions
 
-- **Is the tenant a school or a school group?** Many private schools belong to a group
-  with several campuses. If groups matter (shared admins, one fee statement per family,
-  cross-campus reports), add `school_groups` above `schools` now; retrofitting it
-  after `school_id` is in 33 tables is expensive.
 - **Local DB:** `.env` defaults to SQLite, but XAMPP means MySQL/MariaDB. Switching
   local dev to MySQL is recommended before step 4, so composite FKs and index
   behavior match production.
-- **Parent view across schools:** should a parent see all their children at once, or
-  only the active school's? This plan assumes active-school only (simpler, safer); an
-  all-schools summary would be an explicit, cross-school read path.
