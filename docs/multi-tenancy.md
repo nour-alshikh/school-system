@@ -161,7 +161,9 @@ commands.
   by a random state token, so it is safe, but it should also store `school_id` so the
   callback restores the right school.
 - **Media:** `media` gets `school_id`; use a custom `PathGenerator` so files live under
-  `schools/{school_id}/...` instead of `{media_id}/...`.
+  `schools/{school_id}/...` instead of `{media_id}/...`. Media owned by a global
+  `User` (avatars) keeps `school_id` null, so on `media` the column stays nullable
+  permanently.
 - **Settings:** become per-school (`unique(school_id, key)`); the public
   `SettingController` endpoint reads the pre-login slug to pick the school.
 
@@ -219,7 +221,7 @@ app code does not change, because the boundary was always `school_id`.
 - **Is the tenant a school or a school group?** Many private schools belong to a group
   with several campuses. If groups matter (shared admins, one fee statement per family,
   cross-campus reports), add `school_groups` above `schools` now; retrofitting it
-  after `school_id` is in 35 tables is expensive.
+  after `school_id` is in 33 tables is expensive.
 - **Local DB:** `.env` defaults to SQLite, but XAMPP means MySQL/MariaDB. Switching
   local dev to MySQL is recommended before step 4, so composite FKs and index
   behavior match production.
