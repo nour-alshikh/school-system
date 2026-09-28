@@ -42,6 +42,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $admin->assignRole('admin');
+        // Demo only: in a real deployment use `php artisan platform:admin {email}`.
+        $admin->forceFill(['is_platform_admin' => true])->save();
 
         // A plain registered account: no school, no roles, none of the
         // admin/parent/student territory. See docs/demo-accounts.md.

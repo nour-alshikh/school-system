@@ -15,7 +15,7 @@ php artisan migrate:fresh --seed
 
 | Role | Email | Password | What it can do |
 | --- | --- | --- | --- |
-| `admin` | `test@example.com` | `password` | Full access: users, academic structure (stages/grades/classrooms/subjects), teachers, students. See [authorization.md](./authorization.md). |
+| `admin` + platform admin | `test@example.com` | `password` | Full access: users, academic structure (stages/grades/classrooms/subjects), teachers, students. See [authorization.md](./authorization.md). Also a platform admin: Platform → Schools creates and suspends schools (see [multi-tenancy.md](./multi-tenancy.md)). |
 | none (plain) | `user@example.com` | `password` | Signed in, no school and no roles — demonstrates the 403-from-the-API case in [authorization.md](./authorization.md#enforcement-boundary). |
 | `parent` | `ali.hassan1.parent@demo.school` | `password` | Parent self-service portal: own account info + their one student's guardian info. |
 | `student` | `ali.hassan1.student@demo.school` | `password` | Signed in, no dedicated portal yet — role exists for the student's own account created at registration. |

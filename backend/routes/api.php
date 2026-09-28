@@ -25,6 +25,7 @@ use App\Http\Controllers\ParentPortal\FeeController as ParentFeeController;
 use App\Http\Controllers\ParentPortal\LibraryController as ParentLibraryController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
+use App\Http\Controllers\Platform\SchoolController as PlatformSchoolController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
@@ -68,6 +69,14 @@ Route::get('/settings', [SettingController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/switch-school', [AuthController::class, 'switchSchool']);
+
+    // Platform admin (users.is_platform_admin): manage the schools
+    // themselves. See docs/multi-tenancy.md, step 8.
+    Route::middleware('platform-admin')->prefix('platform')->group(function () {
+        Route::get('/schools', [PlatformSchoolController::class, 'index']);
+        Route::post('/schools', [PlatformSchoolController::class, 'store']);
+        Route::patch('/schools/{school}', [PlatformSchoolController::class, 'update']);
+    });
     Route::get('/user', [AuthController::class, 'user']);
 
     Route::post('/user/avatar', [AvatarController::class, 'store']);

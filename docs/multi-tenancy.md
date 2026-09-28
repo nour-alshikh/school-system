@@ -1,7 +1,8 @@
-# Multi-Tenancy Migration Plan (shared DB + `school_id`)
+# Multi-Tenancy (shared DB + `school_id`)
 
-Status: proposal, not implemented. Current app is single-tenant — no `school_id`
-column anywhere, one DB (SQLite by default in `.env`; MySQL/MariaDB via XAMPP locally).
+Status: **implemented** (steps 1–8 below, September 2026). Each step's section has an
+"As shipped" note where the implementation differs from or adds to the plan. One DB
+(SQLite by default in `.env`; MySQL/MariaDB via XAMPP locally).
 
 This plan keeps **one database** and tags every school-owned row with `school_id`.
 People (users) are global; a school is a set of **memberships** linking users to it.
@@ -305,6 +306,22 @@ As shipped (step 6):
 6. **Spatie teams on.** Migrate existing role assignments to carry `school_id`.
 7. **Jobs, cache, media path generator.**
 8. **Platform admin surface:** create/suspend schools, invite a school's first admin.
+
+   As shipped:
+   - A platform admin is a global flag, `users.is_platform_admin`, not a school role.
+     Grant it only with `php artisan platform:admin {email}` (`--revoke` to remove);
+     the web UI can't grant it. The seeded `test@example.com` has it for demos.
+   - `GET/POST /api/platform/schools`, `PATCH /api/platform/schools/{school}` (name,
+     status), behind the `platform-admin` middleware. The frontend page is
+     Platform → Schools (`/platform/schools`), shown in the sidebar only to platform
+     admins.
+   - `SchoolProvisioner` creates the school, its default settings
+     (`SchoolProvisioner::DEFAULT_SETTINGS`, also used by `SettingSeeder`) and its
+     first admin. An existing account with that email just gets an admin membership.
+     A new email gets a new account with a random password and the password-reset
+     email as its invitation.
+   - Suspending a school signs its members out (step 5) and blocks their login. You
+     can't suspend the school you're signed in to.
    Suspending a school = `schools.status = suspended`, checked in `ResolveSchool`.
 
 Steps 1–3 can merge without any visible change to users.

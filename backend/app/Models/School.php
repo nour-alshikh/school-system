@@ -22,6 +22,11 @@ class School extends Model
         'status' => SchoolStatus::class,
     ];
 
+    // Mirrors the column default, so a just-created school has it in memory.
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
     public function memberships(): HasMany
     {
         return $this->hasMany(SchoolMembership::class);

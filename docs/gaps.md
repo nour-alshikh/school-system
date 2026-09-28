@@ -33,8 +33,9 @@ portals. These are the gaps found reviewing the codebase.
 
 ## Known/documented gaps
 
-- `docs/multi-tenancy.md` — single-tenant today; a shared-DB (`school_id` + memberships) migration plan
-  is written but not started.
+- `docs/multi-tenancy.md` — multi-school support (shared DB, `school_id` + memberships) is
+  implemented. Open questions at the end of that doc (school groups, parent view across
+  schools) are still undecided.
 - `docs/production-readiness.md` — covers per-record authorization, general API
   rate limiting, and moving off SQLite; worth re-checking these are actually
   merged, not just documented.

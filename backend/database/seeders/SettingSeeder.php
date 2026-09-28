@@ -2,39 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Enums\SettingGroup;
-use App\Models\Setting;
+use App\Services\SchoolProvisioner;
 use Illuminate\Database\Seeder;
 
 class SettingSeeder extends Seeder
 {
+    /**
+     * The default school's settings — the same rows every new school gets
+     * (see SchoolProvisioner::DEFAULT_SETTINGS).
+     */
     public function run(): void
     {
-        $defaults = [
-            ['key' => 'school_name', 'value' => 'School System', 'group' => SettingGroup::General->value],
-            ['key' => 'tagline', 'value' => null, 'group' => SettingGroup::General->value],
-
-            ['key' => 'logo', 'value' => null, 'group' => SettingGroup::Branding->value],
-            ['key' => 'favicon', 'value' => null, 'group' => SettingGroup::Branding->value],
-            ['key' => 'primary_color', 'value' => null, 'group' => SettingGroup::Branding->value],
-
-            ['key' => 'address', 'value' => null, 'group' => SettingGroup::Contact->value],
-            ['key' => 'phone', 'value' => null, 'group' => SettingGroup::Contact->value],
-            ['key' => 'email', 'value' => null, 'group' => SettingGroup::Contact->value],
-
-            ['key' => 'facebook_url', 'value' => null, 'group' => SettingGroup::Social->value],
-            ['key' => 'twitter_url', 'value' => null, 'group' => SettingGroup::Social->value],
-            ['key' => 'instagram_url', 'value' => null, 'group' => SettingGroup::Social->value],
-            ['key' => 'youtube_url', 'value' => null, 'group' => SettingGroup::Social->value],
-            ['key' => 'linkedin_url', 'value' => null, 'group' => SettingGroup::Social->value],
-
-            ['key' => 'meta_title', 'value' => null, 'group' => SettingGroup::Seo->value],
-            ['key' => 'meta_description', 'value' => null, 'group' => SettingGroup::Seo->value],
-            ['key' => 'og_image', 'value' => null, 'group' => SettingGroup::Seo->value],
-        ];
-
-        foreach ($defaults as $setting) {
-            Setting::firstOrCreate(['key' => $setting['key']], $setting);
-        }
+        app(SchoolProvisioner::class)->seedDefaultSettings(['school_name' => 'School System']);
     }
 }

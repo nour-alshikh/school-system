@@ -22,6 +22,8 @@ final class UserType
         /** @var string[] */
         public readonly array $permissions,
         public readonly ?string $avatar_url,
+        /** Can create and suspend schools (Platform → Schools). Not a school role. */
+        public readonly bool $is_platform_admin,
         /** The school + role this session is signed in as; null for a plain account. */
         public readonly ?SchoolMembershipType $current_membership,
         /**
@@ -44,6 +46,7 @@ final class UserType
             roles: $user->getRoleNames()->all(),
             permissions: $user->getAllPermissions()->pluck('name')->all(),
             avatar_url: $user->getFirstMediaUrl('avatar', 'thumb') ?: null,
+            is_platform_admin: (bool) $user->is_platform_admin,
             current_membership: $current ? SchoolMembershipType::fromModel($current) : null,
             memberships: app(MembershipService::class)->usable($user)
                 ->map(fn (SchoolMembership $m) => SchoolMembershipType::fromModel($m))

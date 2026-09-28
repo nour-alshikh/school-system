@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   Award,
   BookOpen,
+  Building2,
   CalendarRange,
   CheckSquare,
   ChevronDown,
@@ -480,6 +481,16 @@ export function SiteSidebar() {
           href="/admin/settings"
           icon={Settings}
           label={t("settings")}
+          collapsed={collapsed}
+        />
+      )}
+
+      {/* Platform admin: not a school role, so not a can()/hasRole() check. */}
+      {user?.is_platform_admin && (
+        <SidebarLink
+          href="/platform/schools"
+          icon={Building2}
+          label={t("platformSchools")}
           collapsed={collapsed}
         />
       )}

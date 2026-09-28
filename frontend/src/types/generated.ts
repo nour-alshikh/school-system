@@ -266,6 +266,14 @@ readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type PlatformSchoolType = {
+readonly id: number,
+readonly name: string,
+readonly slug: string,
+readonly status: string,
+readonly members_count: number,
+readonly created_at: string,
+};
 export type PostAuthorType = {
 readonly id: number,
 readonly name: string,
@@ -506,6 +514,7 @@ readonly updated_at: string,
 readonly roles: string[],
 readonly permissions: string[],
 readonly avatar_url: string | null,
+readonly is_platform_admin: boolean,
 readonly current_membership: SchoolMembershipType | null,
 readonly memberships: SchoolMembershipType[],
 };
