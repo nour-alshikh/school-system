@@ -34,8 +34,8 @@ portals. These are the gaps found reviewing the codebase.
 ## Known/documented gaps
 
 - `docs/multi-tenancy.md` — multi-school support (shared DB, `school_id` + memberships) is
-  implemented. Decided but not built: a parent sees all their children, across schools,
-  in one view (see that doc's Decisions section).
+  implemented, including a parent seeing all their children across schools in one
+  view (see that doc's Decisions section).
 - `docs/production-readiness.md` — covers per-record authorization, general API
   rate limiting, and moving off SQLite; worth re-checking these are actually
   merged, not just documented.

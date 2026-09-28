@@ -30,11 +30,15 @@ class StudentService
         return DB::transaction(function () use ($data) {
             $this->assertClassroomHasRoom((int) $data['student']['classroom_id']);
 
-            $parentUser = User::create([
-                'name' => $data['father']['name'],
-                'email' => $data['parent']['email'],
-                'password' => Hash::make($data['parent']['password']),
-            ]);
+            // A sibling's parent (at this school or another) already has an
+            // account: link this child to it instead of creating a second one.
+            // Its password is left alone — the parent keeps signing in as before.
+            $parentUser = User::where('email', $data['parent']['email'])->first()
+                ?? User::create([
+                    'name' => $data['father']['name'],
+                    'email' => $data['parent']['email'],
+                    'password' => Hash::make($data['parent']['password']),
+                ]);
             $this->memberships->grant($parentUser, MembershipRole::Parent);
 
             $studentUser = User::create([
@@ -109,6 +113,8 @@ class StudentService
             }
 
             if (isset($data['parent'])) {
+                $this->assertCanManageParentAccount($student->parentUser, $data['parent']);
+
                 if (isset($data['parent']['email'])) {
                     $student->parentUser->email = $data['parent']['email'];
                 }
@@ -131,22 +137,60 @@ class StudentService
     }
 
     /**
-     * Deletes the whole registration, not just the Student row: the
-     * student's own account and the parent's are each meaningless without
-     * it, so both go too. `students.user_id` and `students.parent_user_id`
-     * are `cascadeOnDelete`, so deleting either user cascades away the
-     * Student row (and father/mother/media cascade from there) — deleting
-     * both explicitly here is what actually removes every trace.
+     * Deletes the whole registration, not just the Student row. Deleting
+     * the student's own account cascades the Student row away
+     * (`students.user_id` is `cascadeOnDelete`; father/mother/media cascade
+     * from there).
+     *
+     * The parent account may be shared with siblings, here or at another
+     * school — and `students.parent_user_id` is also `cascadeOnDelete`, so
+     * deleting it would take those siblings with it. It is only deleted when
+     * this was its last child and it belongs to no other school; otherwise it
+     * just stops being a parent here once it has no children left here.
      */
     public function delete(Student $student): void
     {
         DB::transaction(function () use ($student) {
             $parentUser = $student->parentUser;
-            $studentUser = $student->user;
 
-            $studentUser->delete();
-            $parentUser?->delete();
+            $student->user->delete();
+
+            if (! $parentUser) {
+                return;
+            }
+
+            $otherChildren = Student::withoutSchoolScope()->where('parent_user_id', $parentUser->id);
+
+            if ($otherChildren->doesntExist() && $this->memberships->onlyInCurrentSchool($parentUser) && ! $this->hasOtherRolesHere($parentUser) && ! $parentUser->is_platform_admin) {
+                $parentUser->delete();
+            } elseif (Student::where('parent_user_id', $parentUser->id)->doesntExist()) {
+                $this->memberships->revoke($parentUser, MembershipRole::Parent);
+            }
         });
+    }
+
+    /**
+     * A parent account used at another school is the parent's own: this
+     * school can link children to it but not change how it signs in.
+     *
+     * @param  array<string, mixed>  $parent
+     */
+    private function assertCanManageParentAccount(User $parentUser, array $parent): void
+    {
+        $changesEmail = isset($parent['email']) && $parent['email'] !== $parentUser->email;
+        $changesPassword = ! empty($parent['password']);
+
+        if (($changesEmail || $changesPassword) && ! $this->memberships->onlyInCurrentSchool($parentUser)) {
+            throw ValidationException::withMessages([
+                'parent.email' => __('validation.parent_account_shared'),
+            ]);
+        }
+    }
+
+    /** E.g. the parent is also a teacher here: keep the account. */
+    private function hasOtherRolesHere(User $user): bool
+    {
+        return $user->memberships()->where('role', '!=', MembershipRole::Parent)->exists();
     }
 
     /**

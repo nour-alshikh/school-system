@@ -303,12 +303,14 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
 
   const mutation = useMutation({
     mutationFn: (values: StudentWizardValues) =>
-      apiFetch<{ student: Student }>("/api/students", {
+      apiFetch<{ student: Student; parent_linked: boolean }>("/api/students", {
         method: "POST",
         body: toFormData(values),
       }),
-    onSuccess: () => {
-      toast.success(t("successToast"));
+    onSuccess: (data) => {
+      toast.success(
+        data.parent_linked ? t("successToastLinkedParent") : t("successToast")
+      );
       form.reset(defaultStudentWizardValues);
       setStep(1);
       onSuccess?.();
@@ -614,6 +616,9 @@ export function StudentWizard({ onSuccess }: { onSuccess?: () => void }) {
                   <FormControl>
                     <PasswordInput {...field} className="h-10" />
                   </FormControl>
+                  <p className="text-sm text-muted-foreground">
+                    {t("parentPasswordHint")}
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

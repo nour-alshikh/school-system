@@ -202,11 +202,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/classrooms/{classroom}/attendance/history', [AttendanceController::class, 'history']);
     });
 
-    // A parent's self-service corner: their own account, and the one child
-    // record linked to it — nothing else. No manage-students permission
-    // needed or granted; scoped entirely by role + ownership.
+    // A parent's self-service corner: their own account, and the children
+    // linked to it — at every school they are a parent at (ParentChildren),
+    // nothing else. No manage-students permission needed or granted; scoped
+    // entirely by role + ownership.
     Route::middleware('role:parent')->group(function () {
         Route::put('/parent/profile', [ProfileController::class, 'update']);
+        Route::get('/parent/children', [ParentStudentController::class, 'index']);
         Route::get('/parent/student', [ParentStudentController::class, 'show']);
         Route::put('/parent/student', [ParentStudentController::class, 'update']);
         Route::get('/parent/library-resources', [ParentLibraryController::class, 'index']);

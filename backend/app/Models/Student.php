@@ -44,6 +44,13 @@ class Student extends Model implements HasMedia
         'status' => StudentStatus::class,
     ];
 
+    // Mirrors the column default, so a just-registered student has it in
+    // memory — StudentType requires a status, and without this the
+    // registration response failed after the student was already saved.
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

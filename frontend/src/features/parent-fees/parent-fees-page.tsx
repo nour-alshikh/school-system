@@ -19,6 +19,12 @@ import {
 import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
 import type { FeeCharge, FeeChargeStatus, ParentFeesSummary } from "./types";
+import {
+  useParentChildren,
+  useSelectedChild,
+  withStudent,
+} from "@/features/parent-children/use-parent-children";
+import { ChildPicker } from "@/features/parent-children/child-picker";
 
 const statusBadgeClass: Record<FeeChargeStatus, string> = {
   unpaid: "bg-muted text-muted-foreground",
@@ -45,17 +51,21 @@ export function ParentFeesPage() {
     }
   }, [isAuthLoading, user, hasRole, router]);
 
+  const isParent = !isAuthLoading && !!user && hasRole("parent");
+  const { data: children } = useParentChildren(isParent);
+  const { selectedId, select } = useSelectedChild(children);
+
   const {
     data,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["parent-fees"],
+    queryKey: ["parent-fees", selectedId],
     queryFn: () =>
       apiFetch<{ summary: ParentFeesSummary; fee_charges: FeeCharge[] }>(
-        "/api/parent/fees"
+        withStudent("/api/parent/fees", selectedId!)
       ),
-    enabled: !isAuthLoading && !!user && hasRole("parent"),
+    enabled: isParent && selectedId !== undefined,
   });
 
   useEffect(() => {
@@ -84,6 +94,12 @@ export function ParentFeesPage() {
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{t("heading")}</h2>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
+
+        <ChildPicker
+          childList={children ?? []}
+          selectedId={selectedId}
+          onSelect={select}
+        />
 
         {!isLoading && data?.fee_charges.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("noFees")}</p>

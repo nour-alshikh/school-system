@@ -7,11 +7,20 @@ import { useAuth } from "@/contexts/auth-context";
 import { PageLoader } from "@/components/page-loader";
 import { ProfileForm } from "./profile-form";
 import { StudentInfo } from "./student-info";
+import {
+  useParentChildren,
+  useSelectedChild,
+} from "@/features/parent-children/use-parent-children";
+import { ChildPicker } from "@/features/parent-children/child-picker";
 
 export function ParentPortalPage() {
   const t = useTranslations("ParentPortal");
   const { user, isLoading, hasRole } = useAuth();
   const router = useRouter();
+  const { data: children } = useParentChildren(
+    !isLoading && !!user && hasRole("parent")
+  );
+  const { selectedId, select } = useSelectedChild(children);
 
   useEffect(() => {
     if (isLoading) return;
@@ -35,7 +44,12 @@ export function ParentPortalPage() {
 
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{t("studentHeading")}</h2>
-        <StudentInfo />
+        <ChildPicker
+          childList={children ?? []}
+          selectedId={selectedId}
+          onSelect={select}
+        />
+        {selectedId !== undefined && <StudentInfo studentId={selectedId} />}
       </section>
     </main>
   );

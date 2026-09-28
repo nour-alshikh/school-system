@@ -8,6 +8,7 @@ use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Http\Resources\StudentResource;
 use App\Models\Student;
+use App\Models\User;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -86,9 +87,17 @@ class StudentController extends Controller
 
     public function store(StoreStudentRequest $request)
     {
+        // Checked before registering: register() links an existing account.
+        $parentLinked = User::where('email', $request->input('parent.email'))->exists();
+
         $student = $this->studentService->register($request);
 
-        return response()->json(['student' => new StudentResource($student)], 201);
+        return response()->json([
+            'student' => new StudentResource($student),
+            // true: the parent email already had an account (a sibling's
+            // parent), which this child is now linked to.
+            'parent_linked' => $parentLinked,
+        ], 201);
     }
 
     public function show(Student $student)

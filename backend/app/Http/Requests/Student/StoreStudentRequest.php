@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Student;
 
 use App\Enums\Gender;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -35,8 +36,15 @@ class StoreStudentRequest extends FormRequest
             'student.classroom_id' => ['required', 'integer', Rule::exists('classrooms', 'id')->where('grade_id', $this->input('student.grade_id'))],
             'student.academic_year_id' => ['required', 'integer', 'exists:academic_years,id'],
 
-            'parent.email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'parent.password' => ['required', 'confirmed', Password::defaults()],
+            // An existing account (a sibling's parent, here or at another
+            // school) is linked instead of duplicated — StudentService::register()
+            // — so the email needn't be new, and a password is only needed to
+            // create a new account.
+            'parent.email' => ['required', 'string', 'email', 'max:255'],
+            'parent.password' => [
+                Rule::requiredIf(fn () => ! User::where('email', $this->input('parent.email'))->exists()),
+                'nullable', 'confirmed', Password::defaults(),
+            ],
 
             'father.name' => ['required', 'string', 'max:255'],
             'father.job' => ['required', 'string', 'max:255'],

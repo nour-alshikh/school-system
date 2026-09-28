@@ -21,6 +21,7 @@ import {
   type StudentGuardiansValues,
 } from "./schema";
 import type { Student } from "./types";
+import { withStudent } from "@/features/parent-children/use-parent-children";
 import type {
   BloodTypeType,
   GovernorateType,
@@ -155,12 +156,12 @@ function StudentPanel({ student }: { student: Student }) {
 
   const mutation = useMutation({
     mutationFn: (values: StudentGuardiansValues) =>
-      apiFetch<{ student: Student }>("/api/parent/student", {
+      apiFetch<{ student: Student }>(withStudent("/api/parent/student", student.id), {
         method: "PUT",
         body: JSON.stringify(toGuardiansPayload(values)),
       }),
     onSuccess: (data) => {
-      queryClient.setQueryData(["parent-student"], data.student);
+      queryClient.setQueryData(["parent-student", student.id], data.student);
       toast.success(t("guardiansUpdated"));
     },
     onError: (err) => {
@@ -236,13 +237,15 @@ function StudentPanel({ student }: { student: Student }) {
   );
 }
 
-export function StudentInfo() {
+export function StudentInfo({ studentId }: { studentId: number }) {
   const t = useTranslations("ParentPortal");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["parent-student"],
+    queryKey: ["parent-student", studentId],
     queryFn: () =>
-      apiFetch<{ student: Student }>("/api/parent/student").then(
+      apiFetch<{ student: Student }>(
+        withStudent("/api/parent/student", studentId)
+      ).then(
         (d) => d.student
       ),
   });
@@ -255,5 +258,5 @@ export function StudentInfo() {
   if (isLoading) return <PageLoader />;
   if (!data) return null;
 
-  return <StudentPanel student={data} />;
+  return <StudentPanel key={data.id} student={data} />;
 }

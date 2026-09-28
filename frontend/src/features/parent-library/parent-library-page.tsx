@@ -28,6 +28,12 @@ import {
 import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
 import type { LibraryResource } from "./types";
+import {
+  useParentChildren,
+  useSelectedChild,
+  withStudent,
+} from "@/features/parent-children/use-parent-children";
+import { ChildPicker } from "@/features/parent-children/child-picker";
 
 export function ParentLibraryPage() {
   const t = useTranslations("ParentLibraryPage");
@@ -48,17 +54,21 @@ export function ParentLibraryPage() {
     }
   }, [isAuthLoading, user, hasRole, router]);
 
+  const isParent = !isAuthLoading && !!user && hasRole("parent");
+  const { data: children } = useParentChildren(isParent);
+  const { selectedId, select } = useSelectedChild(children);
+
   const {
     data: resources = [],
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["parent-library-resources"],
+    queryKey: ["parent-library-resources", selectedId],
     queryFn: () =>
       apiFetch<{ library_resources: LibraryResource[] }>(
-        "/api/parent/library-resources"
+        withStudent("/api/parent/library-resources", selectedId!)
       ).then((d) => d.library_resources),
-    enabled: !isAuthLoading && !!user && hasRole("parent"),
+    enabled: isParent && selectedId !== undefined,
   });
 
   useEffect(() => {
@@ -94,6 +104,12 @@ export function ParentLibraryPage() {
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{t("heading")}</h2>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
+
+        <ChildPicker
+          childList={children ?? []}
+          selectedId={selectedId}
+          onSelect={select}
+        />
 
         {subjects.length > 0 && (
           <Select

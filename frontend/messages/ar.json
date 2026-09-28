@@ -581,6 +581,8 @@
     "submit": "تسجيل الطالب",
     "submitting": "جارٍ التسجيل…",
     "successToast": "تم تسجيل الطالب.",
+    "successToastLinkedParent": "تم تسجيل الطالب وربطه بحساب ولي الأمر الموجود.",
+    "parentPasswordHint": "اتركها فارغة إذا كان لولي الأمر حساب بالفعل (مثلًا لأخ أو أخت). عندها يُضاف الطالب إلى ذلك الحساب.",
     "studentNameEnLabel": "اسم الطالب (إنجليزي)",
     "studentNameArLabel": "اسم الطالب (عربي)",
     "studentEmailLabel": "بريد الطالب الإلكتروني",
@@ -1165,7 +1167,12 @@
     "feesHeading": "الرسوم",
     "viewFees": "عرض الرسوم",
     "outstandingLabel": "المتبقي",
-    "feesLoadError": "تعذر تحميل رسوم ابنك/ابنتك."
+    "feesLoadError": "تعذر تحميل رسوم ابنك/ابنتك.",
+    "childrenHeading": "أبنائي",
+    "viewLibrary": "المكتبة"
+  },
+  "ParentChildren": {
+    "childLabel": "الابن/الابنة"
   },
   "AdminDashboardPage": {
     "view": "عرض",

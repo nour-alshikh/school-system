@@ -337,15 +337,29 @@ app code does not change, because the boundary was always `school_id`.
 - **The tenant is one school** (decided 2026-09-28). No `school_groups` layer. Several
   campuses under one owner are separate schools; a person working across them has a
   membership at each.
-- **A parent sees all their children in one view, across schools** (decided
-  2026-09-28). Not built yet. It needs:
-  - one parent account linked to several students: today student registration always
-    creates a new parent account, so a second child can't reuse it;
-  - a parent portal that lists children instead of assuming one: today
-    `ParentPortal\*` controllers load a single student with `firstOrFail()`;
-  - an explicit cross-school read path, limited to the signed-in parent's own
-    children at schools where they hold an active parent membership. This is the one
-    place `withoutSchoolScope()` is meant for.
+- **A parent sees all their children in one view, across schools** (decided and built
+  2026-09-28):
+  - **One parent account, many children.** Registering a student with a parent email
+    that already has an account links the child to it, and grants a parent membership
+    at this school. The password fields are ignored and only required for a new
+    account. The response says `parent_linked: true`, and the wizard shows it.
+  - **`App\Services\ParentChildren`** is the one deliberate cross-school read: students
+    whose `parent_user_id` is the signed-in user, at schools where they hold a usable
+    parent membership. Each school's children are loaded inside that school's
+    context, so their grade, classroom etc. come from the right school.
+  - **API:** `GET /api/parent/children` returns each child with school, grade,
+    attendance summary and fees summary. The existing `/api/parent/*` endpoints take
+    `?student_id=`, default to the first child, and switch the request to that
+    child's school. Another parent's child → 404.
+  - **Frontend:** the parent dashboard shows a card per child with links into the
+    per-child pages. My info, attendance, fees and library get a child picker (when
+    there are several), with the choice kept in `?student=`.
+  - **Shared accounts are protected.** Deleting a student only deletes the parent
+    account if it has no other children, no other school and no other role (and isn't
+    a platform admin). Otherwise the parent membership at this school just becomes
+    `left` once no children remain here. `students.parent_user_id` cascades, so
+    deleting a shared account would have deleted the siblings too. A school also
+    can't change the email or password of a parent account used at another school.
 
 ## Open questions
 

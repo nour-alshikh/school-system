@@ -581,6 +581,8 @@
     "submit": "Register student",
     "submitting": "Registering…",
     "successToast": "Student registered.",
+    "successToastLinkedParent": "Student registered and linked to the parent's existing account.",
+    "parentPasswordHint": "Leave blank if this parent already has an account (for example, for a sibling). The child is then added to that account.",
     "studentNameEnLabel": "Student name (English)",
     "studentNameArLabel": "Student name (Arabic)",
     "studentEmailLabel": "Student email",
@@ -1165,7 +1167,12 @@
     "feesHeading": "Fees",
     "viewFees": "View fees",
     "outstandingLabel": "outstanding",
-    "feesLoadError": "Couldn't load your child's fees."
+    "feesLoadError": "Couldn't load your child's fees.",
+    "childrenHeading": "My children",
+    "viewLibrary": "Library"
+  },
+  "ParentChildren": {
+    "childLabel": "Child"
   },
   "AdminDashboardPage": {
     "view": "View",

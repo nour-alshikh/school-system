@@ -19,6 +19,12 @@ import {
 import { PageLoader } from "@/components/page-loader";
 import { TableSkeletonRows } from "@/components/table-skeleton";
 import type { AttendanceRecord, AttendanceStatus, ParentAttendanceSummary } from "./types";
+import {
+  useParentChildren,
+  useSelectedChild,
+  withStudent,
+} from "@/features/parent-children/use-parent-children";
+import { ChildPicker } from "@/features/parent-children/child-picker";
 
 const statusBadgeClass: Record<AttendanceStatus, string> = {
   present: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
@@ -44,17 +50,21 @@ export function ParentAttendancePage() {
     }
   }, [isAuthLoading, user, hasRole, router]);
 
+  const isParent = !isAuthLoading && !!user && hasRole("parent");
+  const { data: children } = useParentChildren(isParent);
+  const { selectedId, select } = useSelectedChild(children);
+
   const {
     data,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["parent-attendance"],
+    queryKey: ["parent-attendance", selectedId],
     queryFn: () =>
       apiFetch<{ summary: ParentAttendanceSummary; records: AttendanceRecord[] }>(
-        "/api/parent/attendance"
+        withStudent("/api/parent/attendance", selectedId!)
       ),
-    enabled: !isAuthLoading && !!user && hasRole("parent"),
+    enabled: isParent && selectedId !== undefined,
   });
 
   useEffect(() => {
@@ -83,6 +93,12 @@ export function ParentAttendancePage() {
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-semibold">{t("heading")}</h2>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
+
+        <ChildPicker
+          childList={children ?? []}
+          selectedId={selectedId}
+          onSelect={select}
+        />
 
         {data && (
           <div className="flex flex-wrap gap-2">

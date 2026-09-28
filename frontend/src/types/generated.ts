@@ -266,6 +266,13 @@ readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type ParentChildType = {
+readonly student: StudentType,
+readonly school_id: number,
+readonly school_name: string,
+readonly attendance: StudentAttendanceSummaryType,
+readonly fees: StudentFeesSummaryType,
+};
 export type PlatformSchoolType = {
 readonly id: number,
 readonly name: string,

@@ -64,11 +64,18 @@ export function createStudentWizardSchema(t: Translate) {
         message: t("passwordsDontMatch"),
         path: ["password_confirmation"],
       }),
+    // The password may be left blank when the email already has an account
+    // (a sibling's parent): the server links the child to it instead. The
+    // server still requires a password for a new account.
     parent: z
       .object({
         email: z.string().min(1, t("passwordRequired")).email(t("emailInvalid")),
-        password: z.string().min(8, t("passwordMin")),
-        password_confirmation: z.string().min(1, t("passwordRequired")),
+        password: z.string(),
+        password_confirmation: z.string(),
+      })
+      .refine((p) => !p.password || p.password.length >= 8, {
+        message: t("passwordMin"),
+        path: ["password"],
       })
       .refine((p) => p.password === p.password_confirmation, {
         message: t("passwordsDontMatch"),

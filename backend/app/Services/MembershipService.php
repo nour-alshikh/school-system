@@ -26,10 +26,18 @@ class MembershipService
     {
         $user->assignRole($role->value);
 
-        return SchoolMembership::firstOrCreate(
+        $membership = SchoolMembership::firstOrCreate(
             ['user_id' => $user->id, 'school_id' => $this->context->id(), 'role' => $role],
             ['status' => MembershipStatus::Active, 'started_at' => now()],
         );
+
+        // Back after revoke() (e.g. a parent whose last child left, now
+        // registering a new one): reactivate the same membership.
+        if ($membership->status !== MembershipStatus::Active) {
+            $membership->update(['status' => MembershipStatus::Active, 'ended_at' => null]);
+        }
+
+        return $membership;
     }
 
     /**
@@ -47,6 +55,30 @@ class MembershipService
             ->with('school')
             ->orderBy('id')
             ->get();
+    }
+
+    /**
+     * Take $role at the current school away from $user: the membership is
+     * kept as history (status left), the spatie role removed.
+     */
+    public function revoke(User $user, MembershipRole $role): void
+    {
+        $user->memberships()
+            ->where('school_id', $this->context->id())
+            ->where('role', $role)
+            ->update(['status' => MembershipStatus::Left, 'ended_at' => now()]);
+
+        $user->removeRole($role->value);
+    }
+
+    /**
+     * True when $user belongs to no school other than the current one — so
+     * this school's admins may manage the account (email, password,
+     * deletion) without reaching into another school.
+     */
+    public function onlyInCurrentSchool(User $user): bool
+    {
+        return $user->memberships()->where('school_id', '!=', $this->context->id())->doesntExist();
     }
 
     public function isUsable(SchoolMembership $membership): bool

@@ -178,6 +178,8 @@ return [
     |
     */
 
+    'parent_account_shared' => 'This parent account is also used at another school, so only the parent can change its email or password.',
+
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',

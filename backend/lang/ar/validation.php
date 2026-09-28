@@ -156,6 +156,8 @@ return [
     'ulid' => 'يجب أن يكون حقل :attribute رمز ULID صالحًا.',
     'uuid' => 'يجب أن يكون حقل :attribute رمز UUID صالحًا.',
 
+    'parent_account_shared' => 'حساب ولي الأمر هذا مستخدم أيضًا في مدرسة أخرى، لذا لا يمكن تغيير بريده الإلكتروني أو كلمة مروره إلا من قِبل ولي الأمر نفسه.',
+
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
