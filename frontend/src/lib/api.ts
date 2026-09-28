@@ -1,11 +1,19 @@
 export class ApiError extends Error {
   status: number;
   errors?: Record<string, string[]>;
+  /** The full response body, for endpoints that send more than message/errors. */
+  data?: unknown;
 
-  constructor(status: number, message: string, errors?: Record<string, string[]>) {
+  constructor(
+    status: number,
+    message: string,
+    errors?: Record<string, string[]>,
+    data?: unknown
+  ) {
     super(message);
     this.status = status;
     this.errors = errors;
+    this.data = data;
   }
 }
 
@@ -40,7 +48,8 @@ export async function apiFetch<T>(
     throw new ApiError(
       response.status,
       data?.message ?? "Request failed",
-      data?.errors
+      data?.errors,
+      data
     );
   }
 

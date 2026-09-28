@@ -25,6 +25,7 @@
     "fees": "الرسوم",
     "manageUsers": "إدارة المستخدمين",
     "logout": "تسجيل الخروج",
+    "switchSchool": "التبديل إلى",
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",
     "switchToArabic": "العربية",
@@ -60,7 +61,10 @@
     "submit": "تسجيل الدخول",
     "submitting": "جارٍ تسجيل الدخول…",
     "forgotPassword": "نسيت كلمة المرور؟",
-    "backToChooser": "لست أنت؟ اختر تسجيل دخول آخر"
+    "backToChooser": "لست أنت؟ اختر تسجيل دخول آخر",
+    "schoolLabel": "المدرسة",
+    "schoolPlaceholder": "اختر مدرسة",
+    "schoolHint": "حسابك مرتبط بأكثر من مدرسة. اختر المدرسة التي تريد الدخول إليها."
   },
   "LoginChooserPage": {
     "heading": "تسجيل الدخول باسم",

@@ -12,6 +12,8 @@ interface AuthContextValue {
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
+  /** Moves the session to another of the user's memberships (school + role). */
+  switchSchool: (membershipId: number) => Promise<void>;
   can: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
   uploadAvatar: (file: File) => Promise<void>;
@@ -84,6 +86,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (data) => setUser(data.user),
   });
 
+  const switchSchoolMutation = useMutation({
+    mutationFn: (membershipId: number) =>
+      apiFetch<{ user: User }>("/api/switch-school", {
+        method: "POST",
+        body: JSON.stringify({ membership_id: membershipId }),
+      }),
+    onSuccess: (data) => {
+      // Everything cached so far belongs to the previous school.
+      queryClient.clear();
+      setUser(data.user);
+    },
+  });
+
   const logoutMutation = useMutation({
     mutationFn: () => apiFetch<void>("/api/logout", { method: "POST" }),
     onSuccess: () => setUser(null),
@@ -131,6 +146,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await logoutMutation.mutateAsync();
   }, [logoutMutation]);
 
+  const switchSchool = useCallback(
+    async (membershipId: number) => {
+      await switchSchoolMutation.mutateAsync(membershipId);
+    },
+    [switchSchoolMutation]
+  );
+
   const uploadAvatar = useCallback(
     async (file: File) => {
       await uploadAvatarMutation.mutateAsync(file);
@@ -160,6 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        switchSchool,
         can,
         hasRole,
         uploadAvatar,

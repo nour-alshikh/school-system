@@ -2,17 +2,23 @@
 
 namespace App\Services;
 
+use App\Enums\MembershipRole;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\SchoolMembership;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthService
 {
+    public function __construct(private readonly MembershipService $memberships) {}
+
     /**
      * @return array{user: User, token: string}
      */
@@ -28,11 +34,16 @@ class AuthService
 
         $this->establishSessionIfAvailable($request, $user);
 
-        return ['user' => $user, 'token' => $this->issueToken($user)];
+        // A plain account belongs to no school, so its token isn't bound to one.
+        return ['user' => $user, 'token' => $this->memberships->issueToken($user, null)];
     }
 
     /**
-     * @return array{user: User, token: string}
+     * Either signs in (user + token bound to one membership), or — when the
+     * account has this role at more than one school and the request didn't
+     * say which — returns the schools to choose from instead.
+     *
+     * @return array{user: User, token: string, membership: SchoolMembership}|array{choose: Collection<int, SchoolMembership>}
      */
     public function login(LoginRequest $request): array
     {
@@ -45,15 +56,31 @@ class AuthService
         // recognizes as coming from a stateful (first-party) domain.
         // Same message either way — a wrong-role login shouldn't reveal
         // that the email/password were actually correct for another role.
-        if (! $user || ! Hash::check($request->password, $user->password) || ! $user->hasRole($request->role)) {
+        //
+        // The role is checked against the account's memberships, not its
+        // global spatie roles: a login is always "this role, at this school".
+        $candidates = $user && Hash::check($request->password, $user->password)
+            ? $this->memberships->usable($user, MembershipRole::from($request->role))
+            : null;
+
+        if (! $candidates?->count()) {
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
         }
 
+        if ($request->filled('school_id')) {
+            $membership = $candidates->firstWhere('school_id', (int) $request->school_id)
+                ?? throw ValidationException::withMessages(['school_id' => __('auth.school_not_available')]);
+        } elseif ($candidates->count() > 1) {
+            return ['choose' => $candidates];
+        } else {
+            $membership = $candidates->first();
+        }
+
         $this->establishSessionIfAvailable($request, $user);
 
-        return ['user' => $user, 'token' => $this->issueToken($user)];
+        return ['user' => $user, 'token' => $this->memberships->issueToken($user, $membership), 'membership' => $membership];
     }
 
     /**
@@ -83,7 +110,7 @@ class AuthService
         // authenticated via the first-party session cookie gets Sanctum's
         // TransientToken instead, which isn't a real DB row — fall back to
         // the usual session logout for that case.
-        if ($token instanceof \Laravel\Sanctum\PersonalAccessToken) {
+        if ($token instanceof PersonalAccessToken) {
             $token->delete();
         } else {
             Auth::guard('web')->logout();
@@ -93,17 +120,6 @@ class AuthService
         }
 
         Cookie::queue(Cookie::forget($this->authStatusCookieName()));
-    }
-
-    /**
-     * Issued alongside the session on every register/login so a caller that
-     * can't share the session cookie (a cross-domain frontend acting as its
-     * own BFF) can use Bearer auth instead. The session-based frontend just
-     * ignores this field.
-     */
-    private function issueToken(User $user): string
-    {
-        return $user->createToken('spa')->plainTextToken;
     }
 
     /**

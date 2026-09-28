@@ -35,7 +35,12 @@ export function createLoginSchema(t: Translate) {
 }
 
 export type LoginFormValues = z.infer<ReturnType<typeof createLoginSchema>>;
-export type LoginPayload = LoginFormValues & { role: LoginRole };
+export type LoginPayload = LoginFormValues & {
+  role: LoginRole;
+  // Only sent after the backend answered with a list of schools to pick
+  // from (the account has this role at more than one school).
+  school_id?: number;
+};
 
 export function createRegisterSchema(t: Translate) {
   return z

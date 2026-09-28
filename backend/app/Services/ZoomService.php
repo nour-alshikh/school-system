@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ZoomConnection;
+use App\Tenancy\TenantContext;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -37,7 +38,13 @@ class ZoomService
     public function authorizeUrl(string $locale, int $connectingUserId): string
     {
         $state = Str::random(40);
-        Cache::put("zoom_oauth_state:{$state}", ['locale' => $locale, 'user_id' => $connectingUserId], now()->addMinutes(10));
+        // school_id: the callback arrives with no auth, so it can't tell
+        // which school's connection this is any other way.
+        Cache::put("zoom_oauth_state:{$state}", [
+            'locale' => $locale,
+            'user_id' => $connectingUserId,
+            'school_id' => app(TenantContext::class)->id(),
+        ], now()->addMinutes(10));
 
         return 'https://zoom.us/oauth/authorize?'.http_build_query([
             'response_type' => 'code',
@@ -52,7 +59,7 @@ class ZoomService
      * doesn't match a connect flow this service started (forged, expired,
      * or already consumed — Cache::pull() is one-shot).
      *
-     * @return array{locale: string, user_id: int}|null
+     * @return array{locale: string, user_id: int, school_id: int}|null
      */
     public function resolveState(string $state): ?array
     {

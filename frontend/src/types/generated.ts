@@ -257,6 +257,8 @@ readonly created_by: number,
 readonly creator_name: string,
 readonly classrooms: MeetingClassroomType[],
 };
+export type MembershipRole = 'admin' | 'teacher' | 'parent' | 'student';
+export type MembershipStatus = 'invited' | 'active' | 'suspended' | 'left';
 export type NationalityType = {
 readonly id: number,
 readonly name_en: string,
@@ -315,6 +317,13 @@ export type RoleType = {
 readonly id: number,
 readonly name: string,
 };
+export type SchoolMembershipType = {
+readonly id: number,
+readonly role: string,
+readonly school_id: number,
+readonly school_name: string,
+};
+export type SchoolStatus = 'active' | 'suspended';
 export type SettingGroup = 'general' | 'branding' | 'contact' | 'social' | 'seo';
 export type SettingType = {
 readonly id: number,
@@ -497,4 +506,6 @@ readonly updated_at: string,
 readonly roles: string[],
 readonly permissions: string[],
 readonly avatar_url: string | null,
+readonly current_membership: SchoolMembershipType | null,
+readonly memberships: SchoolMembershipType[],
 };

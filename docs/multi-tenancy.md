@@ -176,6 +176,41 @@ What ships with it (all in `backend/app/Tenancy/`):
   only** (logo, name on the login page). After login, if the slug disagrees with the
   token's school → 403. The header never selects which data is read.
 
+As shipped (step 5):
+
+- **Login** stays per role form (`role` = admin/teacher/parent/student). The role is
+  checked against the account's *memberships*, not its global spatie roles. One
+  usable membership with that role → signed in. Several (same role at several
+  schools) → `422` with `errors.school_id` and a `schools` list; the login form shows
+  a school picker and resubmits with `school_id`. No token is issued until the school
+  is known, so every token is bound to exactly one membership
+  (`personal_access_tokens.school_membership_id`).
+- **`POST /api/switch-school {membership_id}`** issues a token for another of the
+  user's memberships and revokes the current one. The BFF swaps the cookie exactly like
+  on login. The user menu lists the other memberships under "Switch to".
+- **`GET /api/user`** includes `current_membership` and `memberships`.
+- **`ResolveSchool`** (still prepended to the `api` group, so it runs before route-model
+  binding, and it resolves the Sanctum user itself):
+  - Token bound to a membership → that school. A membership that is no longer usable
+    (left/suspended, or its school suspended) → `401`, so the frontend signs out.
+  - Token with no membership (issued before step 5, or a session login) → the user's
+    only usable membership if there is exactly one.
+  - No school found and the route is public (`/settings`, login) → `X-School` slug if
+    sent, else the default school. Behind `auth:sanctum` with no school (a plain
+    registered account) → none, and school-owned data answers `403`
+    (`MissingSchoolContext`, mapped in `ApiExceptionRenderer`).
+- **Memberships are created with the user:** `StudentService` (student + parent) and
+  `TeacherService` (teacher login) call `MembershipService::grant()`, which writes the
+  spatie role and the membership together. A migration backfills memberships for any
+  users created between step 1 and step 5.
+- **Zoom:** the OAuth `state` now carries `school_id`, and the unauthenticated callback
+  runs the connect as that school.
+
+> **Before creating a second school, do step 6.** Spatie roles are still global: a
+> user who is a teacher at A and a parent at B has both roles everywhere, so
+> permission checks and the frontend's role-based navigation don't yet follow the
+> current membership.
+
 ### 4. Tests and guard rails
 
 - **One cross-school test per tenant model:** seed School A + School B, act as a

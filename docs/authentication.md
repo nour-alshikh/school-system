@@ -116,7 +116,9 @@ FRONTEND_URLS=https://school-system-neon.vercel.app
 
 - `src/app/api/[...path]/route.ts` — the BFF itself. Catch-all proxy: forwards every
   `/api/*` request to Laravel with the Bearer token attached, special-cases
-  login/register (extract token → cookie) and logout (clear cookies).
+  login/register/switch-school (extract token → cookie; the rest of the body, including
+  validation errors, passes through) and logout (clear cookies). Each token is bound to
+  one school — see [multi-tenancy.md](./multi-tenancy.md).
 - `src/lib/api.ts` — fetch wrapper: same-origin relative paths, `credentials:
   "include"` (to send the BFF's own cookies), no CSRF handling needed (Bearer auth
   isn't CSRF-vulnerable the way cookie sessions are).

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\PersonalAccessToken;
 use App\Models\User;
 use App\Tenancy\SchoolScopedPresenceVerifier;
 use App\Tenancy\TenantContext;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 use Spatie\Translatable\Translatable;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Carries the membership each token was issued for (see ResolveSchool).
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
         ResetPassword::createUrlUsing(function ($notifiable, string $token) {
             $frontendUrl = rtrim(config('cors.allowed_origins')[0] ?? 'http://localhost:3000', '/');
             // The frontend's locale-prefixed routing (localePrefix: "always")

@@ -51,7 +51,13 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
     body: hasBody ? await request.arrayBuffer() : undefined,
   });
 
-  if (pathname === "login" || pathname === "register") {
+  // switch-school answers like login: a new token (bound to another school)
+  // that replaces the cookie.
+  if (
+    pathname === "login" ||
+    pathname === "register" ||
+    pathname === "switch-school"
+  ) {
     return handleAuthResponse(laravelResponse);
   }
 
@@ -84,14 +90,16 @@ async function handleAuthResponse(laravelResponse: Response): Promise<Response> 
   const data = await laravelResponse.json().catch(() => null);
 
   // Strip the token out of the body — it belongs in the httpOnly cookie
-  // below, never in JS-readable JSON.
-  const response = NextResponse.json(
-    data ? { user: data.user } : data,
-    { status: laravelResponse.status }
-  );
+  // below, never in JS-readable JSON. Everything else passes through: a
+  // failed login's `message`/`errors`, and the `schools` list when the
+  // account has to pick which school to sign in to.
+  const { token, ...rest } = data ?? {};
+  const response = NextResponse.json(data ? rest : data, {
+    status: laravelResponse.status,
+  });
 
-  if (laravelResponse.ok && data?.token) {
-    response.cookies.set(TOKEN_COOKIE, data.token, COOKIE_OPTIONS);
+  if (laravelResponse.ok && token) {
+    response.cookies.set(TOKEN_COOKIE, token, COOKIE_OPTIONS);
     response.cookies.set(AUTH_STATUS_COOKIE, "1", {
       ...COOKIE_OPTIONS,
       httpOnly: false,

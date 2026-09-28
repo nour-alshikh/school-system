@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { applyServerErrors } from "@/lib/form-errors";
+import { ApiError } from "@/lib/api";
+import type { SchoolMembershipType } from "@/types/generated";
 import { Loader2 } from "lucide-react";
 import {
   createLoginSchema,
@@ -25,6 +27,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const headingKeys: Record<LoginRole, string> = {
   admin: "headingAdmin",
@@ -44,6 +54,11 @@ function RoleLoginForm({ role }: { role: LoginRole }) {
   // the form from lingering on screen once the router starts swapping
   // routes into the now-authenticated sidebar.
   const [redirecting, setRedirecting] = useState(false);
+  // Set when the account has this role at more than one school: the backend
+  // answers with the schools to choose from, and the next submit sends the
+  // chosen school_id along with the same credentials.
+  const [schools, setSchools] = useState<SchoolMembershipType[] | null>(null);
+  const [schoolId, setSchoolId] = useState("");
 
   const schema = useMemo(() => createLoginSchema(tValidation), [tValidation]);
 
@@ -58,11 +73,21 @@ function RoleLoginForm({ role }: { role: LoginRole }) {
       // user can edit — the backend re-checks it against the account's
       // actual role, so this just makes sure a student's credentials can't
       // be used to log into the teacher form, etc.
-      await login({ ...values, role });
+      await login({
+        ...values,
+        role,
+        ...(schoolId ? { school_id: Number(schoolId) } : {}),
+      });
       setRedirecting(true);
       router.push(searchParams.get("redirect") ?? "/dashboard");
       router.refresh();
     } catch (err) {
+      const choices = schoolChoices(err);
+      if (choices) {
+        setSchools(choices);
+        return;
+      }
+
       const message = applyServerErrors(
         form,
         err,
@@ -117,7 +142,36 @@ function RoleLoginForm({ role }: { role: LoginRole }) {
           )}
         />
 
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        {schools && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="login-school">{t("schoolLabel")}</Label>
+            <Select
+              items={schools.map((s) => ({
+                value: String(s.school_id),
+                label: s.school_name,
+              }))}
+              value={schoolId}
+              onValueChange={(value) => setSchoolId(value ?? "")}
+            >
+              <SelectTrigger id="login-school" className="w-full">
+                <SelectValue placeholder={t("schoolPlaceholder")} />
+              </SelectTrigger>
+              <SelectContent>
+                {schools.map((s) => (
+                  <SelectItem key={s.school_id} value={String(s.school_id)}>
+                    {s.school_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground">{t("schoolHint")}</p>
+          </div>
+        )}
+
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting || (!!schools && !schoolId)}
+        >
           {form.formState.isSubmitting ? t("submitting") : t("submit")}
         </Button>
 
@@ -135,6 +189,16 @@ function RoleLoginForm({ role }: { role: LoginRole }) {
       </form>
     </Form>
   );
+}
+
+/** The schools to pick from, when a login failed only because it was ambiguous. */
+function schoolChoices(err: unknown): SchoolMembershipType[] | null {
+  if (!(err instanceof ApiError) || err.status !== 422) return null;
+
+  const schools = (err.data as { schools?: SchoolMembershipType[] } | undefined)
+    ?.schools;
+
+  return Array.isArray(schools) && schools.length > 0 ? schools : null;
 }
 
 export function RoleLoginPage({ role }: { role: LoginRole }) {

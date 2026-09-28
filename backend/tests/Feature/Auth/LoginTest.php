@@ -2,7 +2,11 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\MembershipRole;
+use App\Models\School;
 use App\Models\User;
+use App\Services\MembershipService;
+use App\Tenancy\TenantContext;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,7 +25,7 @@ class LoginTest extends TestCase
     public function test_user_can_log_in_through_their_own_roles_form(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('teacher');
+        $this->grantTeacher($user);
 
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
@@ -36,7 +40,7 @@ class LoginTest extends TestCase
     public function test_user_cannot_log_in_through_a_different_roles_form(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('teacher');
+        $this->grantTeacher($user);
 
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
@@ -51,7 +55,7 @@ class LoginTest extends TestCase
     public function test_role_must_be_one_of_the_known_login_forms(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('teacher');
+        $this->grantTeacher($user);
 
         $response = $this->postJson('/api/login', [
             'email' => $user->email,
@@ -61,5 +65,10 @@ class LoginTest extends TestCase
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors('role');
+    }
+
+    private function grantTeacher(User $user): void
+    {
+        app(TenantContext::class)->runAs(School::firstOrFail(), fn () => app(MembershipService::class)->grant($user, MembershipRole::Teacher));
     }
 }

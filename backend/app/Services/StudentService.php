@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\MembershipRole;
 use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Models\Classroom;
@@ -15,6 +16,8 @@ use Illuminate\Validation\ValidationException;
 
 class StudentService
 {
+    public function __construct(private readonly MembershipService $memberships) {}
+
     private const WITH = [
         'user', 'parentUser', 'father', 'mother', 'stage', 'grade', 'classroom',
         'academicYear', 'nationality', 'governorate', 'bloodType', 'media',
@@ -32,14 +35,14 @@ class StudentService
                 'email' => $data['parent']['email'],
                 'password' => Hash::make($data['parent']['password']),
             ]);
-            $parentUser->assignRole('parent');
+            $this->memberships->grant($parentUser, MembershipRole::Parent);
 
             $studentUser = User::create([
                 'name' => $data['student']['name']['en'],
                 'email' => $data['student']['email'],
                 'password' => Hash::make($data['student']['password']),
             ]);
-            $studentUser->assignRole('student');
+            $this->memberships->grant($studentUser, MembershipRole::Student);
 
             $student = Student::create([
                 'user_id' => $studentUser->id,

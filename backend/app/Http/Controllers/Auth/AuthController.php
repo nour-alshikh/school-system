@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Models\PersonalAccessToken;
+use App\Models\SchoolMembership;
 use App\Services\AuthService;
+use App\Services\MembershipService;
+use App\TypeScript\SchoolMembershipType;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -22,9 +26,47 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        ['user' => $user, 'token' => $token] = $this->authService->login($request);
+        $result = $this->authService->login($request);
 
-        return response()->json(['user' => new UserResource($user), 'token' => $token]);
+        // Same role at several schools: the frontend shows a school picker
+        // and resubmits with school_id. Shaped like a validation error so
+        // the form can show the message inline.
+        if (isset($result['choose'])) {
+            return response()->json([
+                'message' => __('auth.choose_school'),
+                'errors' => ['school_id' => [__('auth.choose_school')]],
+                'schools' => $result['choose']->map(fn (SchoolMembership $m) => SchoolMembershipType::fromModel($m))->values(),
+            ], 422);
+        }
+
+        return response()->json([
+            'user' => new UserResource($result['user'], $result['membership']),
+            'token' => $result['token'],
+        ]);
+    }
+
+    /**
+     * Moves the session to another of the user's memberships (another
+     * school, or another role at the same school): issues a token bound to
+     * it and revokes the current one. The BFF swaps the cookie like it does
+     * on login.
+     */
+    public function switchSchool(Request $request, MembershipService $memberships)
+    {
+        $request->validate(['membership_id' => ['required', 'integer']]);
+
+        $user = $request->user();
+        $membership = $memberships->usable($user)->firstWhere('id', (int) $request->membership_id);
+        abort_if($membership === null, 403, __('auth.school_not_available'));
+
+        $token = $memberships->issueToken($user, $membership);
+
+        $current = $user->currentAccessToken();
+        if ($current instanceof PersonalAccessToken) {
+            $current->delete();
+        }
+
+        return response()->json(['user' => new UserResource($user, $membership), 'token' => $token]);
     }
 
     public function logout(Request $request)

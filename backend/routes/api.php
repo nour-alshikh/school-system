@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthController;
@@ -26,7 +27,6 @@ use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PromotionController;
-use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StageController;
@@ -67,6 +67,7 @@ Route::get('/settings', [SettingController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/switch-school', [AuthController::class, 'switchSchool']);
     Route::get('/user', [AuthController::class, 'user']);
 
     Route::post('/user/avatar', [AvatarController::class, 'store']);

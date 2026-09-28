@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Tenancy\MissingSchoolContext;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -34,6 +35,10 @@ class ApiExceptionRenderer
             $e instanceof PermissionUnauthorizedException => $this->json($e->getMessage(), 403),
             $e instanceof ModelNotFoundException => $this->json(__('api.not_found'), 404),
             $e instanceof NotFoundHttpException => $this->json(__('api.not_found'), 404),
+            // A signed-in account with no school (plain registered user)
+            // reaching school-owned data. Outside a request this is a bug and
+            // stays a 500 — see TenantContext.
+            $e instanceof MissingSchoolContext && request()->user() !== null => $this->json(__('api.no_school'), 403),
             $e instanceof ThrottleRequestsException => $this->json(__('api.too_many_requests'), 429, $e->getHeaders()),
             $e instanceof HttpExceptionInterface => $this->json($e->getMessage() ?: __('api.request_failed'), $e->getStatusCode(), $e->getHeaders()),
             default => $this->serverError($e),

@@ -2,7 +2,9 @@
 
 namespace App\TypeScript;
 
+use App\Models\SchoolMembership;
 use App\Models\User;
+use App\Services\MembershipService;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
@@ -20,9 +22,17 @@ final class UserType
         /** @var string[] */
         public readonly array $permissions,
         public readonly ?string $avatar_url,
+        /** The school + role this session is signed in as; null for a plain account. */
+        public readonly ?SchoolMembershipType $current_membership,
+        /**
+         * Every school + role this account can switch to.
+         *
+         * @var SchoolMembershipType[]
+         */
+        public readonly array $memberships,
     ) {}
 
-    public static function fromModel(User $user): self
+    public static function fromModel(User $user, ?SchoolMembership $current = null): self
     {
         return new self(
             id: $user->id,
@@ -34,6 +44,10 @@ final class UserType
             roles: $user->getRoleNames()->all(),
             permissions: $user->getAllPermissions()->pluck('name')->all(),
             avatar_url: $user->getFirstMediaUrl('avatar', 'thumb') ?: null,
+            current_membership: $current ? SchoolMembershipType::fromModel($current) : null,
+            memberships: app(MembershipService::class)->usable($user)
+                ->map(fn (SchoolMembership $m) => SchoolMembershipType::fromModel($m))
+                ->all(),
         );
     }
 }

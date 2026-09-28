@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\School;
 use App\Models\ZoomConnection;
 use App\Services\ZoomService;
+use App\Tenancy\TenantContext;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -65,7 +67,8 @@ class ZoomController extends Controller
         $state = $this->zoom->resolveState((string) $request->query('state'));
         abort_if($state === null, Response::HTTP_FORBIDDEN, 'Invalid or expired connect request.');
 
-        $this->zoom->connect($request->query('code'), $state['user_id']);
+        $school = School::findOrFail($state['school_id']);
+        app(TenantContext::class)->runAs($school, fn () => $this->zoom->connect($request->query('code'), $state['user_id']));
 
         $frontendUrl = rtrim(config('cors.allowed_origins')[0] ?? 'http://localhost:3000', '/');
 

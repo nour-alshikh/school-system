@@ -25,6 +25,7 @@
     "fees": "Fees",
     "manageUsers": "Manage users",
     "logout": "Log out",
+    "switchSchool": "Switch to",
     "login": "Log in",
     "register": "Register",
     "switchToArabic": "العربية",
@@ -60,7 +61,10 @@
     "submit": "Log in",
     "submitting": "Logging in…",
     "forgotPassword": "Forgot password?",
-    "backToChooser": "Not you? Choose a different login"
+    "backToChooser": "Not you? Choose a different login",
+    "schoolLabel": "School",
+    "schoolPlaceholder": "Choose a school",
+    "schoolHint": "Your account belongs to more than one school. Choose which one to sign in to."
   },
   "LoginChooserPage": {
     "heading": "Log in as",

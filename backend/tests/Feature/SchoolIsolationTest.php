@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\MembershipRole;
 use App\Models\School;
 use App\Models\Stage;
 use App\Models\Subject;
 use App\Models\User;
+use App\Services\MembershipService;
 use App\Tenancy\BelongsToSchool;
 use App\Tenancy\MissingSchoolContext;
 use App\Tenancy\TenantContext;
@@ -80,7 +82,7 @@ class SchoolIsolationTest extends TestCase
     {
         $this->seed(RolePermissionSeeder::class);
         $admin = User::factory()->create();
-        $admin->assignRole('admin');
+        $this->context->runAs($this->schoolA, fn () => app(MembershipService::class)->grant($admin, MembershipRole::Admin));
 
         $this->context->runAs($this->schoolA, fn () => $this->makeStage('Only In A'));
         $b = $this->context->runAs($this->schoolB, fn () => $this->makeStage('Only In B'));

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\MembershipRole;
 use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Http\Requests\Teacher\UpdateTeacherRequest;
 use App\Models\Teacher;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 
 class TeacherService
 {
+    public function __construct(private readonly MembershipService $memberships) {}
+
     public function create(StoreTeacherRequest $request): Teacher
     {
         $data = $request->validated();
@@ -80,7 +83,7 @@ class TeacherService
             'email' => $teacher->email,
             'password' => Hash::make($password),
         ]);
-        $user->assignRole('teacher');
+        $this->memberships->grant($user, MembershipRole::Teacher);
 
         $teacher->update(['user_id' => $user->id]);
     }
