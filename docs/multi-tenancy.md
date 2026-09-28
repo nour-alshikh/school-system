@@ -221,17 +221,25 @@ Step 6 (below) makes roles follow the current membership too.
 
 ## Things outside the DB that also need scoping
 
-- **Queued jobs:** capture `school_id` in the job constructor; a job middleware
-  restores `TenantContext` before `handle()` and clears it after. Layer 2 throws if a
-  job forgets.
-- **Cache keys:** prefix with school id for anything school-owned. The existing Zoom
-  OAuth state (`zoom_oauth_state:{$state}` in `app/Services/ZoomService.php`) is keyed
-  by a random state token, so it is safe, but it should also store `school_id` so the
-  callback restores the right school.
-- **Media:** `media` gets `school_id`; use a custom `PathGenerator` so files live under
-  `schools/{school_id}/...` instead of `{media_id}/...`. Media owned by a global
-  `User` (avatars) keeps `school_id` null, so on `media` the column stays nullable
-  permanently.
+- **Queued jobs** (step 7, `app/Tenancy/QueueTenancy.php`): every job dispatched
+  while a school is set gets `school_id` in its payload
+  (`Queue::createPayloadUsing`), and the worker restores that school before the job
+  runs (`JobProcessing`) and puts the previous one back after (`JobProcessed` /
+  `JobExceptionOccurred`). This covers every job generically, including
+  media-library conversions and queued notifications, with no per-job code. Sync jobs
+  run mid-request, so the previous school is restored rather than cleared. A job whose
+  school has been deleted fails loudly.
+- **Cache keys:** prefix with the school id for anything school-owned
+  (`"school:{$schoolId}:..."`). Nothing school-owned is cached today. The Zoom OAuth
+  state is keyed by a random token and carries `school_id` (step 5). spatie's
+  permission cache is shared, but it filters by team at query time.
+- **Media** (step 7, `app/Tenancy/SchoolPathGenerator.php`): a school's files live
+  under `schools/{school_id}/{media_id}/` (conversions in subfolders of it), so one
+  school's files can be listed, exported or deleted as a folder. Media owned by a
+  global `User` (avatars) keeps `school_id` null and the default `{media_id}/` path,
+  so on `media` the column stays nullable permanently.
+  `2026_09_28_140000_move_school_media_to_school_folders.php` moves files uploaded
+  before this, on both the media disk and the conversions disk. It is safe to re-run.
 - **Settings:** become per-school (`unique(school_id, key)`); the public
   `SettingController` endpoint reads the pre-login slug to pick the school.
 

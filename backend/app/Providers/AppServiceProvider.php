@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\PersonalAccessToken;
 use App\Models\User;
+use App\Tenancy\QueueTenancy;
 use App\Tenancy\SchoolScopedPresenceVerifier;
 use App\Tenancy\TenantContext;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -36,6 +37,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Carries the membership each token was issued for (see ResolveSchool).
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+
+        // Queued jobs run as the school that dispatched them.
+        QueueTenancy::register();
 
         ResetPassword::createUrlUsing(function ($notifiable, string $token) {
             $frontendUrl = rtrim(config('cors.allowed_origins')[0] ?? 'http://localhost:3000', '/');
