@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController;
@@ -69,6 +70,10 @@ Route::get('/settings', [SettingController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/switch-school', [AuthController::class, 'switchSchool']);
+
+    // Student attachments: staff, the student, or their parent — checked in
+    // the controller, since no single permission covers all three.
+    Route::get('/attachments/{media}', [AttachmentController::class, 'show']);
 
     // Platform admin (users.is_platform_admin): manage the schools
     // themselves. See docs/multi-tenancy.md, step 8.

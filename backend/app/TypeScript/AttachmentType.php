@@ -18,7 +18,10 @@ final class AttachmentType
     {
         return new self(
             id: $media->id,
-            url: $media->getUrl(),
+            // Relative on purpose: the browser loads it through the frontend
+            // BFF, which adds the signed-in user's token. The file itself is on
+            // a private disk (see AttachmentController).
+            url: "/api/attachments/{$media->id}",
             name: $media->file_name,
         );
     }

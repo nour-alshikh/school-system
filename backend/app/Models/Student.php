@@ -128,6 +128,8 @@ class Student extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('attachments');
+        // Private: photos of children. Served only through
+        // AttachmentController, never by URL.
+        $this->addMediaCollection('attachments')->useDisk('local');
     }
 }

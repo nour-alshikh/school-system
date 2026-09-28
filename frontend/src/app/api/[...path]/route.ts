@@ -77,12 +77,20 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
     ? null
     : body;
 
+  const responseHeaders = new Headers({
+    "Content-Type":
+      laravelResponse.headers.get("content-type") ?? "application/json",
+  });
+  // Files (e.g. student attachments, served only through the API) need
+  // their file name for downloads and must stay out of shared caches.
+  for (const name of ["content-disposition", "cache-control"]) {
+    const value = laravelResponse.headers.get(name);
+    if (value) responseHeaders.set(name, value);
+  }
+
   return new NextResponse(responseBody, {
     status: laravelResponse.status,
-    headers: {
-      "Content-Type":
-        laravelResponse.headers.get("content-type") ?? "application/json",
-    },
+    headers: responseHeaders,
   });
 }
 

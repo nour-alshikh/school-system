@@ -43,6 +43,14 @@ on upload instead.
   from `storage/app/public` via the `public/storage` symlink
   (`php artisan storage:link` — already run; the symlink itself isn't committed,
   it's regenerated per-environment).
+- **Anything on the `public` disk is readable by anyone with the URL.** Personal
+  files must not go there. Student attachments (photos of children) use the private
+  `local` disk (`->useDisk('local')` in `Student::registerMediaCollections()`,
+  `storage/app/private`). They are only served by `GET /api/attachments/{media}`
+  (`AttachmentController`) to staff of that school with `manage-students` or
+  `manage-fees`, the student, or their parent; everyone else gets 404. The URL in the
+  API payload is that relative `/api/...` path, so the browser loads it through the
+  BFF with the signed-in user's token. `?download=1` sends it as a download.
 
 Env vars that matter:
 
@@ -84,6 +92,10 @@ public function registerMediaCollections(): void
     $this->addMediaCollection('attachments'); // omit singleFile() to allow many
 }
 ```
+
+If the files are personal (anything about a specific student, parent or teacher),
+add `->useDisk('local')` and serve them through an authorizing controller like
+`AttachmentController`, never through a public URL.
 
 Conversions are opt-in per collection — decide per use case whether they need to be
 queued (large/bulk images: yes, keep the default) or not (small, upload-blocking
