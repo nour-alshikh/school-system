@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\FeePaymentMethod;
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FeePayment extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
         'fee_charge_id',
         'amount',

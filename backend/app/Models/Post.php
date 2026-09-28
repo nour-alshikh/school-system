@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PostCategory;
 use App\Enums\PostStatus;
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,7 @@ use Spatie\Translatable\HasTranslations;
 
 class Post extends Model
 {
+    use BelongsToSchool;
     use HasFactory;
     use HasTranslations;
 

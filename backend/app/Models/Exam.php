@@ -4,12 +4,15 @@ namespace App\Models;
 
 use App\Enums\ExamStatus;
 use App\Enums\ExamType;
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Exam extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
         'title',
         'type',

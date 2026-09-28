@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Mother extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
         'student_id',
         'name',

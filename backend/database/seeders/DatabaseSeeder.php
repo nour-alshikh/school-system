@@ -2,19 +2,23 @@
 
 namespace Database\Seeders;
 
+use App\Models\School;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Tenancy\TenantContext;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
+        // Model events stay on (no WithoutModelEvents): BelongsToSchool fills
+        // school_id on create. The default school comes from the step 1
+        // migration. See docs/multi-tenancy.md.
+        app(TenantContext::class)->set(School::query()->oldest('id')->firstOrFail());
+
         $this->call(RolePermissionSeeder::class);
         $this->call(SettingSeeder::class);
         $this->call(StageSeeder::class);
@@ -50,6 +54,5 @@ class DatabaseSeeder extends Seeder
         $plainUser->assignRole('user');
 
         $this->call(SchoolMembershipSeeder::class);
-        $this->call(BackfillSchoolIdSeeder::class);
     }
 }

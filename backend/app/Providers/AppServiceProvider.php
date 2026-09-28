@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Tenancy\SchoolScopedPresenceVerifier;
+use App\Tenancy\TenantContext;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -18,7 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Scoped, not singleton: reset between queue jobs so one job's
+        // school can't leak into the next. See docs/multi-tenancy.md.
+        $this->app->scoped(TenantContext::class);
+
+        $this->app->extend('validation.presence', fn ($verifier, $app) => new SchoolScopedPresenceVerifier($app['db']));
     }
 
     /**

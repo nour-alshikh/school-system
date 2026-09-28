@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Classroom extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
         'grade_id',
         'name',
@@ -38,6 +41,6 @@ class Classroom extends Model
 
     public function meetings(): BelongsToMany
     {
-        return $this->belongsToMany(Meeting::class, 'meeting_classroom');
+        return $this->belongsToManyInSchool(Meeting::class, 'meeting_classroom');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Classroom;
 
+use App\Tenancy\TenantContext;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +38,7 @@ class UpdateClassroomSubjectTeachersRequest extends FormRequest
                 }
 
                 $teachesSubject = DB::table('subject_teacher')
+                    ->where('school_id', app(TenantContext::class)->id())
                     ->where('subject_id', $row['subject_id'])
                     ->where('teacher_id', $row['teacher_id'])
                     ->exists();
@@ -49,6 +51,7 @@ class UpdateClassroomSubjectTeachersRequest extends FormRequest
                 }
 
                 $isActive = DB::table('teachers')
+                    ->where('school_id', app(TenantContext::class)->id())
                     ->where('id', $row['teacher_id'])
                     ->where('status', 'active')
                     ->exists();

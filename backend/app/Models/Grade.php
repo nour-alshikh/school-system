@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,6 +11,7 @@ use Spatie\Translatable\HasTranslations;
 
 class Grade extends Model
 {
+    use BelongsToSchool;
     use HasTranslations;
 
     /**
@@ -35,6 +37,6 @@ class Grade extends Model
 
     public function subjects(): BelongsToMany
     {
-        return $this->belongsToMany(Subject::class, 'subject_grade');
+        return $this->belongsToManyInSchool(Subject::class, 'subject_grade');
     }
 }

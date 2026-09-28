@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\ApiExceptionRenderer;
+use App\Http\Middleware\ResolveSchool;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->throttleApi();
         $middleware->api(append: [SetLocale::class]);
+        // Prepended so the school is set before route-model binding
+        // (SubstituteBindings) resolves school-scoped models.
+        $middleware->api(prepend: [ResolveSchool::class]);
 
         $middleware->alias([
             'role' => RoleMiddleware::class,

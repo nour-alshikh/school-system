@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\LibraryResourceKind;
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,6 +12,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class LibraryResource extends Model implements HasMedia
 {
+    use BelongsToSchool;
     use InteractsWithMedia;
 
     protected $fillable = [
@@ -38,7 +40,7 @@ class LibraryResource extends Model implements HasMedia
      */
     public function subjects(): BelongsToMany
     {
-        return $this->belongsToMany(Subject::class, 'library_resource_subject');
+        return $this->belongsToManyInSchool(Subject::class, 'library_resource_subject');
     }
 
     public function uploader(): BelongsTo

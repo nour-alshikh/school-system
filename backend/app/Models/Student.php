@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Gender;
 use App\Enums\StudentStatus;
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +15,7 @@ use Spatie\Translatable\HasTranslations;
 
 class Student extends Model implements HasMedia
 {
+    use BelongsToSchool;
     use HasTranslations, InteractsWithMedia;
 
     /**

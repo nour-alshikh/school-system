@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TeacherStatus;
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Teacher extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
         'user_id',
         'name',
@@ -36,7 +39,7 @@ class Teacher extends Model
 
     public function subjects(): BelongsToMany
     {
-        return $this->belongsToMany(Subject::class);
+        return $this->belongsToManyInSchool(Subject::class);
     }
 
     /**

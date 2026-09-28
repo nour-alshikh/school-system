@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\AttendanceStatus;
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Attendance extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
         'student_id',
         'classroom_id',

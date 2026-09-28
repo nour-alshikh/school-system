@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Translatable\HasTranslations;
 
 class Subject extends Model
 {
+    use BelongsToSchool;
     use HasTranslations;
 
     /**
@@ -28,16 +30,16 @@ class Subject extends Model
      */
     public function stages(): BelongsToMany
     {
-        return $this->belongsToMany(Stage::class, 'subject_stage');
+        return $this->belongsToManyInSchool(Stage::class, 'subject_stage');
     }
 
     public function grades(): BelongsToMany
     {
-        return $this->belongsToMany(Grade::class, 'subject_grade');
+        return $this->belongsToManyInSchool(Grade::class, 'subject_grade');
     }
 
     public function teachers(): BelongsToMany
     {
-        return $this->belongsToMany(Teacher::class);
+        return $this->belongsToManyInSchool(Teacher::class);
     }
 }

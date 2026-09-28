@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Tenancy\BelongsToSchool;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ExamAttemptAnswer extends Model
 {
+    use BelongsToSchool;
+
     protected $fillable = [
         'attempt_id',
         'question_id',

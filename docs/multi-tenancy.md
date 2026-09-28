@@ -125,6 +125,25 @@ The current school comes from a request-scoped `TenantContext` singleton, **not*
 `Auth::user()` directly, so the same trait works in queue workers and artisan
 commands.
 
+What ships with it (all in `backend/app/Tenancy/`):
+
+- **`ResolveSchool` middleware**, prepended to the `api` group so it runs before
+  route-model binding. Still hard-wired to the oldest school until step 5.
+- **Pivot tables:** models declare pivot relations with `belongsToManyInSchool()`
+  instead of `belongsToMany()`, so `attach()`/`sync()` write `school_id` into the
+  pivot row and reads only match the current school's pivot rows.
+- **Validation:** `SchoolScopedPresenceVerifier` replaces Laravel's presence verifier,
+  so every `exists:`/`unique:` rule on a school-owned table checks only the current
+  school — another school's `grade_id` fails with 422 instead of passing.
+- **Media:** `App\Models\Media` (set as media-library's `media_model`) copies
+  `school_id` from the owning model on create.
+- **Seeding and console:** `DatabaseSeeder` sets the context to the default school
+  and no longer uses `WithoutModelEvents`, which would skip the `creating` hook.
+  Running a single seeder, or any command that touches school-owned data, must set
+  the context first, e.g. `app(TenantContext::class)->runAs($school, fn () => ...)`.
+- **Guard test:** `SchoolIsolationTest` fails if a model on a table with `school_id`
+  doesn't use `BelongsToSchool`.
+
 ### 3. Tenant comes from the authenticated membership, never a header
 
 - Login is global (email + password against `users`).
