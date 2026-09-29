@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\TeacherStatus;
 use App\Models\Grade;
+use App\Models\Teacher;
 use Illuminate\Database\Seeder;
 
 class ClassroomSubjectTeacherSeeder extends Seeder
@@ -21,7 +23,12 @@ class ClassroomSubjectTeacherSeeder extends Seeder
 
             foreach ($grade->classrooms as $index => $classroom) {
                 foreach ($subjects as $subject) {
-                    $eligibleTeachers = $subject->teachers;
+                    // Active teachers first: an inactive or on-leave
+                    // teacher shouldn't get the only classrooms with
+                    // students (the "A" sections) when an active one can.
+                    $eligibleTeachers = $subject->teachers
+                        ->sortBy(fn (Teacher $t) => [$t->status !== TeacherStatus::Active, $t->id])
+                        ->values();
 
                     if ($eligibleTeachers->isEmpty()) {
                         continue;

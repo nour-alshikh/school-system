@@ -71,7 +71,7 @@ class GraduationController extends Controller
     public function store(StoreGraduationRequest $request)
     {
         $graduations = $this->graduationService
-            ->graduate($request, $request->user())
+            ->graduate($request->validated(), $request->user())
             ->load(self::WITH);
 
         return response()->json([

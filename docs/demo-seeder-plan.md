@@ -1,6 +1,6 @@
 # Demo Seeder Plan
 
-Status: **step 0 done** (2026-09-29: school week and currency settings); the seeder itself is not implemented yet (plan written 2026-09-28).
+Status: **implemented** (2026-09-29; plan written 2026-09-28). See "As built" at the end.
 
 ## Why
 
@@ -228,3 +228,31 @@ To add to [demo-accounts.md](./demo-accounts.md) when implemented:
 ## Open questions
 
 None left. See "Decisions" above.
+
+## As built (2026-09-29)
+
+Differences from the plan above, and things found on the way:
+
+- **Speed:** `migrate:fresh --seed` takes about 10 s on SQLite (the demo part
+  about 2.5 s). Two changes got it there: the demo runs in one transaction, and the
+  seeders hash `password` once instead of once per account (bcrypt is slow on
+  purpose). Before, it took 42 s.
+- **`DemoPeople`** (`Demo/DemoPeople.php`) creates teachers and students at the
+  current school through `MembershipService::grant()`, reusing `StudentSeeder`'s
+  names.
+- **Services take arrays:** `PromotionService::promote()` and
+  `GraduationService::graduate()` now take the validated array, not the
+  FormRequest, so the history seeder can call them. Controllers pass
+  `$request->validated()`.
+- **Active teachers first:** `ClassroomSubjectTeacherSeeder` used to give the "A"
+  classrooms (the only ones with students) to an inactive teacher for Arabic. It now
+  prefers active teachers, so `mona.ali@teachers.demo` teaches the classes with
+  students.
+- **Exams:** the third (draft) exam is Arabic instead of History, which only the
+  secondary stage has.
+- **Both schools** are marked `source = seed`.
+- **Library:** 3 PDFs per school (generated, one page).
+- **Deleting a demo meeting** makes a harmless failed Zoom API call, which gets
+  logged (`ZoomService::deleteMeeting()` is best-effort), because `zoom_meeting_id`
+  is required and holds a placeholder.
+- **Not checked:** MySQL (XAMPP). The seed has only been run on SQLite.

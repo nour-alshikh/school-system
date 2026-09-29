@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 
 class TeacherSeeder extends Seeder
 {
+    private ?string $password = null;
+
     public function run(): void
     {
         // One dedicated teacher per subject, plus a couple that cover more
@@ -48,7 +50,7 @@ class TeacherSeeder extends Seeder
                 $user = User::create([
                     'name' => $teacher->name,
                     'email' => $teacher->email,
-                    'password' => Hash::make('password'),
+                    'password' => $this->password(),
                 ]);
                 $user->assignRole('teacher');
 
@@ -62,5 +64,11 @@ class TeacherSeeder extends Seeder
 
             $teacher->subjects()->sync($subjectIds);
         }
+    }
+
+    /** Hashed once: bcrypt is deliberately slow, and every demo account shares it. */
+    private function password(): string
+    {
+        return $this->password ??= Hash::make('password');
     }
 }

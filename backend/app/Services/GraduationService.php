@@ -20,9 +20,11 @@ class GraduationService
      * destination classroom to check capacity against: a graduated student
      * leaves the active roster, they don't land in a new one.
      */
-    public function graduate(StoreGraduationRequest $request, Authenticatable $graduatedBy): Collection
+    /**
+     * @param  array  $data  StoreGraduationRequest::validated() (the demo seeder builds the same shape)
+     */
+    public function graduate(array $data, Authenticatable $graduatedBy): Collection
     {
-        $data = $request->validated();
         $exceptIds = $data['except_student_ids'] ?? [];
 
         return DB::transaction(function () use ($data, $exceptIds, $graduatedBy) {

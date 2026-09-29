@@ -20,9 +20,11 @@ class PromotionService
      * capacity failure partway through never leaves some students promoted
      * and others not.
      */
-    public function promote(StorePromotionRequest $request, Authenticatable $promotedBy): Collection
+    /**
+     * @param  array  $data  StorePromotionRequest::validated() (the demo seeder builds the same shape)
+     */
+    public function promote(array $data, Authenticatable $promotedBy): Collection
     {
-        $data = $request->validated();
         $exceptIds = $data['except_student_ids'] ?? [];
 
         return DB::transaction(function () use ($data, $exceptIds, $promotedBy) {

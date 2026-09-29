@@ -22,7 +22,7 @@ class StudentSeeder extends Seeder
      * of random Arabic/English faker output so the two translations of a
      * student's name actually match each other.
      */
-    private const NAMES = [
+    public const NAMES = [
         ['en' => 'Ali Hassan', 'ar' => 'علي حسن', 'gender' => 'male'],
         ['en' => 'Mona Abdel Rahman', 'ar' => 'منى عبد الرحمن', 'gender' => 'female'],
         ['en' => 'Youssef Ibrahim', 'ar' => 'يوسف إبراهيم', 'gender' => 'male'],
@@ -50,6 +50,8 @@ class StudentSeeder extends Seeder
     ];
 
     private const STUDENTS_PER_CLASSROOM = 2;
+
+    private ?string $password = null;
 
     public function run(): void
     {
@@ -90,14 +92,14 @@ class StudentSeeder extends Seeder
                 $studentUser = User::create([
                     'name' => $person['en'],
                     'email' => "{$slug}.student@demo.school",
-                    'password' => Hash::make('password'),
+                    'password' => $this->password(),
                 ]);
                 $studentUser->assignRole('student');
 
                 $parentUser = User::create([
                     'name' => 'Parent of '.$person['en'],
                     'email' => "{$slug}.parent@demo.school",
-                    'password' => Hash::make('password'),
+                    'password' => $this->password(),
                 ]);
                 $parentUser->assignRole('parent');
 
@@ -142,5 +144,11 @@ class StudentSeeder extends Seeder
                 ]);
             }
         });
+    }
+
+    /** Hashed once: bcrypt is deliberately slow, and every demo account shares it. */
+    private function password(): string
+    {
+        return $this->password ??= Hash::make('password');
     }
 }

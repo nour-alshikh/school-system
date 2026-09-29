@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\School;
 use App\Models\User;
 use App\Tenancy\TenantContext;
+use Database\Seeders\Demo\DemoSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -53,5 +54,11 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(SchoolMembershipSeeder::class);
+
+        // Activity on every page (docs/demo-seeder-plan.md). Never in
+        // production by accident: local/testing, or SEED_DEMO=true.
+        if (app()->environment('local', 'testing') || filter_var(env('SEED_DEMO', false), FILTER_VALIDATE_BOOL)) {
+            $this->call(DemoSeeder::class);
+        }
     }
 }

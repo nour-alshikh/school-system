@@ -79,7 +79,7 @@ class PromotionController extends Controller
     public function store(StorePromotionRequest $request)
     {
         $promotions = $this->promotionService
-            ->promote($request, $request->user())
+            ->promote($request->validated(), $request->user())
             ->load(self::WITH);
 
         return response()->json([
