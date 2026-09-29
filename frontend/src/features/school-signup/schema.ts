@@ -37,6 +37,8 @@ export function createSchoolSignupSchema(t: Translate) {
       email: z.email(t("emailInvalid")),
       password: z.string().min(8, t("passwordMin")),
       password_confirmation: z.string(),
+      // Honeypot: hidden from people, left empty. See SchoolSignupRequest.
+      website: z.string().optional(),
     })
     .refine((data) => data.password === data.password_confirmation, {
       message: t("passwordsDontMatch"),

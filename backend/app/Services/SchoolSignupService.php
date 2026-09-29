@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\School;
 use App\Models\SchoolMembership;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Self-service schools: anyone can create one and is its admin right away.
@@ -43,6 +45,8 @@ class SchoolSignupService
      */
     public function addSchool(User $user, string $name, string $slug): array
     {
+        $this->ensureUnderLimit($user);
+
         ['membership' => $membership] = $this->provisioner->createForOwner($user, $name, $slug);
 
         return [
@@ -50,5 +54,22 @@ class SchoolSignupService
             'membership' => $membership,
             'token' => $this->memberships->issueToken($user, $membership),
         ];
+    }
+
+    /**
+     * Anyone can create schools, so one account can't create an unbounded
+     * number of them. Platform admins aren't limited.
+     */
+    private function ensureUnderLimit(User $user): void
+    {
+        $max = config('schools.max_self_service_per_user');
+
+        if ($user->is_platform_admin || School::where('created_by_id', $user->id)->count() < $max) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'school_name' => __('api.school_limit', ['max' => $max]),
+        ]);
     }
 }

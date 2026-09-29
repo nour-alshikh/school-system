@@ -1,7 +1,7 @@
 # Self-Service Schools Plan
 
-Status: **phases 1–2 done** (2026-09-29; phase 1 includes the `school-signup` rate
-limit); phases 3–5 planned (written 2026-09-29). Builds on
+Status: **phases 1–3 done** (2026-09-29; email verification deferred, see phase 3);
+phases 4–5 planned (written 2026-09-29). Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done). Related:
 [central-dashboard-plan.md](./central-dashboard-plan.md),
 [demo-seeder-plan.md](./demo-seeder-plan.md).
@@ -17,6 +17,7 @@ Decisions made (2026-09-29):
 |---|---|
 | Who can create a school? | **Anyone** (no invite code) |
 | Does a new school need approval? | **No — live immediately** (status `active`) |
+| Email verification now? | **Deferred** (2026-09-29): nothing in the app emails a school's users yet, so there's nothing to gate. Add it with the first feature that does. |
 
 ## What exists today
 
@@ -41,10 +42,10 @@ protection and a first-run setup.
    includes a token bound to the new membership, the same as login or switch-school. They
    never see the login page or a school picker.
 3. **Going live immediately needs guard rails instead of approval:** strict throttling,
-   a honeypot field, a cap on schools per account, reserved slugs, and email
-   verification before the school can **send email to other people** (invitations,
-   password resets for its users). The school itself works before verification. Only
-   outgoing mail waits, so the app can't be used to send spam.
+   a honeypot field, a cap on schools per account and reserved slugs. Later, once a
+   school can **send email to other people** (invitations, notifications), those emails
+   wait for the owner's email verification, so the app can't be used to send spam. The
+   school itself never waits.
 4. **Record where each school came from** (`created_by_id`, `source`), so the central
    dashboard can list, filter and, if needed, suspend self-service schools.
 5. **A setup checklist on the admin dashboard** guides a new school through the
@@ -60,7 +61,7 @@ Rough sizes: S ≈ half a day, M ≈ 1–2 days, L ≈ 3–5 days.
 |---|---|---|---|
 | 1 | Backend: provisioning for an owner, signup endpoints, slug rules | M | — |
 | 2 | Frontend: "Create your school" page and entry links | M | 1 |
-| 3 | Abuse protection + email verification gate | S–M | 1 |
+| 3 | Abuse protection (email verification deferred) | S | 1 |
 | 4 | Setup checklist (onboarding) | M | 1 |
 | 5 | Hooks into the central dashboard | S | dashboard phases 2, 4, 9 |
 
@@ -140,7 +141,7 @@ and both new ones:
   sent to `/create-school` instead of an empty dashboard that only shows 403s.
 - English and Arabic strings in `frontend/messages`.
 
-## Phase 3 — Abuse protection + email verification
+## Phase 3 — Abuse protection
 
 **Throttling and bots**
 
@@ -149,14 +150,23 @@ and both new ones:
   successful creations (`201`) count, so a form resubmitted after a validation error
   doesn't use one up. The general `api` limit still caps raw requests.
 - Honeypot: a filled `website` field → `422` with a generic message, nothing created,
-  and the attempt logged.
+  and the attempt logged. Checked in `SchoolSignupRequest::prepareForValidation()`,
+  before validation, so a bot learns nothing from field errors (such as an email
+  being registered).
 - **Cap per account:** a user can create at most `schools.max_self_service_per_user`
-  schools (config, default 3), counted by `created_by_id`. The system admin isn't
-  capped by this.
+  schools (config, default 3, env `SCHOOLS_MAX_SELF_SERVICE_PER_USER`), counted by
+  `created_by_id` and enforced in `SchoolSignupService`. Over the cap → a validation
+  error on `school_name`. The system admin isn't capped by this.
 - Captcha (e.g. Cloudflare Turnstile) is **not** in this phase. Add it only if spam shows
   up. The form keeps room for it.
 
-**Email verification (gates outgoing mail, not the school)**
+**Email verification: deferred.** When this was built, the app sent no email to a
+school's users: the only emails were forgot-password (which users ask for themselves)
+and platform school creation (by the system admin). A gate would have had nothing to
+protect. Build the design below **together with the first feature where a school emails
+people** (invitations, notifications, announcement emails), and put that feature's
+routes behind Laravel's `verified` middleware.
+
 
 - `User` implements `MustVerifyEmail`. A verification email goes out on school signup
   and on `/register`. Needs mail configured (`MAIL_*`; see "Infrastructure").
@@ -211,7 +221,7 @@ exist:
 - **Overview (dashboard phase 4):** a "New schools (7 days)" card, a `source` filter and
   column in the schools table, the owner's email on the school detail page, and a
   warning badge on **self-service schools whose owner never verified their email
-  after 7 days**.
+  after 7 days** (once verification exists).
 - **Plans (dashboard phase 9):** self-service schools start on the plan in config
   `schools.self_service_default_plan` (recommended: *Basic*). Schools created by a
   system admin keep *Unlimited*. Until phase 9 exists, there are no limits.
@@ -235,14 +245,15 @@ exist:
   schools and never gets the `platform` ability.
 - Account and school are created in one transaction, so a failure never leaves an
   account without its school (or the reverse).
-- Emails to third parties wait for the owner's email verification.
+- Emails to third parties will wait for the owner's email verification, once a school
+  can send any (see phase 3).
 - Nothing new reads across schools. The slug check only reveals whether a slug is
   taken, which is public anyway (it's the school's address).
 
 ## Infrastructure needed
 
-- **Mail** (`MAIL_*` in `.env`) for verification emails. Without it, phase 3's gate
-  would block all outgoing school email. In local/testing, use the `log` mailer.
+- **Mail** (`MAIL_*` in `.env`): not needed until email verification is built (see
+  phase 3). In local/testing, use the `log` mailer.
 - Nothing else: no queue or scheduler is needed (the optional cleanup in phase 5 would
   use the scheduler from the dashboard plan).
 
@@ -258,11 +269,12 @@ Feature tests in the style of `SchoolLoginTest` / `PlatformSchoolTest`:
   matching reason.
 - The 4th school from the same account is refused, and the throttle trips after 3 per
   hour.
-- A filled honeypot creates nothing.
+- A filled honeypot creates nothing and reveals no field errors.
 - If the provisioner fails mid-way (for example, a forced exception), no user is left
   behind.
-- An unverified owner can create students and teachers, but sending an invitation or
-  reset email to them answers 403. After verification it works.
+- (When verification is built) an unverified owner can create students and teachers,
+  but sending an invitation or reset email to them answers 403. After verification it
+  works.
 - The onboarding steps flip to `done` as the matching records appear. Quick start
   creates the structure only when the school has no stages.
 - The platform `POST /api/platform/schools` still works and records `source = platform`.

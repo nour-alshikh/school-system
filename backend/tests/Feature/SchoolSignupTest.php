@@ -10,6 +10,7 @@ use App\Models\Stage;
 use App\Models\User;
 use App\Services\MembershipService;
 use App\Services\SchoolProvisioner;
+use App\Services\SchoolSignupService;
 use App\Tenancy\TenantContext;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -187,6 +188,45 @@ class SchoolSignupTest extends TestCase
 
         $this->assertSame(SchoolSource::Platform, $school->fresh()->source);
         $this->assertNull($school->created_by_id);
+    }
+
+    public function test_a_filled_honeypot_creates_nothing_and_reveals_nothing(): void
+    {
+        $existing = User::factory()->create();
+
+        // Even with an email that's taken, the answer doesn't say so.
+        $this->signUp(['website' => 'https://spam.example', 'email' => $existing->email])
+            ->assertUnprocessable()
+            ->assertJsonMissingPath('errors');
+
+        $this->signUp(['website' => 'https://spam.example'])->assertUnprocessable();
+
+        $this->assertSame(1, School::count());
+        $this->assertNull(User::where('email', 'owner@green.school')->first());
+    }
+
+    public function test_one_account_can_create_only_so_many_schools(): void
+    {
+        config(['schools.max_self_service_per_user' => 2]);
+        $token = $this->signUp()->assertCreated()->json('token');
+
+        $this->app['auth']->forgetGuards();
+        $token = $this->withToken($token)->postJson('/api/schools', ['school_name' => 'Second', 'slug' => 'second-school'])
+            ->assertCreated()->json('token');
+
+        $this->app['auth']->forgetGuards();
+        $this->withToken($token)->postJson('/api/schools', ['school_name' => 'Third', 'slug' => 'third-school'])
+            ->assertJsonValidationErrors('school_name');
+
+        $this->assertSame(3, School::count());
+    }
+
+    public function test_platform_admins_are_not_limited(): void
+    {
+        config(['schools.max_self_service_per_user' => 0]);
+        $admin = User::factory()->create(['is_platform_admin' => true]);
+
+        $this->assertSame('limitless', app(SchoolSignupService::class)->addSchool($admin, 'Limitless', 'limitless')['membership']->school->slug);
     }
 
     private function signUp(array $overrides = []): TestResponse

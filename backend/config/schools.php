@@ -12,4 +12,10 @@ return [
         'root', 'school', 'schools', 'static', 'support', 'system', 'test', 'www',
     ],
 
+    /*
+    | How many schools one account can create through self-service. Platform
+    | admins aren't limited. Counted by schools.created_by_id.
+    */
+    'max_self_service_per_user' => (int) env('SCHOOLS_MAX_SELF_SERVICE_PER_USER', 3),
+
 ];

@@ -90,6 +90,7 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
       email: "",
       password: "",
       password_confirmation: "",
+      website: "",
     },
   });
 
@@ -211,6 +212,17 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
               <legend className="mb-3 text-sm font-medium">
                 {t("accountSection")}
               </legend>
+
+              {/* Honeypot: off-screen and skipped by keyboard, screen
+                  readers and autofill, so only bots fill it in. */}
+              <input
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="absolute -left-[9999px] size-px opacity-0"
+                {...form.register("website")}
+              />
 
               <FormField
                 control={form.control}
