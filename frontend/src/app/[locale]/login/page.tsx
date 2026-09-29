@@ -30,6 +30,12 @@ function LoginChooser() {
           </Link>
         ))}
       </div>
+      <p className="text-center text-sm">
+        {t("newHere")}{" "}
+        <Link href="/create-school" className="underline">
+          {t("createSchoolLink")}
+        </Link>
+      </p>
     </div>
   );
 }

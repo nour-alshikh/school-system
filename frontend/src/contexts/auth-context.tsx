@@ -4,6 +4,10 @@ import { createContext, useCallback, useContext, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch, ApiError } from "@/lib/api";
 import type { LoginPayload, RegisterPayload } from "@/lib/schemas";
+import type {
+  NewSchoolPayload,
+  SchoolSignupPayload,
+} from "@/features/school-signup/schema";
 import type { User } from "@/types/auth";
 
 interface AuthContextValue {
@@ -14,6 +18,10 @@ interface AuthContextValue {
   logout: () => Promise<void>;
   /** Moves the session to another of the user's memberships (school + role). */
   switchSchool: (membershipId: number) => Promise<void>;
+  /** A guest creates an account and a school, and is signed in as its admin. */
+  signUpSchool: (payload: SchoolSignupPayload) => Promise<void>;
+  /** The signed-in user creates a school; the session moves to it. */
+  createSchool: (payload: NewSchoolPayload) => Promise<void>;
   can: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
   uploadAvatar: (file: File) => Promise<void>;
@@ -99,6 +107,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // Both answer like switch-school: the user as admin of the new school,
+  // with the session cookie now bound to it (see the BFF route).
+  const signUpSchoolMutation = useMutation({
+    mutationFn: (payload: SchoolSignupPayload) =>
+      apiFetch<{ user: User }>("/api/school-signup", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: (data) => {
+      queryClient.clear();
+      setUser(data.user);
+    },
+  });
+
+  const createSchoolMutation = useMutation({
+    mutationFn: (payload: NewSchoolPayload) =>
+      apiFetch<{ user: User }>("/api/schools", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: (data) => {
+      // Everything cached so far belongs to the previous school.
+      queryClient.clear();
+      setUser(data.user);
+    },
+  });
+
   const logoutMutation = useMutation({
     mutationFn: () => apiFetch<void>("/api/logout", { method: "POST" }),
     onSuccess: () => setUser(null),
@@ -153,6 +188,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [switchSchoolMutation]
   );
 
+  const signUpSchool = useCallback(
+    async (payload: SchoolSignupPayload) => {
+      await signUpSchoolMutation.mutateAsync(payload);
+    },
+    [signUpSchoolMutation]
+  );
+
+  const createSchool = useCallback(
+    async (payload: NewSchoolPayload) => {
+      await createSchoolMutation.mutateAsync(payload);
+    },
+    [createSchoolMutation]
+  );
+
   const uploadAvatar = useCallback(
     async (file: File) => {
       await uploadAvatarMutation.mutateAsync(file);
@@ -183,6 +232,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         switchSchool,
+        signUpSchool,
+        createSchool,
         can,
         hasRole,
         uploadAvatar,

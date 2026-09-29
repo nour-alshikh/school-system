@@ -50,7 +50,8 @@
     "meetings": "الاجتماعات",
     "myMeetings": "اجتماعاتي",
     "library": "المكتبة",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "createSchool": "إنشاء مدرسة جديدة"
   },
   "LoginPage": {
     "headingAdmin": "تسجيل دخول المشرف",
@@ -72,7 +73,9 @@
     "admin": "مشرف",
     "teacher": "معلم",
     "student": "طالب",
-    "parent": "ولي أمر"
+    "parent": "ولي أمر",
+    "newHere": "جديد هنا؟",
+    "createSchoolLink": "أنشئ مدرستك"
   },
   "RegisterPage": {
     "heading": "إنشاء حساب",
@@ -83,7 +86,9 @@
     "submit": "إنشاء حساب",
     "submitting": "جارٍ إنشاء الحساب…",
     "haveAccount": "لديك حساب بالفعل؟",
-    "loginLink": "تسجيل الدخول"
+    "loginLink": "تسجيل الدخول",
+    "settingUpSchool": "تريد إعداد مدرسة؟",
+    "createSchoolLink": "أنشئ مدرستك بدلًا من ذلك"
   },
   "ForgotPasswordPage": {
     "heading": "نسيت كلمة المرور",
@@ -892,7 +897,8 @@
     "libraryUrlInvalid": "أدخل رابطاً صحيحاً",
     "libraryFileRequired": "الملف مطلوب",
     "libraryFileTooLarge": "يجب ألا يتجاوز حجم الملف 1 ميجابايت",
-    "libraryGradeRequired": "الصف مطلوب"
+    "libraryGradeRequired": "الصف مطلوب",
+    "slugLength": "استخدم من 3 إلى 63 حرفًا"
   },
   "Errors": {
     "somethingWentWrong": "حدث خطأ ما."
@@ -1453,5 +1459,27 @@
     "statusColumn": "الحالة",
     "notesColumn": "ملاحظات",
     "loadError": "تعذر تحميل حضور ابنك/ابنتك."
+  },
+  "CreateSchoolPage": {
+    "heading": "أنشئ مدرستك",
+    "subheading": "جهّز مدرستك في دقيقة. ستكون مديرها، ويمكنك بعد ذلك إضافة المعلمين والطلاب وأولياء الأمور.",
+    "memberSubheading": "ستكون مدير هذه المدرسة. تبقى مدارسك الأخرى متاحة من قائمة المستخدم.",
+    "schoolSection": "مدرستك",
+    "accountSection": "حسابك",
+    "schoolNameLabel": "اسم المدرسة",
+    "slugLabel": "عنوان المدرسة",
+    "slugHint": "أحرف إنجليزية صغيرة وأرقام وشرطات، مثل green-valley. يُستخدم لتمييز مدرستك.",
+    "slugChecking": "جارٍ التحقق…",
+    "slugAvailable": "هذا العنوان متاح",
+    "slugTaken": "هذا العنوان مستخدم من قِبل مدرسة أخرى",
+    "slugReserved": "هذا العنوان محجوز. يرجى اختيار عنوان آخر",
+    "nameLabel": "اسمك",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "submit": "إنشاء المدرسة",
+    "submitting": "جارٍ إنشاء المدرسة…",
+    "haveAccount": "لديك حساب بالفعل؟",
+    "loginToAdd": "سجّل الدخول لإضافة مدرسة"
   }
 }

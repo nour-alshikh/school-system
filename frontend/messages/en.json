@@ -50,7 +50,8 @@
     "meetings": "Meetings",
     "myMeetings": "My meetings",
     "library": "Library",
-    "settings": "Settings"
+    "settings": "Settings",
+    "createSchool": "Create a new school"
   },
   "LoginPage": {
     "headingAdmin": "Admin log in",
@@ -72,7 +73,9 @@
     "admin": "Admin",
     "teacher": "Teacher",
     "student": "Student",
-    "parent": "Parent"
+    "parent": "Parent",
+    "newHere": "New here?",
+    "createSchoolLink": "Create your school"
   },
   "RegisterPage": {
     "heading": "Create an account",
@@ -83,7 +86,9 @@
     "submit": "Register",
     "submitting": "Creating account…",
     "haveAccount": "Already have an account?",
-    "loginLink": "Log in"
+    "loginLink": "Log in",
+    "settingUpSchool": "Setting up a school?",
+    "createSchoolLink": "Create your school instead"
   },
   "ForgotPasswordPage": {
     "heading": "Forgot password",
@@ -892,7 +897,8 @@
     "libraryUrlInvalid": "Enter a valid URL",
     "libraryFileRequired": "A file is required",
     "libraryFileTooLarge": "File must be 1MB or smaller",
-    "libraryGradeRequired": "Grade is required"
+    "libraryGradeRequired": "Grade is required",
+    "slugLength": "Use 3 to 63 characters"
   },
   "Errors": {
     "somethingWentWrong": "Something went wrong."
@@ -1453,5 +1459,27 @@
     "statusColumn": "Status",
     "notesColumn": "Notes",
     "loadError": "Couldn't load your child's attendance."
+  },
+  "CreateSchoolPage": {
+    "heading": "Create your school",
+    "subheading": "Set up your school in a minute. You'll be its admin, and can add teachers, students and parents next.",
+    "memberSubheading": "You'll be the admin of this school. Your other schools stay available from the user menu.",
+    "schoolSection": "Your school",
+    "accountSection": "Your account",
+    "schoolNameLabel": "School name",
+    "slugLabel": "School address",
+    "slugHint": "Lowercase letters, numbers and hyphens, e.g. green-valley. It identifies your school.",
+    "slugChecking": "Checking…",
+    "slugAvailable": "This address is available",
+    "slugTaken": "Another school already uses this address",
+    "slugReserved": "This address is reserved. Please choose another",
+    "nameLabel": "Your name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "confirmPasswordLabel": "Confirm password",
+    "submit": "Create school",
+    "submitting": "Creating school…",
+    "haveAccount": "Already have an account?",
+    "loginToAdd": "Log in to add a school"
   }
 }

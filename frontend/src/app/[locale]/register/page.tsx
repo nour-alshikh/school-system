@@ -153,6 +153,13 @@ export default function RegisterPage() {
               {t("loginLink")}
             </Link>
           </p>
+
+          <p className="text-sm text-center">
+            {t("settingUpSchool")}{" "}
+            <Link href="/create-school" className="underline">
+              {t("createSchoolLink")}
+            </Link>
+          </p>
         </form>
       </Form>
     </main>

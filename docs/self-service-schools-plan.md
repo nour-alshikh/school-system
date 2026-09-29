@@ -1,7 +1,7 @@
 # Self-Service Schools Plan
 
-Status: **phase 1 done** (2026-09-29, including the `school-signup` rate limit);
-phases 2–5 planned (written 2026-09-29). Builds on
+Status: **phases 1–2 done** (2026-09-29; phase 1 includes the `school-signup` rate
+limit); phases 3–5 planned (written 2026-09-29). Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done). Related:
 [central-dashboard-plan.md](./central-dashboard-plan.md),
 [demo-seeder-plan.md](./demo-seeder-plan.md).

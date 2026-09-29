@@ -69,7 +69,7 @@ function Hero() {
   const { user, isLoading } = useAuth();
   const ref = useFadeIn<HTMLElement>({ y: 20 });
 
-  const primaryHref = user ? "/dashboard" : "/register";
+  const primaryHref = user ? "/dashboard" : "/create-school";
 
   return (
     <section ref={ref} className="mx-auto grid w-full max-w-5xl gap-12 px-6 pt-16 pb-20 md:grid-cols-12 md:items-center md:pt-20">
@@ -260,7 +260,7 @@ function FinalCta() {
           {t("finalCtaHeading")}
         </h2>
         <p className="max-w-md text-muted-foreground">{t("finalCtaSubtext")}</p>
-        <Button size="lg" render={<Link href="/register" />}>
+        <Button size="lg" render={<Link href="/create-school" />}>
           {t("ctaPrimary")}
           <ArrowRight className="size-4" />
         </Button>

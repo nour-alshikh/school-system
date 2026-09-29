@@ -139,6 +139,9 @@ export function SiteHeader() {
                   </>
                 )}
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/create-school")}>
+                  {t("createSchool")}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
                   {t("logout")}
                 </DropdownMenuItem>

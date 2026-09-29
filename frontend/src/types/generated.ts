@@ -338,6 +338,7 @@ readonly role: string,
 readonly school_id: number,
 readonly school_name: string,
 };
+export type SchoolSource = 'platform' | 'self_service' | 'seed';
 export type SchoolStatus = 'active' | 'suspended';
 export type SettingGroup = 'general' | 'branding' | 'contact' | 'social' | 'seo';
 export type SettingType = {

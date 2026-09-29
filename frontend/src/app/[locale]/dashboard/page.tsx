@@ -16,13 +16,19 @@ export default function DashboardPage() {
   const { user, isLoading, hasRole } = useAuth();
   const router = useRouter();
 
+  // A plain account (from /register) belongs to no school, so every
+  // dashboard widget would answer 403 — send it to create one instead.
+  const hasNoSchool = !!user && user.memberships.length === 0;
+
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace("/login");
+    } else if (hasNoSchool) {
+      router.replace("/create-school");
     }
-  }, [isLoading, user, router]);
+  }, [isLoading, user, hasNoSchool, router]);
 
-  if (isLoading || !user) {
+  if (isLoading || !user || hasNoSchool) {
     return <PageLoader />;
   }
 
