@@ -19,6 +19,7 @@ import { PageLoader } from "@/components/page-loader";
 import { AuditTable } from "./audit-table";
 import { CollectionsChart } from "./collections-chart";
 import { formatBytes, timeAgo } from "./format";
+import { ManageSchoolPanel } from "./manage-school-panel";
 import { MembersPanel } from "./members-panel";
 import { OpenSchoolDialog } from "./open-school-dialog";
 import { usePlatformPage } from "./use-platform-page";
@@ -83,6 +84,7 @@ export function SchoolDetailPage({ id }: { id: string }) {
           <TabsTrigger value="activity">{t("tabActivity")}</TabsTrigger>
           <TabsTrigger value="usage">{t("tabUsage")}</TabsTrigger>
           <TabsTrigger value="audit">{t("tabAudit")}</TabsTrigger>
+          <TabsTrigger value="manage">{t("tabManage")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4 flex flex-col gap-4">
@@ -206,6 +208,10 @@ export function SchoolDetailPage({ id }: { id: string }) {
 
         <TabsContent value="audit" className="mt-4">
           <AuditTable entries={data.audit} showSchool={false} />
+        </TabsContent>
+
+        <TabsContent value="manage" className="mt-4">
+          <ManageSchoolPanel key={school.id + school.status + school.name} school={school} />
         </TabsContent>
       </Tabs>
     </main>

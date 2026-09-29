@@ -2,13 +2,16 @@
 // and AuditLogResource). Hand-written: those build arrays, not
 // #[TypeScript] classes. Keep in step with them.
 
-export type SchoolWarning = "suspended" | "no_admin" | "inactive" | "attendance_gap";
+export type SchoolWarning = "suspended" | "archived" | "no_admin" | "inactive" | "attendance_gap";
 
 export interface PlatformSchoolRow {
   id: number;
   name: string;
   slug: string;
-  status: "active" | "suspended";
+  status: "active" | "suspended" | "archived";
+  /** Why it's suspended or archived; its members see this at sign-in. */
+  status_reason: string | null;
+  archived_at: string | null;
   source: "platform" | "self_service" | "seed";
   created_at: string;
   currency: string | null;
@@ -57,6 +60,8 @@ export interface PlatformSchoolDetail {
   school: PlatformSchoolRow & {
     created_by: { id: number; name: string; email: string } | null;
     school_days: number[] | null;
+    /** What the Manage tab edits. */
+    settings: Partial<Record<"primary_color" | "email" | "phone" | "address", string | null>>;
   };
   admins: {
     id: number;

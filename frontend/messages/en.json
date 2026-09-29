@@ -330,7 +330,9 @@
     "current": "(you're here)",
     "cannotSuspendCurrent": "Switch to another school before suspending this one.",
     "loadError": "Couldn't load schools.",
-    "updateError": "Couldn't update the school."
+    "updateError": "Couldn't update the school.",
+    "manage": "Manage",
+    "statusArchived": "Archived"
   },
   "AdminUsersPage": {
     "heading": "Users",
@@ -1578,7 +1580,9 @@
       "inactive": "Inactive",
       "inactiveHint": "Nobody has used this school for 30 days.",
       "attendance_gap": "No attendance",
-      "attendance_gapHint": "No attendance recorded on the last 5 school days."
+      "attendance_gapHint": "No attendance recorded on the last 5 school days.",
+      "archived": "Archived",
+      "archivedHint": "Archived: hidden from lists, its members can’t sign in."
     },
     "source": {
       "platform": "Created by a system admin",
@@ -1611,7 +1615,9 @@
       "colStorage": "Storage",
       "colWarnings": "Warnings",
       "noSchools": "No schools match.",
-      "never": "Never"
+      "never": "Never",
+      "currentStatuses": "Active and suspended",
+      "statusArchived": "Archived"
     },
     "detail": {
       "back": "All schools",
@@ -1665,7 +1671,8 @@
       "collection_avatar": "Avatars",
       "collection_logo": "Logo",
       "collection_favicon": "Favicon",
-      "collection_og_image": "Sharing image"
+      "collection_og_image": "Sharing image",
+      "tabManage": "Manage"
     },
     "audit": {
       "heading": "Audit log",
@@ -1695,7 +1702,11 @@
         "school_admin_removed": "Removed an admin",
         "school_member_suspended": "Suspended a member",
         "school_member_reactivated": "Reactivated a member",
-        "school_password_reset_sent": "Sent a password reset"
+        "school_password_reset_sent": "Sent a password reset",
+        "school_archived": "Archived the school",
+        "school_exported": "Exported the school",
+        "school_export_downloaded": "Downloaded an export",
+        "school_purged": "Purged the school"
       }
     },
     "enter": {
@@ -1752,6 +1763,56 @@
       "confirm_remove_title": "Remove {name} as admin?",
       "confirm_remove_body": "{email} loses admin access to this school. Their account stays.",
       "confirm_remove_action": "Remove"
+    },
+    "manage": {
+      "detailsHeading": "Details",
+      "name": "Name",
+      "slug": "School address (slug)",
+      "slugWarning": "Changing it breaks links that use the old address.",
+      "email": "Contact email",
+      "phone": "Phone",
+      "address": "Address",
+      "primaryColor": "Primary colour",
+      "logoHint": "The logo and other files are changed from the school’s own settings page (open the school).",
+      "save": "Save",
+      "saved": "Saved.",
+      "statusHeading": "Status",
+      "status_active": "Active",
+      "status_suspended": "Suspended",
+      "status_archived": "Archived",
+      "restoreUntil": "Can be restored until {date}.",
+      "restoreExpired": "The restore window has passed. It can only be purged now.",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate",
+      "restore": "Restore",
+      "archive": "Archive",
+      "purgeHeading": "Purge (command line only)",
+      "purgeHint": "After archiving, an export and {days} days, delete the school and all its data for good with:",
+      "reasonLabel": "Reason",
+      "reasonPlaceholder": "Shown to the school’s members when they try to sign in",
+      "reasonRequired": "A reason is required",
+      "typeSlug": "Type {slug} to confirm",
+      "typeSlugError": "Type the school’s address exactly",
+      "dialog_suspended_title": "Suspend {school}?",
+      "dialog_suspended_body": "Everyone at the school is signed out and can’t sign in until you reactivate it. They’ll see your reason.",
+      "dialog_suspended_action": "Suspend school",
+      "dialog_archived_title": "Archive {school}?",
+      "dialog_archived_body": "Like suspending, and it’s hidden from lists. You can restore it for {days} days; after that it can only be purged.",
+      "dialog_archived_action": "Archive school",
+      "dialog_active_title": "Bring back {school}?",
+      "dialog_active_body": "Its members can sign in again.",
+      "dialog_active_action": "Reactivate",
+      "done_suspended": "School suspended.",
+      "done_archived": "School archived.",
+      "done_active": "School is active again.",
+      "exportHeading": "Export",
+      "exportHint": "A zip of all the school’s data and files. The download link works for 24 hours.",
+      "export": "Create export",
+      "exporting": "Exporting…",
+      "exportReady": "Export ready to download.",
+      "download": "Download",
+      "expired": "Expired",
+      "expiresIn": "expires {when}"
     }
   },
   "PlatformSessionBanner": {

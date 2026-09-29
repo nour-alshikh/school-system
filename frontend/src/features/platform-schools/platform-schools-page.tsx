@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { isPlatformSession } from "@/lib/platform";
 import { apiFetch, ApiError } from "@/lib/api";
@@ -161,8 +161,6 @@ export function PlatformSchoolsPage() {
   const t = useTranslations("PlatformSchoolsPage");
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
-  const queryClient = useQueryClient();
-
   const isAuthorized = isPlatformSession(user);
 
   useEffect(() => {
@@ -185,17 +183,6 @@ export function PlatformSchoolsPage() {
     enabled: !isAuthLoading && isAuthorized,
   });
 
-  const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: "active" | "suspended" }) =>
-      apiFetch<{ school: PlatformSchoolType }>(`/api/platform/schools/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-      }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
-    onError: (err) =>
-      toast.error(err instanceof ApiError ? err.message : t("updateError")),
-  });
-
   useEffect(() => {
     if (!error) return;
     toast.error(error instanceof ApiError ? error.message : t("loadError"));
@@ -204,8 +191,6 @@ export function PlatformSchoolsPage() {
   if (isAuthLoading || !user || !isAuthorized) {
     return <PageLoader />;
   }
-
-  const currentSchoolId = user.current_membership?.school_id;
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 p-6">
@@ -235,39 +220,26 @@ export function PlatformSchoolsPage() {
             ) : (
               schools.map((school) => {
                 const suspended = school.status === "suspended";
-                const isCurrent = school.id === currentSchoolId;
 
                 return (
                   <TableRow key={school.id}>
                     <TableCell>
                       {school.name}
-                      {isCurrent && (
-                        <span className="ms-2 text-xs text-muted-foreground">
-                          {t("current")}
-                        </span>
-                      )}
                     </TableCell>
                     <TableCell dir="ltr">{school.slug}</TableCell>
                     <TableCell>{school.members_count}</TableCell>
                     <TableCell>
-                      {suspended ? t("statusSuspended") : t("statusActive")}
+                      {school.status === "archived"
+                        ? t("statusArchived")
+                        : suspended
+                          ? t("statusSuspended")
+                          : t("statusActive")}
                     </TableCell>
                     <TableCell className="text-end">
-                      <Button
-                        variant={suspended ? "outline" : "destructive"}
-                        size="sm"
-                        // Suspending your own school would sign you out of
-                        // this page; the API refuses it too.
-                        disabled={isCurrent || statusMutation.isPending}
-                        title={isCurrent ? t("cannotSuspendCurrent") : undefined}
-                        onClick={() =>
-                          statusMutation.mutate({
-                            id: school.id,
-                            status: suspended ? "active" : "suspended",
-                          })
-                        }
-                      >
-                        {suspended ? t("activate") : t("suspend")}
+                      {/* Suspending, archiving and exporting (with a
+                          reason) are on the school's own page. */}
+                      <Button variant="outline" size="sm" render={<Link href={`/platform/schools/${school.id}`} />}>
+                        {t("manage")}
                       </Button>
                     </TableCell>
                   </TableRow>

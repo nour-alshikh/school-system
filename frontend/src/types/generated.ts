@@ -295,6 +295,8 @@ readonly id: number,
 readonly name: string,
 readonly slug: string,
 readonly status: string,
+readonly status_reason: string | null,
+readonly archived_at: string | null,
 readonly members_count: number,
 readonly created_at: string,
 };
@@ -356,7 +358,7 @@ readonly school_id: number,
 readonly school_name: string,
 };
 export type SchoolSource = 'platform' | 'self_service' | 'seed';
-export type SchoolStatus = 'active' | 'suspended';
+export type SchoolStatus = 'active' | 'suspended' | 'archived';
 export type SettingGroup = 'general' | 'branding' | 'contact' | 'social' | 'seo';
 export type SettingType = {
 readonly id: number,

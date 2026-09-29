@@ -16,6 +16,9 @@ final class PlatformSchoolType
         public readonly string $name,
         public readonly string $slug,
         public readonly string $status,
+        /** Why it's suspended or archived; its members see this at sign-in. */
+        public readonly ?string $status_reason,
+        public readonly ?string $archived_at,
         public readonly int $members_count,
         public readonly string $created_at,
     ) {}
@@ -27,6 +30,8 @@ final class PlatformSchoolType
             name: $school->name,
             slug: $school->slug,
             status: $school->status->value,
+            status_reason: $school->status_reason,
+            archived_at: $school->archived_at?->toJSON(),
             members_count: (int) ($school->members_count ?? $school->memberships()->count()),
             created_at: $school->created_at->toJSON(),
         );

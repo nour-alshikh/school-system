@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { AlertTriangle, Ban, CalendarX, UserX } from "lucide-react";
+import { AlertTriangle, Archive, Ban, CalendarX, UserX } from "lucide-react";
 import type { ComponentType } from "react";
 import type { SchoolWarning } from "./types";
 
@@ -9,6 +9,7 @@ import type { SchoolWarning } from "./types";
 // a label, never colour alone.
 const WARNINGS: Record<SchoolWarning, { icon: ComponentType<{ className?: string }>; className: string }> = {
   suspended: { icon: Ban, className: "bg-red-500/10 text-red-700 dark:text-red-300" },
+  archived: { icon: Archive, className: "bg-muted text-muted-foreground" },
   no_admin: { icon: UserX, className: "bg-red-500/10 text-red-700 dark:text-red-300" },
   inactive: { icon: AlertTriangle, className: "bg-amber-500/10 text-amber-800 dark:text-amber-300" },
   attendance_gap: { icon: CalendarX, className: "bg-amber-500/10 text-amber-800 dark:text-amber-300" },

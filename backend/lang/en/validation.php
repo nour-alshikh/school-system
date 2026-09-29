@@ -178,6 +178,7 @@ return [
     |
     */
 
+    'school_status_reason' => 'Give a reason: the school\'s members see it when they try to sign in.',
     'school_currency' => 'Choose one of the listed currencies.',
     'school_days' => 'Choose each school day once, from Sunday to Saturday.',
 

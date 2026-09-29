@@ -104,7 +104,7 @@ class PlatformSchoolTest extends TestCase
         $member = $this->adminAt(School::findOrFail($schoolId));
         $token = $this->loginToken($member, $schoolId);
 
-        $this->as($this->platformAdmin)->patchJson("/api/platform/schools/{$schoolId}", ['status' => 'suspended'])
+        $this->as($this->platformAdmin)->postJson("/api/platform/schools/{$schoolId}/status", ['status' => 'suspended', 'reason' => 'Unpaid invoice'])
             ->assertOk()->assertJsonPath('school.status', 'suspended');
 
         $this->app['auth']->forgetGuards();
@@ -116,7 +116,7 @@ class PlatformSchoolTest extends TestCase
         $token = $this->systemAdminToken($this->platformAdmin);
 
         $this->withToken($token)
-            ->patchJson("/api/platform/schools/{$this->defaultSchool->id}", ['status' => 'suspended'])
+            ->postJson("/api/platform/schools/{$this->defaultSchool->id}/status", ['status' => 'suspended', 'reason' => 'Maintenance'])
             ->assertOk();
 
         $this->assertSame(SchoolStatus::Suspended, $this->defaultSchool->fresh()->status);

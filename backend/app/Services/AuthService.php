@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Enums\MembershipRole;
+use App\Enums\MembershipStatus;
+use App\Enums\SchoolStatus;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
@@ -73,7 +75,7 @@ class AuthService
 
         if (! $candidates?->count()) {
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'email' => $candidates !== null ? $this->unavailableSchoolMessage($user, $request->role) : __('auth.failed'),
             ]);
         }
 
@@ -90,6 +92,29 @@ class AuthService
         $this->markLoggedIn($user);
 
         return ['user' => $user, 'token' => $this->memberships->issueToken($user, $membership), 'membership' => $membership];
+    }
+
+    /**
+     * The password was right, but no school to sign in to: if it's because
+     * the school is suspended or archived, say so, with the reason its
+     * system admin gave (central dashboard, phase 7).
+     */
+    private function unavailableSchoolMessage(User $user, string $role): string
+    {
+        $membership = $user->memberships()->with('school')
+            ->where('role', $role)
+            ->where('status', MembershipStatus::Active)
+            ->whereHas('school', fn ($q) => $q->where('status', '!=', SchoolStatus::Active))
+            ->first();
+
+        if (! $membership) {
+            return __('auth.failed');
+        }
+
+        $school = $membership->school;
+        $key = $school->status === SchoolStatus::Archived ? 'auth.school_archived' : 'auth.school_suspended';
+
+        return trim(__($key, ['school' => $school->name]).' '.($school->status_reason ?? ''));
     }
 
     /**

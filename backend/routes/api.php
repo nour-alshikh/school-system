@@ -28,6 +28,7 @@ use App\Http\Controllers\ParentPortal\LibraryController as ParentLibraryControll
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
 use App\Http\Controllers\Platform\DashboardController as PlatformDashboardController;
+use App\Http\Controllers\Platform\LifecycleController as PlatformLifecycleController;
 use App\Http\Controllers\Platform\MemberController as PlatformMemberController;
 use App\Http\Controllers\Platform\SchoolController as PlatformSchoolController;
 use App\Http\Controllers\Platform\SessionController as PlatformSessionController;
@@ -111,7 +112,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/audit-logs', [PlatformDashboardController::class, 'auditLogs']);
         Route::get('/schools', [PlatformSchoolController::class, 'index']);
         Route::post('/schools', [PlatformSchoolController::class, 'store']);
-        Route::patch('/schools/{school}', [PlatformSchoolController::class, 'update']);
+        // Lifecycle (docs/central-dashboard-plan.md, phase 7). Purge is CLI only.
+        Route::patch('/schools/{school}', [PlatformLifecycleController::class, 'update']);
+        Route::post('/schools/{school}/status', [PlatformLifecycleController::class, 'status']);
+        Route::post('/schools/{school}/export', [PlatformLifecycleController::class, 'export']);
+        Route::get('/schools/{school}/exports', [PlatformLifecycleController::class, 'exports']);
+        Route::get('/exports/{export}/download', [PlatformLifecycleController::class, 'download']);
     });
     Route::get('/user', [AuthController::class, 'user']);
 

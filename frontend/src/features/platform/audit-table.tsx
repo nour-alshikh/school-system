@@ -29,6 +29,10 @@ const KNOWN_ACTIONS = [
   "school.member_suspended",
   "school.member_reactivated",
   "school.password_reset_sent",
+  "school.archived",
+  "school.exported",
+  "school.export_downloaded",
+  "school.purged",
 ];
 
 /** A request made inside a school: "POST /api/stages → 201 · name". */

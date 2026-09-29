@@ -1,6 +1,6 @@
 # Central Dashboard Plan (system admin)
 
-Status: **phases 1–6 done** (2026-09-29); phases 7–9 planned (written 2026-09-28).
+Status: **phases 1–7 done** (2026-09-29); phases 8–9 planned (written 2026-09-28).
 See "As built" at the end. Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done).
 
@@ -403,3 +403,39 @@ On the school detail page, *People* tab:
   (`SchoolMetrics::flush()`), so warnings like "No admin" update right away.
 - **Not added:** "resend invitation" is the same email as a password reset, so it
   isn't a separate action.
+
+## As built (phase 7, 2026-09-29)
+
+- **Where:** the school page's **Manage** tab.
+  - **Details:** name, slug (with a warning that links change), contact email,
+    phone, address, primary colour. The logo stays on the school's own settings
+    page.
+  - **Status:** suspend, archive (you type the slug to confirm), reactivate or
+    restore. The Schools list's old quick-suspend button is now a "Manage" link.
+  - **Export.**
+- **Status:** `SchoolStatus` gained `archived`, and `schools` gained
+  `status_reason` and `archived_at`.
+  - `POST /api/platform/schools/{id}/status` needs a reason to suspend or archive.
+  - Members signing in to such a school get ":school is suspended. {reason}" or
+    ":school is no longer available. {reason}" instead of "credentials don't
+    match".
+  - An archived school can be restored for 30 days (`SchoolLifecycle::ARCHIVE_DAYS`).
+  - The overview hides archived schools unless the status filter asks for them.
+- **Export:** `POST …/export` builds a zip in `storage/app/private/exports`
+  containing `school.json`, one JSON file per school-owned table, `members.json`
+  (no passwords), and the school's files from both disks.
+  - The download (`GET /api/platform/exports/{id}/download`) works for 24 hours
+    and is audited.
+  - **Runs inline:** no queue worker is configured ([gaps.md](./gaps.md)). Move
+    `SchoolLifecycle::export()` into a queued job once there is one; big schools
+    will be slow until then.
+- **Purge:** `php artisan school:purge {id} --confirm={slug} [--now]`, CLI only.
+  - Refused unless the school is archived, has an export, and was archived at
+    least 30 days ago (`--now` skips only the wait).
+  - It deletes every school-owned table in foreign-key order (`SchoolTables`, built
+    from `Schema::getForeignKeys()`), plus tokens, platform sessions, per-school
+    role assignments, memberships and files.
+  - Accounts whose only membership was this school are deleted, except system
+    admins. The audit log and exports are kept.
+  - Tested against the full demo seed on SQLite with foreign keys on. **Not
+    checked on MySQL.**

@@ -15,6 +15,8 @@ return [
     'structure_exists' => 'This school already has stages, so the standard structure wasn\'t added. Add what you need from each page instead.',
     'platform_confirm_required' => 'Enter a current code from your authenticator app to open this school.',
     'last_admin' => 'This is the school\'s last active admin. Add another admin first.',
+    'archive_expired' => 'This school was archived more than :days days ago and can no longer be restored.',
+    'export_expired' => 'This export link has expired. Create a new export.',
     'school_mismatch' => 'This request is for a different school than the one you are signed in to.',
 
 ];

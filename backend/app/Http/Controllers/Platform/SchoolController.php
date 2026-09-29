@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Platform;
 
-use App\Enums\SchoolStatus;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\School;
@@ -10,7 +9,6 @@ use App\Rules\SchoolSlug;
 use App\Services\SchoolProvisioner;
 use App\TypeScript\PlatformSchoolType;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 /**
  * Platform → Schools. Schools are not school-scoped themselves, so these
@@ -48,26 +46,5 @@ class SchoolController extends Controller
             // false: an existing account was made admin of this school.
             'admin_invited' => $invited,
         ], 201);
-    }
-
-    public function update(Request $request, School $school)
-    {
-        $data = $request->validate([
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'status' => ['sometimes', 'required', Rule::enum(SchoolStatus::class)],
-        ]);
-
-        $before = $school->only(array_keys($data));
-        $school->update($data);
-        $changes = $school->getChanges();
-
-        if (isset($changes['status'])) {
-            AuditLog::record($school->status === SchoolStatus::Suspended ? 'school.suspended' : 'school.reactivated', $school);
-        }
-        if (isset($changes['name'])) {
-            AuditLog::record('school.updated', $school, ['before' => ['name' => $before['name']], 'after' => ['name' => $school->name]]);
-        }
-
-        return response()->json(['school' => PlatformSchoolType::fromModel($school)]);
     }
 }

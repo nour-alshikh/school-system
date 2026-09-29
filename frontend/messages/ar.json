@@ -330,7 +330,9 @@
     "current": "(أنت هنا)",
     "cannotSuspendCurrent": "انتقل إلى مدرسة أخرى قبل إيقاف هذه المدرسة.",
     "loadError": "تعذر تحميل المدارس.",
-    "updateError": "تعذر تحديث المدرسة."
+    "updateError": "تعذر تحديث المدرسة.",
+    "manage": "إدارة",
+    "statusArchived": "مؤرشفة"
   },
   "AdminUsersPage": {
     "heading": "المستخدمون",
@@ -1578,7 +1580,9 @@
       "inactive": "غير نشطة",
       "inactiveHint": "لم يستخدم أحد هذه المدرسة منذ 30 يومًا.",
       "attendance_gap": "لا حضور",
-      "attendance_gapHint": "لم يُسجَّل الحضور في آخر 5 أيام دراسية."
+      "attendance_gapHint": "لم يُسجَّل الحضور في آخر 5 أيام دراسية.",
+      "archived": "مؤرشفة",
+      "archivedHint": "مؤرشفة: مخفية من القوائم، ولا يستطيع أعضاؤها الدخول."
     },
     "source": {
       "platform": "أنشأها مدير النظام",
@@ -1611,7 +1615,9 @@
       "colStorage": "التخزين",
       "colWarnings": "تنبيهات",
       "noSchools": "لا توجد مدارس مطابقة.",
-      "never": "أبدًا"
+      "never": "أبدًا",
+      "currentStatuses": "النشطة والموقوفة",
+      "statusArchived": "مؤرشفة"
     },
     "detail": {
       "back": "كل المدارس",
@@ -1665,7 +1671,8 @@
       "collection_avatar": "الصور الرمزية",
       "collection_logo": "الشعار",
       "collection_favicon": "أيقونة الموقع",
-      "collection_og_image": "صورة المشاركة"
+      "collection_og_image": "صورة المشاركة",
+      "tabManage": "إدارة"
     },
     "audit": {
       "heading": "سجل التدقيق",
@@ -1695,7 +1702,11 @@
         "school_admin_removed": "أزال مديرًا",
         "school_member_suspended": "أوقف عضوًا",
         "school_member_reactivated": "أعاد تفعيل عضو",
-        "school_password_reset_sent": "أرسل إعادة تعيين كلمة المرور"
+        "school_password_reset_sent": "أرسل إعادة تعيين كلمة المرور",
+        "school_archived": "أرشف المدرسة",
+        "school_exported": "صدّر المدرسة",
+        "school_export_downloaded": "نزّل تصديرًا",
+        "school_purged": "حذف المدرسة نهائيًا"
       }
     },
     "enter": {
@@ -1752,6 +1763,56 @@
       "confirm_remove_title": "إزالة {name} من الإدارة؟",
       "confirm_remove_body": "يفقد {email} صلاحيات الإدارة في هذه المدرسة، ويبقى حسابه.",
       "confirm_remove_action": "إزالة"
+    },
+    "manage": {
+      "detailsHeading": "البيانات",
+      "name": "الاسم",
+      "slug": "عنوان المدرسة",
+      "slugWarning": "تغييره يعطّل الروابط التي تستخدم العنوان القديم.",
+      "email": "البريد الإلكتروني للتواصل",
+      "phone": "الهاتف",
+      "address": "العنوان",
+      "primaryColor": "اللون الرئيسي",
+      "logoHint": "يُغيَّر الشعار والملفات الأخرى من صفحة إعدادات المدرسة نفسها (افتح المدرسة).",
+      "save": "حفظ",
+      "saved": "تم الحفظ.",
+      "statusHeading": "الحالة",
+      "status_active": "نشطة",
+      "status_suspended": "موقوفة",
+      "status_archived": "مؤرشفة",
+      "restoreUntil": "يمكن استرجاعها حتى {date}.",
+      "restoreExpired": "انتهت مهلة الاسترجاع. لا يمكن الآن إلا حذفها نهائيًا.",
+      "suspend": "إيقاف",
+      "reactivate": "إعادة التفعيل",
+      "restore": "استرجاع",
+      "archive": "أرشفة",
+      "purgeHeading": "الحذف النهائي (من سطر الأوامر فقط)",
+      "purgeHint": "بعد الأرشفة والتصدير ومرور {days} يومًا، احذف المدرسة وكل بياناتها نهائيًا بالأمر:",
+      "reasonLabel": "السبب",
+      "reasonPlaceholder": "يظهر لأعضاء المدرسة عند محاولة الدخول",
+      "reasonRequired": "السبب مطلوب",
+      "typeSlug": "اكتب {slug} للتأكيد",
+      "typeSlugError": "اكتب عنوان المدرسة كما هو تمامًا",
+      "dialog_suspended_title": "إيقاف {school}؟",
+      "dialog_suspended_body": "يُسجَّل خروج الجميع في المدرسة ولا يمكنهم الدخول حتى تعيد تفعيلها. سيرون السبب الذي تكتبه.",
+      "dialog_suspended_action": "إيقاف المدرسة",
+      "dialog_archived_title": "أرشفة {school}؟",
+      "dialog_archived_body": "مثل الإيقاف، وتُخفى من القوائم. يمكنك استرجاعها خلال {days} يومًا؛ وبعدها لا يمكن إلا حذفها نهائيًا.",
+      "dialog_archived_action": "أرشفة المدرسة",
+      "dialog_active_title": "إعادة {school}؟",
+      "dialog_active_body": "يستطيع أعضاؤها الدخول مجددًا.",
+      "dialog_active_action": "إعادة التفعيل",
+      "done_suspended": "تم إيقاف المدرسة.",
+      "done_archived": "تمت أرشفة المدرسة.",
+      "done_active": "المدرسة نشطة مجددًا.",
+      "exportHeading": "التصدير",
+      "exportHint": "ملف مضغوط بكل بيانات المدرسة وملفاتها. يعمل رابط التنزيل لمدة 24 ساعة.",
+      "export": "إنشاء تصدير",
+      "exporting": "جارٍ التصدير…",
+      "exportReady": "التصدير جاهز للتنزيل.",
+      "download": "تنزيل",
+      "expired": "منتهي",
+      "expiresIn": "ينتهي {when}"
     }
   },
   "PlatformSessionBanner": {

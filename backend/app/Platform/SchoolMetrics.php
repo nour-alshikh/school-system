@@ -87,6 +87,11 @@ class SchoolMetrics
                 ...$row,
                 'created_by' => $school->createdBy?->only(['id', 'name', 'email']),
                 'school_days' => $this->schoolDays()->get($school->id),
+                // What the Manage tab edits (SchoolLifecycle::EDITABLE_SETTINGS).
+                'settings' => DB::table('settings')->where('school_id', $school->id)
+                    ->whereIn('key', SchoolLifecycle::EDITABLE_SETTINGS)
+                    ->pluck('value', 'key')
+                    ->all(),
             ],
             'admins' => DB::table('school_memberships')
                 ->join('users', 'users.id', '=', 'school_memberships.user_id')
@@ -158,6 +163,8 @@ class SchoolMetrics
                 'name' => $school->name,
                 'slug' => $school->slug,
                 'status' => $school->status->value,
+                'status_reason' => $school->status_reason,
+                'archived_at' => $school->archived_at?->toJSON(),
                 'source' => $school->source->value,
                 'created_at' => $school->created_at->toJSON(),
                 'currency' => $currencies->get($school->id),
@@ -188,11 +195,18 @@ class SchoolMetrics
         if ($school->status === SchoolStatus::Suspended) {
             $warnings[] = 'suspended';
         }
+        if ($school->status === SchoolStatus::Archived) {
+            $warnings[] = 'archived';
+        }
         if ($school->status === SchoolStatus::Active && $row['admins'] === 0) {
             $warnings[] = 'no_admin';
         }
 
         // A school created in the last month hasn't had the chance.
+        if ($school->status === SchoolStatus::Archived) {
+            return $warnings;
+        }
+
         $oldEnough = $school->created_at->lt(now()->subDays(self::INACTIVE_DAYS));
         if ($oldEnough && ($row['last_activity_at'] === null || Carbon::parse($row['last_activity_at'])->lt(now()->subDays(self::INACTIVE_DAYS)))) {
             $warnings[] = 'inactive';

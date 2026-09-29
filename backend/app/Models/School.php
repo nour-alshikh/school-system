@@ -18,6 +18,8 @@ class School extends Model
         'name',
         'slug',
         'status',
+        'status_reason',
+        'archived_at',
         'created_by_id',
         'source',
     ];
@@ -25,6 +27,7 @@ class School extends Model
     protected $casts = [
         'status' => SchoolStatus::class,
         'source' => SchoolSource::class,
+        'archived_at' => 'datetime',
     ];
 
     // Mirrors the column defaults, so a just-created school has them in memory.

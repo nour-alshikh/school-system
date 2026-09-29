@@ -136,7 +136,8 @@ function SchoolsTable({ rows, isLoading }: { rows?: PlatformSchoolRow[]; isLoadi
   const tSource = useTranslations("Platform.source");
   const locale = useLocale();
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<string>("all");
+  // Archived schools are hidden unless asked for.
+  const [status, setStatus] = useState<string>("current");
   // Warnings first by default: they're what needs attention.
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: "warnings", desc: true });
 
@@ -144,7 +145,7 @@ function SchoolsTable({ rows, isLoading }: { rows?: PlatformSchoolRow[]; isLoadi
     const term = search.trim().toLowerCase();
     const filtered = (rows ?? []).filter(
       (row) =>
-        (status === "all" || row.status === status) &&
+        (status === "all" || (status === "current" ? row.status !== "archived" : row.status === status)) &&
         (!term || row.name.toLowerCase().includes(term) || row.slug.includes(term))
     );
     const value = (row: PlatformSchoolRow): string | number => {
@@ -185,9 +186,11 @@ function SchoolsTable({ rows, isLoading }: { rows?: PlatformSchoolRow[]; isLoadi
         />
         <Select
           items={[
-            { value: "all", label: t("allStatuses") },
+            { value: "current", label: t("currentStatuses") },
             { value: "active", label: t("statusActive") },
             { value: "suspended", label: t("statusSuspended") },
+            { value: "archived", label: t("statusArchived") },
+            { value: "all", label: t("allStatuses") },
           ]}
           value={status}
           onValueChange={(v) => setStatus(v ?? "all")}
@@ -196,9 +199,11 @@ function SchoolsTable({ rows, isLoading }: { rows?: PlatformSchoolRow[]; isLoadi
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t("allStatuses")}</SelectItem>
+            <SelectItem value="current">{t("currentStatuses")}</SelectItem>
             <SelectItem value="active">{t("statusActive")}</SelectItem>
             <SelectItem value="suspended">{t("statusSuspended")}</SelectItem>
+            <SelectItem value="archived">{t("statusArchived")}</SelectItem>
+            <SelectItem value="all">{t("allStatuses")}</SelectItem>
           </SelectContent>
         </Select>
       </div>

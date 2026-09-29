@@ -93,7 +93,7 @@ class PlatformDashboardTest extends TestCase
     {
         $hilltop = School::where('slug', 'hilltop')->sole();
 
-        $this->platform()->patchJson("/api/platform/schools/{$hilltop->id}", ['status' => 'suspended'])->assertOk();
+        $this->platform()->postJson("/api/platform/schools/{$hilltop->id}/status", ['status' => 'suspended', 'reason' => 'Unpaid invoice'])->assertOk();
 
         $this->assertDatabaseHas('audit_logs', ['action' => 'platform.signed_in', 'actor_id' => $this->systemAdmin->id]);
         $this->assertDatabaseHas('audit_logs', ['action' => 'school.suspended', 'school_id' => $hilltop->id, 'actor_id' => $this->systemAdmin->id]);
