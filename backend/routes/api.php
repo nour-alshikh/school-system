@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthController;
@@ -27,9 +28,11 @@ use App\Http\Controllers\ParentPortal\FeeController as ParentFeeController;
 use App\Http\Controllers\ParentPortal\LibraryController as ParentLibraryController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
+use App\Http\Controllers\Platform\AnnouncementController as PlatformAnnouncementController;
 use App\Http\Controllers\Platform\DashboardController as PlatformDashboardController;
 use App\Http\Controllers\Platform\LifecycleController as PlatformLifecycleController;
 use App\Http\Controllers\Platform\MemberController as PlatformMemberController;
+use App\Http\Controllers\Platform\PlanController as PlatformPlanController;
 use App\Http\Controllers\Platform\SchoolController as PlatformSchoolController;
 use App\Http\Controllers\Platform\SessionController as PlatformSessionController;
 use App\Http\Controllers\PostController;
@@ -102,6 +105,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/confirm', [PlatformSessionController::class, 'confirm'])->middleware('throttle:two-factor');
         Route::post('/schools/{school}/enter', [PlatformSessionController::class, 'enter']);
         Route::get('/overview', [PlatformDashboardController::class, 'overview']);
+        // Plans and limits (docs/central-dashboard-plan.md, phase 9).
+        Route::get('/plans', [PlatformPlanController::class, 'index']);
+        Route::put('/plans/{plan}', [PlatformPlanController::class, 'update']);
+        Route::put('/schools/{school}/plan', [PlatformPlanController::class, 'assign']);
+        Route::get('/announcements', [PlatformAnnouncementController::class, 'index']);
+        Route::post('/announcements', [PlatformAnnouncementController::class, 'store']);
+        Route::put('/announcements/{announcement}', [PlatformAnnouncementController::class, 'update']);
+        Route::post('/announcements/{announcement}/end', [PlatformAnnouncementController::class, 'end']);
         // A school's admins and members (docs/central-dashboard-plan.md, phase 6).
         Route::get('/schools/{school}/members', [PlatformMemberController::class, 'index']);
         Route::post('/schools/{school}/admins', [PlatformMemberController::class, 'addAdmin']);
@@ -120,6 +131,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/exports/{export}/download', [PlatformLifecycleController::class, 'download']);
     });
     Route::get('/user', [AuthController::class, 'user']);
+
+    // Announcements from the system admin (docs/central-dashboard-plan.md, phase 8).
+    Route::get('/announcements', [AnnouncementController::class, 'index']);
+    Route::post('/announcements/{announcement}/dismiss', [AnnouncementController::class, 'dismiss']);
 
     Route::post('/user/avatar', [AvatarController::class, 'store']);
     Route::delete('/user/avatar', [AvatarController::class, 'destroy']);

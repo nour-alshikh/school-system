@@ -10,6 +10,7 @@ use App\Models\Father;
 use App\Models\Mother;
 use App\Models\Student;
 use App\Models\User;
+use App\Platform\PlanLimits;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +26,8 @@ class StudentService
 
     public function register(StoreStudentRequest $request): Student
     {
+        app(PlanLimits::class)->ensureRoomForStudent();
+
         $data = $request->validated();
 
         return DB::transaction(function () use ($data) {

@@ -152,7 +152,7 @@ class SchoolMetrics
         $currencies = DB::table('settings')->where('key', 'currency')->pluck('value', 'school_id');
         $schoolDays = $this->schoolDays();
 
-        return School::orderBy('name')->get()->map(function (School $school) use (
+        return School::with('plan')->orderBy('name')->get()->map(function (School $school) use (
             $students, $members, $active7, $lastSeen, $storage, $lastAttendance, $collectedThisMonth, $charged, $collected, $currencies, $schoolDays
         ) {
             $roles = ($members->get($school->id) ?? collect())->pluck('n', 'role')->map(fn ($n) => (int) $n);
@@ -178,6 +178,7 @@ class SchoolMetrics
                 'last_activity_at' => $this->iso($lastActivity),
                 'last_attendance_on' => $lastAttendance->get($school->id),
                 'storage_bytes' => (int) ($storage->get($school->id) ?? 0),
+                'plan' => $school->effectivePlan()->only(['id', 'key', 'name', 'max_students', 'max_storage_mb']),
             ];
 
             return [...$row, 'warnings' => $this->warnings($school, $row, $schoolDays->get($school->id))];
@@ -214,6 +215,13 @@ class SchoolMetrics
 
         if ($row['students'] > 0 && $this->missedAttendance($row['last_attendance_on'], $schoolDays)) {
             $warnings[] = 'attendance_gap';
+        }
+
+        // At 90% of a plan limit.
+        $maxStudents = $row['plan']['max_students'];
+        $maxBytes = $row['plan']['max_storage_mb'] !== null ? $row['plan']['max_storage_mb'] * 1024 * 1024 : null;
+        if (($maxStudents && $row['students'] >= 0.9 * $maxStudents) || ($maxBytes && $row['storage_bytes'] >= 0.9 * $maxBytes)) {
+            $warnings[] = 'near_limit';
         }
 
         return $warnings;

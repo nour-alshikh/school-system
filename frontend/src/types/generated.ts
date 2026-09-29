@@ -33,6 +33,7 @@ readonly name: string,
 readonly email: string,
 readonly roles: RoleType[],
 };
+export type AnnouncementLevel = 'info' | 'warning' | 'critical';
 export type AttachmentType = {
 readonly id: number,
 readonly url: string,
@@ -546,4 +547,5 @@ readonly is_platform_admin: boolean,
 readonly current_membership: SchoolMembershipType | null,
 readonly memberships: SchoolMembershipType[],
 readonly acting_as: ActingAsType | null,
+readonly plan_features: string[] | null,
 };

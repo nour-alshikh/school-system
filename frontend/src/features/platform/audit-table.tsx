@@ -33,6 +33,12 @@ const KNOWN_ACTIONS = [
   "school.exported",
   "school.export_downloaded",
   "school.purged",
+  "announcement.created",
+  "announcement.updated",
+  "announcement.ended",
+  "plan.updated",
+  "school.plan_changed",
+  "school.self_registered",
 ];
 
 /** A request made inside a school: "POST /api/stages → 201 · name". */

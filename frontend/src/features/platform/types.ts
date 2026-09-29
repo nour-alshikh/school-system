@@ -2,7 +2,7 @@
 // and AuditLogResource). Hand-written: those build arrays, not
 // #[TypeScript] classes. Keep in step with them.
 
-export type SchoolWarning = "suspended" | "archived" | "no_admin" | "inactive" | "attendance_gap";
+export type SchoolWarning = "suspended" | "archived" | "no_admin" | "inactive" | "attendance_gap" | "near_limit";
 
 export interface PlatformSchoolRow {
   id: number;
@@ -26,6 +26,7 @@ export interface PlatformSchoolRow {
   last_activity_at: string | null;
   last_attendance_on: string | null;
   storage_bytes: number;
+  plan: { id: number; key: string; name: string; max_students: number | null; max_storage_mb: number | null };
   warnings: SchoolWarning[];
 }
 

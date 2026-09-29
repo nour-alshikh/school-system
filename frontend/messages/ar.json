@@ -54,7 +54,9 @@
     "createSchool": "إنشاء مدرسة جديدة",
     "platformOverview": "لوحة التحكم المركزية",
     "platformAudit": "سجل التدقيق",
-    "systemAdminActivity": "نشاط مدير النظام"
+    "systemAdminActivity": "نشاط مدير النظام",
+    "platformAnnouncements": "الإعلانات",
+    "platformPlans": "الخطط"
   },
   "LoginPage": {
     "headingAdmin": "تسجيل دخول المشرف",
@@ -1582,7 +1584,9 @@
       "attendance_gap": "لا حضور",
       "attendance_gapHint": "لم يُسجَّل الحضور في آخر 5 أيام دراسية.",
       "archived": "مؤرشفة",
-      "archivedHint": "مؤرشفة: مخفية من القوائم، ولا يستطيع أعضاؤها الدخول."
+      "archivedHint": "مؤرشفة: مخفية من القوائم، ولا يستطيع أعضاؤها الدخول.",
+      "near_limit": "قرب الحد",
+      "near_limitHint": "وصلت إلى 90% من حد الطلاب أو التخزين في خطتها."
     },
     "source": {
       "platform": "أنشأها مدير النظام",
@@ -1706,7 +1710,13 @@
         "school_archived": "أرشف المدرسة",
         "school_exported": "صدّر المدرسة",
         "school_export_downloaded": "نزّل تصديرًا",
-        "school_purged": "حذف المدرسة نهائيًا"
+        "school_purged": "حذف المدرسة نهائيًا",
+        "announcement_created": "نشر إعلانًا",
+        "announcement_updated": "عدّل إعلانًا",
+        "announcement_ended": "أنهى إعلانًا",
+        "plan_updated": "عدّل خطة",
+        "school_plan_changed": "غيّر خطة المدرسة",
+        "school_self_registered": "أنشأ المدرسة (تسجيل ذاتي)"
       }
     },
     "enter": {
@@ -1812,7 +1822,72 @@
       "exportReady": "التصدير جاهز للتنزيل.",
       "download": "تنزيل",
       "expired": "منتهي",
-      "expiresIn": "ينتهي {when}"
+      "expiresIn": "ينتهي {when}",
+      "planHeading": "الخطة",
+      "planChanged": "تم تغيير الخطة.",
+      "studentsUsage": "الطلاب",
+      "storageUsage": "التخزين",
+      "usageOf": "{used} من {max}",
+      "usageNoLimit": "{used} (بلا حد)",
+      "planHint": "الانتقال إلى خطة أصغر لا يحذف شيئًا: يُرفض فقط إضافة طلاب أو ملفات أو وحدات خارجها."
+    },
+    "announcements": {
+      "heading": "الإعلانات",
+      "subheading": "رسائل تظهر كشريط لكل من تخصّه، بلغته.",
+      "new": "إعلان جديد",
+      "empty": "لا توجد إعلانات بعد.",
+      "live": "معروض",
+      "scheduled": "مجدول",
+      "over": "انتهى",
+      "allSchools": "كل المدارس",
+      "everyone": "الجميع",
+      "dismissedBy": "{count, plural, zero {لم يخفه أحد} one {أخفاه شخص واحد} two {أخفاه شخصان} few {أخفاه # أشخاص} many {أخفاه # شخصًا} other {أخفاه # شخص}}",
+      "edit": "تعديل",
+      "end": "إنهاء الآن",
+      "ended": "تم إنهاء الإعلان.",
+      "saved": "تم الحفظ.",
+      "newTitle": "إعلان جديد",
+      "editTitle": "تعديل الإعلان",
+      "titleEn": "العنوان (بالإنجليزية)",
+      "titleAr": "العنوان (بالعربية)",
+      "bodyEn": "الرسالة (بالإنجليزية)",
+      "bodyAr": "الرسالة (بالعربية)",
+      "level": "المستوى",
+      "level_info": "معلومة",
+      "level_warning": "تنبيه",
+      "level_critical": "عاجل",
+      "criticalHint": "لا يمكن إخفاء الإعلانات العاجلة.",
+      "school": "المدرسة",
+      "audience": "من يراه",
+      "audienceHint": "لا تحدد شيئًا ليظهر للجميع.",
+      "startsAt": "يبدأ",
+      "startsAtHint": "فارغ: الآن.",
+      "endsAt": "ينتهي",
+      "endsAtHint": "فارغ: حتى تنهيه.",
+      "save": "حفظ"
+    },
+    "plans": {
+      "heading": "الخطط",
+      "subheading": "عدد الطلاب ومساحة التخزين والوحدات التي تشملها كل خطة. تُطبَّق على كل مدرسة عليها.",
+      "plan": "الخطة",
+      "students": "الطلاب",
+      "storage": "التخزين",
+      "modules": "الوحدات",
+      "schools": "المدارس",
+      "edit": "تعديل",
+      "noLimit": "بلا حد",
+      "feature_fees": "الرسوم",
+      "feature_exams": "الامتحانات",
+      "feature_meetings": "الاجتماعات",
+      "feature_library": "المكتبة",
+      "limitsHint": "المدرسة التي تتجاوز حدًا جديدًا تحتفظ بما لديها؛ ويُرفض فقط إضافة طلاب أو ملفات جديدة. الفوترة ليست جزءًا من هذا بعد.",
+      "editTitle": "تعديل {plan}",
+      "name": "الاسم",
+      "maxStudents": "الطلاب",
+      "maxStorageMb": "التخزين (ميغابايت)",
+      "emptyMeansNoLimit": "اترك الحد فارغًا ليكون بلا حد.",
+      "save": "حفظ",
+      "saved": "تم حفظ الخطة."
     }
   },
   "PlatformSessionBanner": {
@@ -1829,5 +1904,8 @@
     "expired": "انتهت",
     "unknown": "غير معروف",
     "actionsHeading": "كل ما سُجِّل"
+  },
+  "Announcements": {
+    "dismiss": "إخفاء"
   }
 }

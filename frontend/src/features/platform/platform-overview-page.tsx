@@ -239,7 +239,7 @@ function SchoolsTable({ rows, isLoading }: { rows?: PlatformSchoolRow[]; isLoadi
                       {row.name}
                     </Link>
                     <div className="text-xs text-muted-foreground" dir="ltr">
-                      {row.slug} · {tSource(row.source)}
+                      {row.slug} · {row.plan.name} · {tSource(row.source)}
                     </div>
                   </TableCell>
                   <TableCell className="text-end tabular-nums">{row.students}</TableCell>

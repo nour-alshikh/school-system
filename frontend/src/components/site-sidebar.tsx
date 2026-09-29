@@ -8,6 +8,7 @@ import {
   Building2,
   ShieldCheck,
   Gauge,
+  Megaphone,
   ScrollText,
   CalendarRange,
   CheckSquare,
@@ -167,6 +168,9 @@ function SidebarLink({
 export function SiteSidebar() {
   const t = useTranslations("Nav");
   const { user, isLoading, can, hasRole } = useAuth();
+  // Modules outside the school's plan are hidden (the API refuses them too).
+  // No plan info (no current school) hides nothing.
+  const hasFeature = (feature: string) => !user?.plan_features || user.plan_features.includes(feature);
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(readStoredCollapsed);
   const ref = useStaggerIn<HTMLElement>({ selector: "[data-animate='sidebar-link']" });
@@ -234,18 +238,22 @@ export function SiteSidebar() {
             label={t("myAttendance")}
             collapsed={collapsed}
           />
-          <SidebarLink
-            href="/parent-fees"
-            icon={DollarSign}
-            label={t("myFees")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/parent-library"
-            icon={Library}
-            label={t("library")}
-            collapsed={collapsed}
-          />
+          {hasFeature("fees") && (
+            <SidebarLink
+              href="/parent-fees"
+              icon={DollarSign}
+              label={t("myFees")}
+              collapsed={collapsed}
+            />
+          )}
+          {hasFeature("library") && (
+            <SidebarLink
+              href="/parent-library"
+              icon={Library}
+              label={t("library")}
+              collapsed={collapsed}
+            />
+          )}
         </>
       )}
 
@@ -257,12 +265,14 @@ export function SiteSidebar() {
           storageKey="sidebar-student-group-open"
           fallbackHref="/my-exams"
         >
-          <SidebarLink
-            href="/my-exams"
-            icon={ClipboardList}
-            label={t("myExams")}
-            collapsed={false}
-          />
+          {hasFeature("exams") && (
+            <SidebarLink
+              href="/my-exams"
+              icon={ClipboardList}
+              label={t("myExams")}
+              collapsed={false}
+            />
+          )}
           <SidebarLink
             href="/my-attendance"
             icon={CheckSquare}
@@ -275,18 +285,22 @@ export function SiteSidebar() {
             label={t("mySubjects")}
             collapsed={false}
           />
-          <SidebarLink
-            href="/my-fees"
-            icon={DollarSign}
-            label={t("myFees")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/my-library"
-            icon={Library}
-            label={t("library")}
-            collapsed={false}
-          />
+          {hasFeature("fees") && (
+            <SidebarLink
+              href="/my-fees"
+              icon={DollarSign}
+              label={t("myFees")}
+              collapsed={false}
+            />
+          )}
+          {hasFeature("library") && (
+            <SidebarLink
+              href="/my-library"
+              icon={Library}
+              label={t("library")}
+              collapsed={false}
+            />
+          )}
         </SidebarGroup>
       )}
 
@@ -398,7 +412,7 @@ export function SiteSidebar() {
         </SidebarGroup>
       )}
 
-      {can("manage-fees") && (
+      {can("manage-fees") && hasFeature("fees") && (
         <SidebarLink
           href="/fees"
           icon={DollarSign}
@@ -439,7 +453,7 @@ export function SiteSidebar() {
         </SidebarGroup>
       )}
 
-      {(can("manage-exams") || hasRole("teacher")) && (
+      {(can("manage-exams") || hasRole("teacher")) && hasFeature("exams") && (
         <SidebarGroup
           icon={ClipboardList}
           label={t("exams")}
@@ -462,7 +476,7 @@ export function SiteSidebar() {
         </SidebarGroup>
       )}
 
-      {(can("manage-academics") || hasRole("teacher")) && (
+      {(can("manage-academics") || hasRole("teacher")) && hasFeature("library") && (
         <SidebarLink
           href="/library"
           icon={Library}
@@ -513,6 +527,18 @@ export function SiteSidebar() {
             href="/platform/schools"
             icon={Building2}
             label={t("platformSchools")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/platform/plans"
+            icon={Layers}
+            label={t("platformPlans")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/platform/announcements"
+            icon={Megaphone}
+            label={t("platformAnnouncements")}
             collapsed={collapsed}
           />
           <SidebarLink

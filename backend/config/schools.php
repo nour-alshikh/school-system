@@ -24,6 +24,12 @@ return [
     ],
 
     /*
+    | The plan a self-service school starts on (docs/central-dashboard-plan.md,
+    | phase 9). A system admin can change it from the school's Manage tab.
+    */
+    'self_service_plan' => env('SCHOOLS_SELF_SERVICE_PLAN', 'basic'),
+
+    /*
     | How many schools one account can create through self-service. Platform
     | admins aren't limited. Counted by schools.created_by_id.
     */

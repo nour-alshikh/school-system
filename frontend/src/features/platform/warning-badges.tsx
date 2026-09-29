@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { AlertTriangle, Archive, Ban, CalendarX, UserX } from "lucide-react";
+import { AlertTriangle, Archive, Ban, CalendarX, Gauge, UserX } from "lucide-react";
 import type { ComponentType } from "react";
 import type { SchoolWarning } from "./types";
 
@@ -13,6 +13,7 @@ const WARNINGS: Record<SchoolWarning, { icon: ComponentType<{ className?: string
   no_admin: { icon: UserX, className: "bg-red-500/10 text-red-700 dark:text-red-300" },
   inactive: { icon: AlertTriangle, className: "bg-amber-500/10 text-amber-800 dark:text-amber-300" },
   attendance_gap: { icon: CalendarX, className: "bg-amber-500/10 text-amber-800 dark:text-amber-300" },
+  near_limit: { icon: Gauge, className: "bg-amber-500/10 text-amber-800 dark:text-amber-300" },
 };
 
 export function WarningBadges({ warnings }: { warnings: SchoolWarning[] }) {

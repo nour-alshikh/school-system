@@ -29,6 +29,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { formatBytes, formatDateTime, timeAgo } from "./format";
+import { PLANS_QUERY_KEY, usePlans } from "./plans-page";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { PlatformSchoolDetail } from "./types";
 
 type School = PlatformSchoolDetail["school"];
@@ -58,6 +66,7 @@ export function ManageSchoolPanel({ school }: { school: School }) {
 
   return (
     <div className="flex flex-col gap-6">
+      <PlanCard school={school} onChanged={refresh} />
       <EditForm school={school} onSaved={refresh} />
       <StatusCard school={school} onChanged={refresh} />
       <ExportsCard school={school} />
@@ -137,6 +146,60 @@ function EditForm({ school, onSaved }: { school: School; onSaved: () => void }) 
         <Button type="submit" className="self-start" disabled={form.formState.isSubmitting}>{t("save")}</Button>
       </form>
     </Form>
+  );
+}
+
+function PlanCard({ school, onChanged }: { school: School; onChanged: () => void }) {
+  const t = useTranslations("Platform.manage");
+  const tErrors = useTranslations("Errors");
+  const locale = useLocale();
+  const queryClient = useQueryClient();
+  const { data } = usePlans();
+  const [saving, setSaving] = useState(false);
+  const plan = school.plan;
+
+  async function change(planId: string | null) {
+    if (!planId || Number(planId) === plan.id) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/api/platform/schools/${school.id}/plan`, { method: "PUT", body: JSON.stringify({ plan_id: Number(planId) }) });
+      toast.success(t("planChanged"));
+      queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
+      onChanged();
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : tErrors("somethingWentWrong"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const number = (n: number) => new Intl.NumberFormat(locale).format(n);
+  const usage = (used: string, max: string | null) => (max === null ? t("usageNoLimit", { used }) : t("usageOf", { used, max }));
+
+  return (
+    <section className="flex flex-col gap-3 rounded-lg border p-4">
+      <h2 className="text-sm font-semibold">{t("planHeading")}</h2>
+      <Select
+        items={(data?.plans ?? []).map((p) => ({ value: String(p.id), label: p.name }))}
+        value={String(plan.id)}
+        onValueChange={change}
+        disabled={saving}
+      >
+        <SelectTrigger className="w-full sm:w-64" aria-label={t("planHeading")}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {(data?.plans ?? []).map((p) => (
+            <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
+        <li>{t("studentsUsage")}: {usage(number(school.students), plan.max_students === null ? null : number(plan.max_students))}</li>
+        <li>{t("storageUsage")}: {usage(formatBytes(school.storage_bytes, locale), plan.max_storage_mb === null ? null : formatBytes(plan.max_storage_mb * 1024 * 1024, locale))}</li>
+      </ul>
+      <p className="text-xs text-muted-foreground">{t("planHint")}</p>
+    </section>
   );
 }
 

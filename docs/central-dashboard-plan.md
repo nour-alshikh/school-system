@@ -1,6 +1,6 @@
 # Central Dashboard Plan (system admin)
 
-Status: **phases 1–7 done** (2026-09-29); phases 8–9 planned (written 2026-09-28).
+Status: **all phases done** (2026-09-29; written 2026-09-28). See the "As built" sections at the end.
 See "As built" at the end. Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done).
 
@@ -303,8 +303,9 @@ On the school detail page, *People* tab:
   school (recommended: yes), and should they be notified by email when a system admin
   enters?
 - **Archive → purge window:** 30 days OK?
-- **Plan limits:** real numbers for Basic / Standard (students, storage), and which
-  features each includes.
+- ~~**Plan limits**~~ — decided 2026-09-29: Basic 200 students / 1 GB with fees, exams
+  and library; Standard 1,000 / 10 GB with everything; Unlimited has no limits.
+  Self-service schools start on Basic.
 - **More than one system admin?** The plan supports several (all equal). Is a
   read-only "support" system admin role needed?
 - **Hosting:** can the server run a scheduler and a queue worker (cron / supervisor)?
@@ -439,3 +440,54 @@ On the school detail page, *People* tab:
     admins. The audit log and exports are kept.
   - Tested against the full demo seed on SQLite with foreign keys on. **Not
     checked on MySQL.**
+
+## As built (phase 8, 2026-09-29)
+
+- **Tables:** `announcements` (translatable `title` and `body`; `level` info,
+  warning or critical; `school_id`, null for every school; `audience`, a list of
+  roles, null for everyone; `starts_at`; `ends_at`, null until ended) and
+  `announcement_dismissals`.
+- **System admin:** `/platform/announcements` to create, edit and end announcements
+  (`/api/platform/announcements`, audited as `announcement.created`,
+  `announcement.updated` and `announcement.ended`). The list shows live, scheduled
+  and over announcements, with how many people dismissed each.
+- **Everyone else:** `GET /api/announcements` returns what's active now for the
+  signed-in school and role, in the request's language, minus the ones they
+  dismissed. A system admin inside a school sees what its admins see; a platform or
+  plain session sees none. They're shown as banners under the header (critical
+  first). `POST /api/announcements/{id}/dismiss` refuses critical ones.
+
+## As built (phase 9, 2026-09-29)
+
+- **Plans:** a `plans` table, seeded by its migration:
+  - **Basic:** 200 students, 1 GB, fees, exams and library.
+  - **Standard:** 1,000 students, 10 GB, every module.
+  - **Unlimited:** no limits.
+
+  `schools.plan_id`: every existing school is on Unlimited, platform-created ones
+  too; self-service ones get `config('schools.self_service_plan')` (Basic). The
+  demo seeder puts Hilltop on Standard.
+- **Enforced on the server** (`AppPlatformPlanLimits`):
+  - **Students:** registration is refused at the limit ("Your plan allows 200
+    students").
+  - **Storage:** uploads are refused past it, checked in `Media::creating` before
+    the file is stored, so it covers every upload path.
+  - **Modules:** `EnforcePlanFeatures` (appended to the `api` group) maps each
+    module's API paths and answers 403 "Not included in your plan". New routes under
+    those paths are covered automatically.
+  - A system admin inside a school isn't limited.
+  - A school already over a new limit keeps what it has; only additions are
+    refused.
+- **Frontend:** the user payload has `plan_features`, and the sidebar hides fees,
+  exams and library outside the plan. The meetings pages have no sidebar entry, but
+  their API is refused the same way.
+- **Dashboard:**
+  - `/platform/plans` edits each plan's limits and modules (audited as
+    `plan.updated`).
+  - The school's Manage tab changes its plan (`school.plan_changed`) and shows
+    usage against the limits.
+  - The overview shows each school's plan, with a "Near limit" warning at 90%.
+- **Known gap:** modules are checked against the school the user is **signed in
+  to**. A parent signed in at an Unlimited school who opens their child's page at a
+  Basic school isn't stopped for that child's module.
+- **Out of scope:** billing.

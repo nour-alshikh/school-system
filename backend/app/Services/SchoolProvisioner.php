@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\MembershipRole;
 use App\Enums\SchoolSource;
 use App\Enums\SettingGroup;
+use App\Models\Plan;
 use App\Models\School;
 use App\Models\SchoolMembership;
 use App\Models\Setting;
@@ -71,7 +72,7 @@ class SchoolProvisioner
             ]);
 
             ['school' => $school] = $this->provision(
-                ['name' => $name, 'slug' => $slug, 'source' => SchoolSource::Platform],
+                ['name' => $name, 'slug' => $slug, 'source' => SchoolSource::Platform, 'plan_id' => $this->planId('unlimited')],
                 $admin,
             );
 
@@ -96,10 +97,15 @@ class SchoolProvisioner
     public function createForOwner(User $owner, string $name, string $slug): array
     {
         return DB::transaction(fn () => $this->provision(
-            ['name' => $name, 'slug' => $slug, 'source' => SchoolSource::SelfService, 'created_by_id' => $owner->id],
+            ['name' => $name, 'slug' => $slug, 'source' => SchoolSource::SelfService, 'created_by_id' => $owner->id, 'plan_id' => $this->planId(config('schools.self_service_plan'))],
             $owner,
             ['email' => $owner->email],
         ));
+    }
+
+    private function planId(string $key): ?int
+    {
+        return Plan::where('key', $key)->value('id');
     }
 
     /**

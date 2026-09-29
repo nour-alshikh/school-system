@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AuditLog;
 use App\Models\School;
 use App\Models\SchoolMembership;
 use App\Models\User;
@@ -47,7 +48,10 @@ class SchoolSignupService
     {
         $this->ensureUnderLimit($user);
 
-        ['membership' => $membership] = $this->provisioner->createForOwner($user, $name, $slug);
+        ['school' => $school, 'membership' => $membership] = $this->provisioner->createForOwner($user, $name, $slug);
+
+        // For the central dashboard (docs/self-service-schools-plan.md, phase 5).
+        AuditLog::record('school.self_registered', $school, ['slug' => $slug], actor: $user);
 
         return [
             'user' => $user,

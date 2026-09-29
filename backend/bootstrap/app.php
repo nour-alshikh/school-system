@@ -2,6 +2,7 @@
 
 use App\Exceptions\ApiExceptionRenderer;
 use App\Http\Middleware\AuditPlatformSession;
+use App\Http\Middleware\EnforcePlanFeatures;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\ResolveSchool;
 use App\Http\Middleware\SetLocale;
@@ -24,7 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
         $middleware->throttleApi();
         // AuditPlatformSession records what a system admin does inside a school.
-        $middleware->api(append: [SetLocale::class, AuditPlatformSession::class]);
+        // EnforcePlanFeatures turns away modules the school's plan doesn't include.
+        $middleware->api(append: [SetLocale::class, AuditPlatformSession::class, EnforcePlanFeatures::class]);
         // Prepended so the school is set before route-model binding
         // (SubstituteBindings) resolves school-scoped models.
         $middleware->api(prepend: [ResolveSchool::class]);

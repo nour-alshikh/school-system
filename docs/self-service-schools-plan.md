@@ -1,7 +1,7 @@
 # Self-Service Schools Plan
 
-Status: **phases 1–4 done** (2026-09-29; email verification deferred, see phase 3);
-phase 5 waits on the central dashboard (written 2026-09-29). Builds on
+Status: **phases 1–4 done, phase 5 mostly done** (2026-09-29; email verification
+deferred, see phase 3) (written 2026-09-29). Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done). Related:
 [central-dashboard-plan.md](./central-dashboard-plan.md),
 [demo-seeder-plan.md](./demo-seeder-plan.md).
@@ -297,3 +297,14 @@ Feature tests in the style of `SchoolLoginTest` / `PlatformSchoolTest`:
 - **Owner vs admin:** should the creator be a special "owner" (for example, the only one
   who can remove other admins), or just the first admin like today? This plan
   assumes "just the first admin".
+
+## As built (phase 5, 2026-09-29, with the central dashboard)
+
+- **Audit:** `school.self_registered` is recorded (actor = owner).
+- **Overview:** shows each school's source (self-service, created by a system admin,
+  or demo data). A school's page shows who created it.
+- **Plan:** self-service schools start on Basic (`config('schools.self_service_plan')`).
+- **Lifecycle:** spam schools are suspended or archived like any other.
+- **Not done:** the "new schools this week" card, a filter by source, and the
+  "owner never verified their email" warning. The last one waits for email
+  verification (phase 3).

@@ -54,7 +54,9 @@
     "createSchool": "Create a new school",
     "platformOverview": "Central dashboard",
     "platformAudit": "Audit log",
-    "systemAdminActivity": "System admin activity"
+    "systemAdminActivity": "System admin activity",
+    "platformAnnouncements": "Announcements",
+    "platformPlans": "Plans"
   },
   "LoginPage": {
     "headingAdmin": "Admin log in",
@@ -1582,7 +1584,9 @@
       "attendance_gap": "No attendance",
       "attendance_gapHint": "No attendance recorded on the last 5 school days.",
       "archived": "Archived",
-      "archivedHint": "Archived: hidden from lists, its members can’t sign in."
+      "archivedHint": "Archived: hidden from lists, its members can’t sign in.",
+      "near_limit": "Near limit",
+      "near_limitHint": "At 90% of its plan’s students or storage."
     },
     "source": {
       "platform": "Created by a system admin",
@@ -1706,7 +1710,13 @@
         "school_archived": "Archived the school",
         "school_exported": "Exported the school",
         "school_export_downloaded": "Downloaded an export",
-        "school_purged": "Purged the school"
+        "school_purged": "Purged the school",
+        "announcement_created": "Posted an announcement",
+        "announcement_updated": "Edited an announcement",
+        "announcement_ended": "Ended an announcement",
+        "plan_updated": "Edited a plan",
+        "school_plan_changed": "Changed the school’s plan",
+        "school_self_registered": "Created the school (self-service)"
       }
     },
     "enter": {
@@ -1812,7 +1822,72 @@
       "exportReady": "Export ready to download.",
       "download": "Download",
       "expired": "Expired",
-      "expiresIn": "expires {when}"
+      "expiresIn": "expires {when}",
+      "planHeading": "Plan",
+      "planChanged": "Plan changed.",
+      "studentsUsage": "Students",
+      "storageUsage": "Storage",
+      "usageOf": "{used} of {max}",
+      "usageNoLimit": "{used} (no limit)",
+      "planHint": "Moving to a smaller plan removes nothing: new students, files or modules outside it are refused."
+    },
+    "announcements": {
+      "heading": "Announcements",
+      "subheading": "Messages shown as a banner to everyone they’re for, in their language.",
+      "new": "New announcement",
+      "empty": "No announcements yet.",
+      "live": "Live",
+      "scheduled": "Scheduled",
+      "over": "Over",
+      "allSchools": "All schools",
+      "everyone": "Everyone",
+      "dismissedBy": "{count, plural, one {dismissed by # person} other {dismissed by # people}}",
+      "edit": "Edit",
+      "end": "End now",
+      "ended": "Announcement ended.",
+      "saved": "Saved.",
+      "newTitle": "New announcement",
+      "editTitle": "Edit announcement",
+      "titleEn": "Title (English)",
+      "titleAr": "Title (Arabic)",
+      "bodyEn": "Message (English)",
+      "bodyAr": "Message (Arabic)",
+      "level": "Level",
+      "level_info": "Info",
+      "level_warning": "Warning",
+      "level_critical": "Critical",
+      "criticalHint": "Critical announcements can’t be dismissed.",
+      "school": "School",
+      "audience": "Who sees it",
+      "audienceHint": "Tick none to show it to everyone.",
+      "startsAt": "Starts",
+      "startsAtHint": "Empty: now.",
+      "endsAt": "Ends",
+      "endsAtHint": "Empty: until you end it.",
+      "save": "Save"
+    },
+    "plans": {
+      "heading": "Plans",
+      "subheading": "How many students, how much storage and which modules each plan includes. Enforced for every school on it.",
+      "plan": "Plan",
+      "students": "Students",
+      "storage": "Storage",
+      "modules": "Modules",
+      "schools": "Schools",
+      "edit": "Edit",
+      "noLimit": "No limit",
+      "feature_fees": "Fees",
+      "feature_exams": "Exams",
+      "feature_meetings": "Meetings",
+      "feature_library": "Library",
+      "limitsHint": "A school already over a new limit keeps what it has; only new students or files are refused. Billing isn’t part of this yet.",
+      "editTitle": "Edit {plan}",
+      "name": "Name",
+      "maxStudents": "Students",
+      "maxStorageMb": "Storage (MB)",
+      "emptyMeansNoLimit": "Leave a limit empty for no limit.",
+      "save": "Save",
+      "saved": "Plan saved."
     }
   },
   "PlatformSessionBanner": {
@@ -1829,5 +1904,8 @@
     "expired": "expired",
     "unknown": "Unknown",
     "actionsHeading": "Everything recorded"
+  },
+  "Announcements": {
+    "dismiss": "Dismiss"
   }
 }

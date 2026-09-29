@@ -140,7 +140,7 @@ class SchoolIsolationTest extends TestCase
         // memberships are how a global user spans schools — both by design.
         // Audit logs are platform-wide, read only by explicit queries
         // (docs/central-dashboard-plan.md, phase 2).
-        $exempt = ['Media', 'SchoolMembership', 'AuditLog', 'PlatformSession', 'SchoolExport'];
+        $exempt = ['Media', 'SchoolMembership', 'AuditLog', 'PlatformSession', 'SchoolExport', 'Announcement'];
 
         foreach (glob(app_path('Models/*.php')) as $file) {
             $name = basename($file, '.php');

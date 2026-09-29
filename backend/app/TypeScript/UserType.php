@@ -35,6 +35,13 @@ final class UserType
         public readonly array $memberships,
         /** Set while a system admin is inside a school as its admin (central dashboard, phase 5). */
         public readonly ?ActingAsType $acting_as = null,
+        /**
+         * Modules the current school's plan includes (fees, exams, meetings,
+         * library); null with no current school.
+         *
+         * @var string[]|null
+         */
+        public readonly ?array $plan_features = null,
     ) {}
 
     public static function fromModel(User $user, ?SchoolMembership $current = null, ?PlatformSession $session = null): self
@@ -55,6 +62,7 @@ final class UserType
                 ->map(fn (SchoolMembership $m) => SchoolMembershipType::fromModel($m))
                 ->all(),
             acting_as: $session ? ActingAsType::fromSession($session) : null,
+            plan_features: ($current?->school ?? $session?->school)?->effectivePlan()->features,
         );
     }
 }

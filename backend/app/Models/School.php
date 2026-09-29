@@ -22,6 +22,7 @@ class School extends Model
         'archived_at',
         'created_by_id',
         'source',
+        'plan_id',
     ];
 
     protected $casts = [
@@ -46,6 +47,17 @@ class School extends Model
         return $this->belongsToMany(User::class, 'school_memberships')
             ->withPivot(['role', 'status'])
             ->withTimestamps();
+    }
+
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    /** Its plan, or Unlimited when none is set. */
+    public function effectivePlan(): Plan
+    {
+        return $this->plan ?? Plan::unlimited();
     }
 
     /** Whoever created it through self-service; null for platform/seeded schools. */

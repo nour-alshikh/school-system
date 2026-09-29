@@ -7,6 +7,7 @@ use App\Enums\SchoolSource;
 use App\Models\AcademicYear;
 use App\Models\Classroom;
 use App\Models\Grade;
+use App\Models\Plan;
 use App\Models\School;
 use App\Models\Stage;
 use App\Models\Subject;
@@ -45,7 +46,8 @@ class SecondSchoolSeeder
         $this->people->user('Hilltop Admin', self::ADMIN_EMAIL);
 
         ['school' => $school] = app(SchoolProvisioner::class)->create('Hilltop School', 'hilltop', 'Hilltop Admin', self::ADMIN_EMAIL);
-        $school->update(['source' => SchoolSource::Seed]);
+        // On Standard, so plans and their limits show up in the dashboard.
+        $school->update(['source' => SchoolSource::Seed, 'plan_id' => Plan::where('key', 'standard')->value('id')]);
 
         app(TenantContext::class)->runAs($school, function () use ($platformAdmin) {
             // The demo admin runs both schools (and switches between them).

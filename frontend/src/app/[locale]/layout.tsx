@@ -9,6 +9,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { SiteHeader } from "@/components/site-header";
 import { PlatformSessionBanner } from "@/components/platform-session-banner";
+import { AnnouncementsBanner } from "@/components/announcements-banner";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { PageTransition } from "@/components/page-transition";
 import { Toaster } from "@/components/ui/sonner";
@@ -119,6 +120,7 @@ export default async function RootLayout({
             <QueryProvider>
               <AuthProvider>
                 <PlatformSessionBanner />
+                <AnnouncementsBanner />
                 <SiteHeader />
                 <div className="flex flex-1">
                   <SiteSidebar />
