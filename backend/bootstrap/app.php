@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\ApiExceptionRenderer;
+use App\Http\Middleware\AuditPlatformSession;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\ResolveSchool;
 use App\Http\Middleware\SetLocale;
@@ -22,7 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
         $middleware->throttleApi();
-        $middleware->api(append: [SetLocale::class]);
+        // AuditPlatformSession records what a system admin does inside a school.
+        $middleware->api(append: [SetLocale::class, AuditPlatformSession::class]);
         // Prepended so the school is set before route-model binding
         // (SubstituteBindings) resolves school-scoped models.
         $middleware->api(prepend: [ResolveSchool::class]);
@@ -35,7 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Throwable $e, Request $request) {
+        $exceptions->render(function (Throwable $e, Request $request) {
             if ($request->is('api/*') || $request->wantsJson()) {
                 return app(ApiExceptionRenderer::class)->render($e);
             }

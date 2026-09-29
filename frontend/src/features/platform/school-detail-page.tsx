@@ -19,6 +19,7 @@ import { PageLoader } from "@/components/page-loader";
 import { AuditTable } from "./audit-table";
 import { CollectionsChart } from "./collections-chart";
 import { formatBytes, timeAgo } from "./format";
+import { OpenSchoolDialog } from "./open-school-dialog";
 import { usePlatformPage } from "./use-platform-page";
 import { WarningBadges } from "./warning-badges";
 import type { PlatformSchoolDetail } from "./types";
@@ -62,6 +63,9 @@ export function SchoolDetailPage({ id }: { id: string }) {
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-xl font-semibold">{school.name}</h1>
           <WarningBadges warnings={school.warnings} />
+          <div className="ms-auto">
+            <OpenSchoolDialog schoolId={school.id} schoolName={school.name} />
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">
           <span dir="ltr">{school.slug}</span> · {tSource(school.source)} ·{" "}

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\MembershipRole;
 use App\Enums\SchoolStatus;
 use App\Models\PersonalAccessToken;
 use App\Models\School;
@@ -12,7 +13,9 @@ use App\Services\MembershipService;
 use App\Tenancy\TenantContext;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -31,6 +34,9 @@ class ResolveSchool
 {
     /** Request attribute holding the membership a signed-in request acts as. */
     public const MEMBERSHIP = 'school_membership';
+
+    /** A system admin inside this school as its admin (central dashboard, phase 5). */
+    public const PLATFORM_SESSION = 'platform_session';
 
     public function __construct(
         private readonly TenantContext $context,
@@ -62,6 +68,14 @@ class ResolveSchool
 
     private function resolveForUser(Request $request, User $user): void
     {
+        $token = $user->currentAccessToken();
+
+        if ($token instanceof PersonalAccessToken && $token->platform_session_id !== null) {
+            $this->resolvePlatformSession($request, $user, $token);
+
+            return;
+        }
+
         $membership = $this->membershipFor($user);
 
         // A plain account (registered, no school): see handle().
@@ -81,6 +95,35 @@ class ResolveSchool
         $this->context->set($membership->school);
         $request->attributes->set(self::MEMBERSHIP, $membership);
         $this->markSeen($membership);
+    }
+
+    /**
+     * A system admin who entered this school: acts as its admin, for this
+     * request only — the admin role is set on the user in memory, nothing
+     * is written, so they never become a member. A session that ended,
+     * expired, or whose user is no longer a system admin signs out (401),
+     * and the BFF falls back to the platform token. Suspended schools can
+     * be entered, so problems can be fixed.
+     */
+    private function resolvePlatformSession(Request $request, User $user, PersonalAccessToken $token): void
+    {
+        $session = $token->platformSession()->with('school')->first();
+
+        if (! $session?->isOpen() || ! $user->is_platform_admin) {
+            throw new AuthenticationException;
+        }
+
+        $this->context->set($session->school);
+        $request->attributes->set(self::PLATFORM_SESSION, $session);
+        $this->actAsAdmin($user);
+    }
+
+    /** The admin role, on this in-memory user only, for the current school. */
+    public function actAsAdmin(User $user): void
+    {
+        $admin = Role::where('name', MembershipRole::Admin->value)->whereNull('school_id')->with('permissions')->firstOrFail();
+        $user->setRelation('roles', new EloquentCollection([$admin]));
+        $user->setRelation('permissions', new EloquentCollection);
     }
 
     /**

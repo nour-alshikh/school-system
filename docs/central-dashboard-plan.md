@@ -1,6 +1,6 @@
 # Central Dashboard Plan (system admin)
 
-Status: **phases 1–4 done** (2026-09-29); phases 5–9 planned (written 2026-09-28).
+Status: **phases 1–5 done** (2026-09-29); phases 6–9 planned (written 2026-09-28).
 See "As built" at the end. Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done).
 
@@ -348,3 +348,35 @@ On the school detail page, *People* tab:
 - **Deferred:** the `school_daily_stats` snapshots and growth charts need a
   scheduler, which isn't configured yet ([gaps.md](./gaps.md)). Charts read live
   data for now.
+
+## As built (phase 5, 2026-09-29)
+
+- **Opening a school:** "Open school" on the school detail page →
+  `POST /api/platform/confirm` (a fresh code, good for 10 minutes; stored on the
+  platform token as `platform_confirmed_at`) → `POST /api/platform/schools/{id}/enter`
+  with an optional reason. This creates a `platform_sessions` row, lasting 2 hours
+  (`expires_at`), and a token with `platform_session_id`.
+- **Acting as admin:** `ResolveSchool` sets that session's school and puts the admin
+  role on the user **in memory only**. No membership or role assignment is written,
+  so `Gate::before` and the `role`/`permission` middleware treat them as admin
+  for that request. The user payload carries `acting_as` (school and expiry), and
+  `current_membership` stays null. Suspended schools can be entered.
+- **Proxy:** while inside a school, the active cookie holds the session token and
+  `sanctum_platform_token` keeps the platform token.
+  - `POST /api/platform/exit` ends the session and swaps back.
+  - A 401 while a platform token is waiting (session expired, or access lost) swaps
+    back too, and a GET is retried with the platform token, so the page gets the
+    platform user instead of a sign-out.
+  - Logout revokes both tokens.
+- **Audit:** the `AuditPlatformSession` middleware records every request made
+  inside a school (method, path, route, status, and for writes the names of the
+  fields sent, never their values or passwords). Entering and leaving are recorded
+  too. The enter request itself isn't logged as an "inside" request.
+  `AuditLog::record(..., platformWide: true)` keeps platform-wide entries (system
+  admin sign-in, 2FA reset) from being tagged with the default school, which public
+  routes fall back to.
+- **School admins:** see all of it at `/admin/system-admin-activity` ("System admin
+  activity" in their sidebar): sessions with the reason and times, and every entry.
+- **Frontend:** a banner on every page while inside (school, end time, Exit). The
+  user menu hides "Switch to" and "Create a new school" there, since either would
+  replace the session token.

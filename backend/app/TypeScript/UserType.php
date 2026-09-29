@@ -2,6 +2,7 @@
 
 namespace App\TypeScript;
 
+use App\Models\PlatformSession;
 use App\Models\SchoolMembership;
 use App\Models\User;
 use App\Services\MembershipService;
@@ -32,9 +33,11 @@ final class UserType
          * @var SchoolMembershipType[]
          */
         public readonly array $memberships,
+        /** Set while a system admin is inside a school as its admin (central dashboard, phase 5). */
+        public readonly ?ActingAsType $acting_as = null,
     ) {}
 
-    public static function fromModel(User $user, ?SchoolMembership $current = null): self
+    public static function fromModel(User $user, ?SchoolMembership $current = null, ?PlatformSession $session = null): self
     {
         return new self(
             id: $user->id,
@@ -51,6 +54,7 @@ final class UserType
             memberships: app(MembershipService::class)->usable($user)
                 ->map(fn (SchoolMembership $m) => SchoolMembershipType::fromModel($m))
                 ->all(),
+            acting_as: $session ? ActingAsType::fromSession($session) : null,
         );
     }
 }

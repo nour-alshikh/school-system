@@ -63,9 +63,12 @@ export function SiteHeader() {
     }
   }
 
-  const otherMemberships =
-    user?.memberships.filter((m) => m.id !== user.current_membership?.id) ??
-    [];
+  // Inside a school as system admin: the banner's Exit is the way out.
+  // Switching or creating a school would replace that session's token.
+  const actingAs = !!user?.acting_as;
+  const otherMemberships = actingAs
+    ? []
+    : (user?.memberships.filter((m) => m.id !== user.current_membership?.id) ?? []);
 
   return (
     <header ref={ref} className="border-b print:hidden">
@@ -139,9 +142,11 @@ export function SiteHeader() {
                   </>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/create-school")}>
-                  {t("createSchool")}
-                </DropdownMenuItem>
+                {!actingAs && (
+                  <DropdownMenuItem onClick={() => router.push("/create-school")}>
+                    {t("createSchool")}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleLogout}>
                   {t("logout")}
                 </DropdownMenuItem>

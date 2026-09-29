@@ -34,18 +34,20 @@ class AuditLog extends Model
 
     /**
      * Records $action by the signed-in user. The school is $school if
-     * given, else $subject's when it is one, else the current school.
+     * given, else $subject's when it is one, else the current school —
+     * unless $platformWide: a public route (login) falls back to the
+     * default school for branding, which says nothing about the action.
      *
      * @param  array<string, mixed>  $details  e.g. changed fields, before/after
      */
-    public static function record(string $action, ?Model $subject = null, array $details = [], ?School $school = null, ?User $actor = null): self
+    public static function record(string $action, ?Model $subject = null, array $details = [], ?School $school = null, ?User $actor = null, bool $platformWide = false): self
     {
         $request = request();
         $context = app(TenantContext::class);
 
         $schoolId = $school?->id
             ?? ($subject instanceof School ? $subject->id : null)
-            ?? ($context->has() ? $context->id() : null);
+            ?? (! $platformWide && $context->has() ? $context->id() : null);
 
         return static::create([
             'actor_id' => ($actor ?? $request->user())?->id,

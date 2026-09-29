@@ -22,7 +22,13 @@ class UserResource extends JsonResource
 
     public function toArray(Request $request): array
     {
-        return (array) UserType::fromModel($this->resource, $this->membership ?? $this->currentMembership($request));
+        $self = $request->user()?->is($this->resource);
+
+        return (array) UserType::fromModel(
+            $this->resource,
+            $this->membership ?? $this->currentMembership($request),
+            $self ? $request->attributes->get(ResolveSchool::PLATFORM_SESSION) : null,
+        );
     }
 
     private function currentMembership(Request $request): ?SchoolMembership

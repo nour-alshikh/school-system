@@ -29,7 +29,7 @@ class PlatformResetTwoFactor extends Command
         }
 
         $twoFactor->reset($user);
-        AuditLog::record('platform.two_factor_reset', $user, ['via' => 'cli']);
+        AuditLog::record('platform.two_factor_reset', $user, ['via' => 'cli'], platformWide: true);
         $this->info("Two-factor cleared for {$user->email}. They'll set it up again at their next system admin login.");
 
         return self::SUCCESS;

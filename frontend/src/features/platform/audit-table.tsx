@@ -21,7 +21,16 @@ const KNOWN_ACTIONS = [
   "school.updated",
   "school.suspended",
   "school.reactivated",
+  "platform.entered_school",
+  "platform.exited_school",
+  "platform.request",
 ];
+
+/** A request made inside a school: "POST /api/stages → 201 · name". */
+function requestSummary(details: Record<string, unknown>): string {
+  const fields = Array.isArray(details.fields) ? ` · ${(details.fields as string[]).join(", ")}` : "";
+  return `${details.method} ${details.path} → ${details.status}${fields}`;
+}
 
 export function AuditTable({
   entries,
@@ -76,7 +85,9 @@ export function AuditTable({
                 </TableCell>
                 {showSchool && <TableCell>{entry.school?.name ?? "—"}</TableCell>}
                 <TableCell className="max-w-72 text-xs text-muted-foreground">
-                  {entry.details ? (
+                  {entry.details && entry.action === "platform.request" ? (
+                    <code className="break-all" dir="ltr">{requestSummary(entry.details)}</code>
+                  ) : entry.details ? (
                     <code className="break-all" dir="ltr">{JSON.stringify(entry.details)}</code>
                   ) : (
                     "—"

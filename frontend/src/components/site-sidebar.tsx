@@ -6,6 +6,7 @@ import {
   Award,
   BookOpen,
   Building2,
+  ShieldCheck,
   Gauge,
   ScrollText,
   CalendarRange,
@@ -484,6 +485,15 @@ export function SiteSidebar() {
           href="/admin/settings"
           icon={Settings}
           label={t("settings")}
+          collapsed={collapsed}
+        />
+      )}
+
+      {hasRole("admin") && (
+        <SidebarLink
+          href="/admin/system-admin-activity"
+          icon={ShieldCheck}
+          label={t("systemAdminActivity")}
           collapsed={collapsed}
         />
       )}

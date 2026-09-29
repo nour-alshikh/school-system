@@ -8,6 +8,7 @@ import { routing } from "@/i18n/routing";
 import { QueryProvider } from "@/providers/query-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { SiteHeader } from "@/components/site-header";
+import { PlatformSessionBanner } from "@/components/platform-session-banner";
 import { SiteSidebar } from "@/components/site-sidebar";
 import { PageTransition } from "@/components/page-transition";
 import { Toaster } from "@/components/ui/sonner";
@@ -117,6 +118,7 @@ export default async function RootLayout({
           <NextIntlClientProvider>
             <QueryProvider>
               <AuthProvider>
+                <PlatformSessionBanner />
                 <SiteHeader />
                 <div className="flex flex-1">
                   <SiteSidebar />

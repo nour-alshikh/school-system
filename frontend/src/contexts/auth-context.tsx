@@ -36,6 +36,13 @@ interface AuthContextValue {
   ) => Promise<string[] | null>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
+  /**
+   * System admin: re-confirms with a fresh code, then opens `schoolId` as its
+   * admin (central dashboard, phase 5). The platform session waits aside.
+   */
+  enterSchool: (schoolId: number, code: string, reason?: string) => Promise<void>;
+  /** Leaves the school, back to the platform session. */
+  exitSchool: () => Promise<void>;
   /** Moves the session to another of the user's memberships (school + role). */
   switchSchool: (membershipId: number) => Promise<void>;
   /** A guest creates an account and a school, and is signed in as its admin. */
@@ -219,6 +226,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [queryClient, setUser]
   );
 
+  const enterSchool = useCallback(
+    async (schoolId: number, code: string, reason?: string) => {
+      await apiFetch<void>("/api/platform/confirm", {
+        method: "POST",
+        body: JSON.stringify({ code }),
+      });
+      const data = await apiFetch<{ user: User }>(`/api/platform/schools/${schoolId}/enter`, {
+        method: "POST",
+        body: JSON.stringify({ reason: reason || null }),
+      });
+      // Nothing cached on the platform side belongs to the school.
+      queryClient.clear();
+      setUser(data.user);
+    },
+    [queryClient, setUser]
+  );
+
+  const exitSchool = useCallback(async () => {
+    await apiFetch<void>("/api/platform/exit", { method: "POST" });
+    queryClient.clear();
+    setUser(await fetchCurrentUser());
+  }, [queryClient, setUser]);
+
   const register = useCallback(
     async (payload: RegisterPayload) => {
       await registerMutation.mutateAsync(payload);
@@ -280,6 +310,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         startSystemLogin,
         completeSystemLogin,
+        enterSchool,
+        exitSchool,
         register,
         logout,
         switchSchool,

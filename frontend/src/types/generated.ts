@@ -7,6 +7,13 @@ readonly is_current: boolean,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type ActingAsType = {
+readonly type: string,
+readonly session_id: number,
+readonly school_id: number,
+readonly school_name: string,
+readonly expires_at: string,
+};
 export type AdminDashboardType = {
 readonly students_count: number,
 readonly teachers_count: number,
@@ -536,4 +543,5 @@ readonly avatar_url: string | null,
 readonly is_platform_admin: boolean,
 readonly current_membership: SchoolMembershipType | null,
 readonly memberships: SchoolMembershipType[],
+readonly acting_as: ActingAsType | null,
 };

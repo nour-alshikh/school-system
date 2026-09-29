@@ -29,6 +29,7 @@ use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
 use App\Http\Controllers\Platform\DashboardController as PlatformDashboardController;
 use App\Http\Controllers\Platform\SchoolController as PlatformSchoolController;
+use App\Http\Controllers\Platform\SessionController as PlatformSessionController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
@@ -89,9 +90,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // the controller, since no single permission covers all three.
     Route::get('/attachments/{media}', [AttachmentController::class, 'show']);
 
+    // A system admin leaving a school they entered (with that session's
+    // own token, so not behind platform-admin).
+    Route::post('/platform/exit', [PlatformSessionController::class, 'exit']);
+
     // Platform admin (users.is_platform_admin): manage the schools
     // themselves. See docs/multi-tenancy.md, step 8.
     Route::middleware('platform-admin')->prefix('platform')->group(function () {
+        Route::post('/confirm', [PlatformSessionController::class, 'confirm'])->middleware('throttle:two-factor');
+        Route::post('/schools/{school}/enter', [PlatformSessionController::class, 'enter']);
         Route::get('/overview', [PlatformDashboardController::class, 'overview']);
         Route::get('/schools/{school}', [PlatformDashboardController::class, 'school']);
         Route::get('/audit-logs', [PlatformDashboardController::class, 'auditLogs']);
@@ -333,6 +340,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // A new school's setup checklist (docs/self-service-schools-plan.md).
         Route::get('/admin/onboarding', [OnboardingController::class, 'show']);
+
+        // What system admins did in this school (docs/central-dashboard-plan.md, phase 5).
+        Route::get('/admin/system-admin-activity', [PlatformSessionController::class, 'schoolActivity']);
         Route::post('/admin/onboarding/dismiss', [OnboardingController::class, 'dismiss']);
         Route::post('/admin/onboarding/standard-structure', [OnboardingController::class, 'standardStructure']);
     });

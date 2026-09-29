@@ -93,7 +93,7 @@ class AuthController extends Controller
         );
 
         $this->authService->markLoggedIn($user);
-        AuditLog::record('platform.signed_in', details: array_filter(['used_recovery_code' => filled($request->validated('recovery_code'))]), actor: $user);
+        AuditLog::record('platform.signed_in', details: array_filter(['used_recovery_code' => filled($request->validated('recovery_code'))]), actor: $user, platformWide: true);
 
         return response()->json(array_filter([
             'user' => new UserResource($user),

@@ -11,6 +11,10 @@ import type { NextRequest } from "next/server";
 // itself never reaches browser JS.
 const LARAVEL_API_URL = process.env.LARAVEL_API_URL ?? "http://localhost:8000";
 const TOKEN_COOKIE = "sanctum_token";
+// While a system admin is inside a school (central dashboard, phase 5), the
+// active token is that session's, and their platform token waits here to
+// come back to — on exit, or when the session ends or expires.
+const PLATFORM_TOKEN_COOKIE = "sanctum_platform_token";
 const AUTH_STATUS_COOKIE =
   process.env.NEXT_PUBLIC_AUTH_STATUS_COOKIE ?? "auth_status";
 
@@ -66,10 +70,47 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
     return handleAuthResponse(laravelResponse);
   }
 
+  const platformToken = request.cookies.get(PLATFORM_TOKEN_COOKIE)?.value;
+
+  if (method === "POST" && /^platform\/schools\/\d+\/enter$/.test(pathname)) {
+    return handleEnterSchool(laravelResponse, token);
+  }
+
+  if (pathname === "platform/exit") {
+    return handleExitSchool(laravelResponse, platformToken);
+  }
+
   if (pathname === "logout") {
+    // Signing out of a school session signs out of the platform too.
+    if (platformToken) {
+      await fetch(new URL("/api/logout", LARAVEL_API_URL), {
+        method: "POST",
+        headers: { Accept: "application/json", Authorization: `Bearer ${platformToken}` },
+      }).catch(() => undefined);
+    }
     return handleLogout(laravelResponse);
   }
 
+  // The school session ended (expired, or the system admin lost access):
+  // fall back to the platform token. A read is retried with it, so the
+  // page gets the platform user instead of a sign-out.
+  if (laravelResponse.status === 401 && platformToken && token !== platformToken) {
+    const retried =
+      method === "GET"
+        ? await fetch(targetUrl, {
+            headers: { ...Object.fromEntries(headers), Authorization: `Bearer ${platformToken}` },
+          })
+        : laravelResponse;
+    const response = await passThrough(retried);
+    response.cookies.set(TOKEN_COOKIE, platformToken, COOKIE_OPTIONS);
+    response.cookies.delete(PLATFORM_TOKEN_COOKIE);
+    return response;
+  }
+
+  return passThrough(laravelResponse);
+}
+
+async function passThrough(laravelResponse: Response): Promise<NextResponse> {
   const body = await laravelResponse.arrayBuffer();
 
   // A 204/205/304 response must have a null body per the Fetch spec — an
@@ -99,7 +140,7 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
   });
 }
 
-async function handleAuthResponse(laravelResponse: Response): Promise<Response> {
+async function handleAuthResponse(laravelResponse: Response): Promise<NextResponse> {
   const data = await laravelResponse.json().catch(() => null);
 
   // Strip the token out of the body — it belongs in the httpOnly cookie
@@ -122,10 +163,31 @@ async function handleAuthResponse(laravelResponse: Response): Promise<Response> 
   return response;
 }
 
+/** Like a login, but the platform token is kept aside to come back to. */
+async function handleEnterSchool(laravelResponse: Response, platformToken: string | undefined): Promise<Response> {
+  const response = await handleAuthResponse(laravelResponse);
+  if (laravelResponse.ok && platformToken) {
+    response.cookies.set(PLATFORM_TOKEN_COOKIE, platformToken, COOKIE_OPTIONS);
+  }
+  return response;
+}
+
+/** Back to the platform token, whatever the school session's answer was. */
+async function handleExitSchool(laravelResponse: Response, platformToken: string | undefined): Promise<Response> {
+  const status = laravelResponse.status === 401 ? 204 : laravelResponse.status;
+  const response = new NextResponse(null, { status });
+  if (platformToken) {
+    response.cookies.set(TOKEN_COOKIE, platformToken, COOKIE_OPTIONS);
+    response.cookies.delete(PLATFORM_TOKEN_COOKIE);
+  }
+  return response;
+}
+
 async function handleLogout(laravelResponse: Response): Promise<Response> {
   const response = new NextResponse(null, { status: laravelResponse.status });
 
   response.cookies.delete(TOKEN_COOKIE);
+  response.cookies.delete(PLATFORM_TOKEN_COOKIE);
   response.cookies.delete(AUTH_STATUS_COOKIE);
 
   return response;

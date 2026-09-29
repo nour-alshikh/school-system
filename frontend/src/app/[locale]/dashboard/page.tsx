@@ -23,7 +23,7 @@ export default function DashboardPage() {
   // home is the central dashboard.
   const platformSession = isPlatformSession(user);
   const hasNoSchool =
-    !!user && !platformSession && user.memberships.length === 0;
+    !!user && !platformSession && !user.acting_as && user.memberships.length === 0;
 
   useEffect(() => {
     if (!isLoading && !user) {

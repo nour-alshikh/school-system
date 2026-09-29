@@ -53,7 +53,8 @@
     "settings": "الإعدادات",
     "createSchool": "إنشاء مدرسة جديدة",
     "platformOverview": "لوحة التحكم المركزية",
-    "platformAudit": "سجل التدقيق"
+    "platformAudit": "سجل التدقيق",
+    "systemAdminActivity": "نشاط مدير النظام"
   },
   "LoginPage": {
     "headingAdmin": "تسجيل دخول المشرف",
@@ -1686,8 +1687,36 @@
         "school_created": "أنشأ المدرسة",
         "school_updated": "عدّل المدرسة",
         "school_suspended": "أوقف المدرسة",
-        "school_reactivated": "أعاد تفعيل المدرسة"
+        "school_reactivated": "أعاد تفعيل المدرسة",
+        "platform_entered_school": "فتح المدرسة",
+        "platform_exited_school": "غادر المدرسة",
+        "platform_request": "طلب داخل المدرسة"
       }
+    },
+    "enter": {
+      "button": "فتح المدرسة",
+      "title": "فتح {school} بصفة مدير لها",
+      "description": "سترى وتعدّل كل ما يستطيعه مديروها. أدخل رمزًا حاليًا من تطبيق المصادقة. تستمر الجلسة ساعتين، ويرى مديرو المدرسة ما تفعله.",
+      "codeLabel": "رمز من 6 أرقام",
+      "reasonLabel": "السبب (اختياري)",
+      "reasonPlaceholder": "مثل: طلب دعم رقم 42",
+      "open": "فتح المدرسة",
+      "opening": "جارٍ الفتح…"
     }
+  },
+  "PlatformSessionBanner": {
+    "message": "تعرض <strong>{school}</strong> بصفتك مدير النظام. كل ما تفعله مسجَّل ويراه مديرو المدرسة.",
+    "endsAt": "تنتهي الجلسة في {time}",
+    "exit": "الخروج من المدرسة"
+  },
+  "SystemAdminActivityPage": {
+    "heading": "نشاط مدير النظام",
+    "description": "عندما يفتح مديرو النظام مدرستك للمساعدة، يُسجَّل ذلك هنا: من، ولماذا، ومتى، وكل طلب قاموا به.",
+    "sessionsHeading": "الجلسات",
+    "noSessions": "لم يفتح أي مدير للنظام هذه المدرسة.",
+    "stillOpen": "ما زالت مفتوحة",
+    "expired": "انتهت",
+    "unknown": "غير معروف",
+    "actionsHeading": "كل ما سُجِّل"
   }
 }

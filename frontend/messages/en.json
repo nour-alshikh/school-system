@@ -53,7 +53,8 @@
     "settings": "Settings",
     "createSchool": "Create a new school",
     "platformOverview": "Central dashboard",
-    "platformAudit": "Audit log"
+    "platformAudit": "Audit log",
+    "systemAdminActivity": "System admin activity"
   },
   "LoginPage": {
     "headingAdmin": "Admin log in",
@@ -1686,8 +1687,36 @@
         "school_created": "Created the school",
         "school_updated": "Edited the school",
         "school_suspended": "Suspended the school",
-        "school_reactivated": "Reactivated the school"
+        "school_reactivated": "Reactivated the school",
+        "platform_entered_school": "Opened the school",
+        "platform_exited_school": "Left the school",
+        "platform_request": "Request inside the school"
       }
+    },
+    "enter": {
+      "button": "Open school",
+      "title": "Open {school} as its admin",
+      "description": "You’ll see and change everything its admins can. Enter a current code from your authenticator app. The session lasts 2 hours, and the school’s admins can see what you do.",
+      "codeLabel": "6-digit code",
+      "reasonLabel": "Reason (optional)",
+      "reasonPlaceholder": "e.g. Support request #42",
+      "open": "Open school",
+      "opening": "Opening…"
     }
+  },
+  "PlatformSessionBanner": {
+    "message": "Viewing <strong>{school}</strong> as system admin. Everything you do is logged and visible to the school’s admins.",
+    "endsAt": "Session ends at {time}",
+    "exit": "Exit school"
+  },
+  "SystemAdminActivityPage": {
+    "heading": "System admin activity",
+    "description": "When system admins open your school to help, it’s recorded here: who, why, when, and every request they made.",
+    "sessionsHeading": "Sessions",
+    "noSessions": "No system admin has opened this school.",
+    "stillOpen": "still open",
+    "expired": "expired",
+    "unknown": "Unknown",
+    "actionsHeading": "Everything recorded"
   }
 }
