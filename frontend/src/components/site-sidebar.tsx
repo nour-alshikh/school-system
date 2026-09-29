@@ -6,6 +6,8 @@ import {
   Award,
   BookOpen,
   Building2,
+  Gauge,
+  ScrollText,
   CalendarRange,
   CheckSquare,
   ChevronDown,
@@ -31,6 +33,7 @@ import {
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { isPlatformSession } from "@/lib/platform";
 import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -485,14 +488,30 @@ export function SiteSidebar() {
         />
       )}
 
-      {/* Platform admin: not a school role, so not a can()/hasRole() check. */}
-      {user?.is_platform_admin && (
-        <SidebarLink
-          href="/platform/schools"
-          icon={Building2}
-          label={t("platformSchools")}
-          collapsed={collapsed}
-        />
+      {/* A system admin's platform session (signed in through the system
+          admin login, so no school): not a school role, so not a
+          can()/hasRole() check. A school token can't reach platform pages. */}
+      {isPlatformSession(user) && (
+        <>
+          <SidebarLink
+            href="/platform"
+            icon={Gauge}
+            label={t("platformOverview")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/platform/schools"
+            icon={Building2}
+            label={t("platformSchools")}
+            collapsed={collapsed}
+          />
+          <SidebarLink
+            href="/platform/audit"
+            icon={ScrollText}
+            label={t("platformAudit")}
+            collapsed={collapsed}
+          />
+        </>
       )}
     </nav>
   );

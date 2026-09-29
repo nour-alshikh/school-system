@@ -57,6 +57,7 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
   // token is bound to the new school.
   if (
     pathname === "login" ||
+    pathname === "login/two-factor" ||
     pathname === "register" ||
     pathname === "switch-school" ||
     pathname === "school-signup" ||

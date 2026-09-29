@@ -12,7 +12,7 @@ const handleI18nRouting = createMiddleware(routing);
 const AUTH_STATUS_COOKIE =
   process.env.NEXT_PUBLIC_AUTH_STATUS_COOKIE ?? "auth_status";
 
-const PROTECTED_PATHS = ["/dashboard", "/admin"];
+const PROTECTED_PATHS = ["/dashboard", "/admin", "/platform"];
 // Reset links are token-authenticated and independent of the current session,
 // so /reset-password is intentionally not guest-only — a logged-in user should
 // still be able to use a reset link mailed to them.
@@ -49,7 +49,9 @@ export function proxy(request: NextRequest) {
   );
 
   if (isProtected && !hasSession) {
-    const loginUrl = new URL(`/${locale}/login`, request.url);
+    // The central dashboard has its own login (system admin + two-factor).
+    const isPlatform = rest === "/platform" || rest.startsWith("/platform/");
+    const loginUrl = new URL(`/${locale}/login${isPlatform ? "/system" : ""}`, request.url);
     // `rest` has the locale prefix stripped — the login page's redirect
     // push goes through next-intl's locale-aware router, which adds the
     // prefix back on its own. Storing the already-prefixed pathname here

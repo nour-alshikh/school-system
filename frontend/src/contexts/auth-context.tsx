@@ -10,10 +10,30 @@ import type {
 } from "@/features/school-signup/schema";
 import type { User } from "@/types/auth";
 
+/** Step one of the system admin login (see SystemLoginPage). */
+export interface TwoFactorChallenge {
+  two_factor: "setup" | "challenge";
+  challenge_id: string;
+  /** Only when setting up: the new secret to scan or type into the app. */
+  secret?: string;
+  otpauth_url?: string;
+  qr_svg?: string;
+}
+
 interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<void>;
+  /** System admin, step one: email + password start a two-factor challenge. */
+  startSystemLogin: (email: string, password: string) => Promise<TwoFactorChallenge>;
+  /**
+   * Step two: a code (or recovery code) signs in with a platform token.
+   * Returns the recovery codes right after first-time setup, to show once.
+   */
+  completeSystemLogin: (
+    challengeId: string,
+    answer: { code?: string; recovery_code?: string }
+  ) => Promise<string[] | null>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
   /** Moves the session to another of the user's memberships (school + role). */
@@ -170,6 +190,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [loginMutation]
   );
 
+  const startSystemLogin = useCallback(
+    (email: string, password: string) =>
+      apiFetch<TwoFactorChallenge>("/api/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password, role: "system" }),
+      }),
+    []
+  );
+
+  const completeSystemLogin = useCallback(
+    async (
+      challengeId: string,
+      answer: { code?: string; recovery_code?: string }
+    ) => {
+      const data = await apiFetch<{ user: User; recovery_codes?: string[] }>(
+        "/api/login/two-factor",
+        {
+          method: "POST",
+          body: JSON.stringify({ challenge_id: challengeId, ...answer }),
+        }
+      );
+      // Nothing cached so far belongs to a platform session.
+      queryClient.clear();
+      setUser(data.user);
+      return data.recovery_codes ?? null;
+    },
+    [queryClient, setUser]
+  );
+
   const register = useCallback(
     async (payload: RegisterPayload) => {
       await registerMutation.mutateAsync(payload);
@@ -229,6 +278,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isLoading,
         login,
+        startSystemLogin,
+        completeSystemLogin,
         register,
         logout,
         switchSchool,

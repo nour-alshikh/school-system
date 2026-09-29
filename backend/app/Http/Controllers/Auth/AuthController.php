@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\TwoFactorLoginRequest;
 use App\Http\Resources\UserResource;
+use App\Models\AuditLog;
 use App\Models\PersonalAccessToken;
 use App\Models\SchoolMembership;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Services\MembershipService;
+use App\Services\TwoFactor;
 use App\TypeScript\SchoolMembershipType;
 use Illuminate\Http\Request;
 
@@ -28,6 +31,11 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $result = $this->authService->login($request);
+
+        // A system admin: no token until the two-factor step (twoFactor()).
+        if (isset($result['two_factor'])) {
+            return response()->json($result['two_factor']);
+        }
 
         // Same role at several schools: the frontend shows a school picker
         // and resubmits with school_id. Shaped like a validation error so
@@ -68,6 +76,30 @@ class AuthController extends Controller
         }
 
         return response()->json(['user' => $this->authService->userAt($user, $membership), 'token' => $token]);
+    }
+
+    /**
+     * Step two of a system admin's login: a code from their authenticator
+     * app (or a recovery code) turns the challenge into a platform token.
+     * The BFF stores it like a login's. Right after setup, the response
+     * also carries the recovery codes, shown once.
+     */
+    public function twoFactor(TwoFactorLoginRequest $request, TwoFactor $twoFactor)
+    {
+        ['user' => $user, 'recovery_codes' => $recoveryCodes] = $twoFactor->completeChallenge(
+            $request->validated('challenge_id'),
+            $request->validated('code'),
+            $request->validated('recovery_code'),
+        );
+
+        $this->authService->markLoggedIn($user);
+        AuditLog::record('platform.signed_in', details: array_filter(['used_recovery_code' => filled($request->validated('recovery_code'))]), actor: $user);
+
+        return response()->json(array_filter([
+            'user' => new UserResource($user),
+            'token' => $this->authService->issuePlatformToken($user),
+            'recovery_codes' => $recoveryCodes,
+        ], fn ($value) => $value !== null));
     }
 
     public function logout(Request $request)

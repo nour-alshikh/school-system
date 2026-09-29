@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { isPlatformSession } from "@/lib/platform";
 import { apiFetch, ApiError } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import type { PlatformSchoolType } from "@/types/generated";
@@ -162,7 +163,7 @@ export function PlatformSchoolsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const isAuthorized = user?.is_platform_admin ?? false;
+  const isAuthorized = isPlatformSession(user);
 
   useEffect(() => {
     if (!isAuthLoading && (!user || !isAuthorized)) {

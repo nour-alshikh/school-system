@@ -27,6 +27,7 @@ use App\Http\Controllers\ParentPortal\FeeController as ParentFeeController;
 use App\Http\Controllers\ParentPortal\LibraryController as ParentLibraryController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
+use App\Http\Controllers\Platform\DashboardController as PlatformDashboardController;
 use App\Http\Controllers\Platform\SchoolController as PlatformSchoolController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PromotionController;
@@ -56,6 +57,10 @@ Route::middleware('throttle:10,1')->group(function () {
     Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 });
+
+// A system admin's second login step (docs/central-dashboard-plan.md,
+// phase 1), with its own limiter (see AppServiceProvider).
+Route::middleware('throttle:two-factor')->post('/login/two-factor', [AuthController::class, 'twoFactor']);
 
 // Self-service schools (docs/self-service-schools-plan.md): anyone can
 // create one. Signing up answers like login; the slug check is public so
@@ -87,6 +92,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Platform admin (users.is_platform_admin): manage the schools
     // themselves. See docs/multi-tenancy.md, step 8.
     Route::middleware('platform-admin')->prefix('platform')->group(function () {
+        Route::get('/overview', [PlatformDashboardController::class, 'overview']);
+        Route::get('/schools/{school}', [PlatformDashboardController::class, 'school']);
+        Route::get('/audit-logs', [PlatformDashboardController::class, 'auditLogs']);
         Route::get('/schools', [PlatformSchoolController::class, 'index']);
         Route::post('/schools', [PlatformSchoolController::class, 'store']);
         Route::patch('/schools/{school}', [PlatformSchoolController::class, 'update']);

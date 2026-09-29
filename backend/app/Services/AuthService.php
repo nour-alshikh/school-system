@@ -19,6 +19,8 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthService
 {
+    public const PLATFORM_ABILITY = 'platform';
+
     public function __construct(private readonly MembershipService $memberships) {}
 
     /**
@@ -49,6 +51,10 @@ class AuthService
      */
     public function login(LoginRequest $request): array
     {
+        if ($request->role === 'system') {
+            return $this->systemLogin($request);
+        }
+
         $user = User::where('email', $request->email)->first();
 
         // Checked directly against the 'web' guard's credentials, not
@@ -81,8 +87,44 @@ class AuthService
         }
 
         $this->establishSessionIfAvailable($request, $user);
+        $this->markLoggedIn($user);
 
         return ['user' => $user, 'token' => $this->memberships->issueToken($user, $membership), 'membership' => $membership];
+    }
+
+    /**
+     * Step one of a system admin's login: a correct password for a
+     * platform admin starts a two-factor challenge, and no token yet. Any
+     * other account gets the usual message, so this form doesn't reveal
+     * who is a system admin.
+     *
+     * @return array{two_factor: array}
+     */
+    private function systemLogin(LoginRequest $request): array
+    {
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user?->is_platform_admin || ! Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages(['email' => __('auth.failed')]);
+        }
+
+        return ['two_factor' => app(TwoFactor::class)->startChallenge($user)];
+    }
+
+    /** For the central dashboard's activity numbers (phase 3). No model events. */
+    public function markLoggedIn(User $user): void
+    {
+        User::whereKey($user->id)->update(['last_login_at' => now()]);
+    }
+
+    /**
+     * A system admin's token: bound to no school, and the only kind with
+     * the "platform" ability that platform routes require
+     * (EnsurePlatformAdmin). School data answers 403 with it.
+     */
+    public function issuePlatformToken(User $user): string
+    {
+        return $user->createToken('platform', [self::PLATFORM_ABILITY])->plainTextToken;
     }
 
     /**

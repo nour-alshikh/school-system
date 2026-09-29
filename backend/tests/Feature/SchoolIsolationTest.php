@@ -138,7 +138,9 @@ class SchoolIsolationTest extends TestCase
     {
         // Media copies school_id from its owner (avatars stay null) and
         // memberships are how a global user spans schools — both by design.
-        $exempt = ['Media', 'SchoolMembership'];
+        // Audit logs are platform-wide, read only by explicit queries
+        // (docs/central-dashboard-plan.md, phase 2).
+        $exempt = ['Media', 'SchoolMembership', 'AuditLog'];
 
         foreach (glob(app_path('Models/*.php')) as $file) {
             $name = basename($file, '.php');

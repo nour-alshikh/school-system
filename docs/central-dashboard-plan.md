@@ -1,6 +1,7 @@
 # Central Dashboard Plan (system admin)
 
-Status: **plan, not implemented** (written 2026-09-28). Builds on
+Status: **phases 1–4 done** (2026-09-29); phases 5–9 planned (written 2026-09-28).
+See "As built" at the end. Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done).
 
 ## Goal
@@ -307,3 +308,43 @@ On the school detail page, *People* tab:
 - **More than one system admin?** The plan supports several (all equal). Is a
   read-only "support" system admin role needed?
 - **Hosting:** can the server run a scheduler and a queue worker (cron / supervisor)?
+
+## As built (phases 1–4, 2026-09-29)
+
+- **Login:** `/login/system`, also linked from the login chooser. `role: system`
+  on `POST /api/login` → `{ two_factor: setup|challenge, challenge_id, … }` →
+  `POST /api/login/two-factor` → a token with the `platform` ability. A signed-out
+  visit to `/platform` goes there.
+  - Codes are single-use.
+  - The code step has its own named limiter (`two-factor`, 5 a minute). Unnamed
+    `throttle:N,M` limits share one counter per IP, so mistyped passwords would
+    have used up the code attempts.
+- **Platform routes need the platform token:** `EnsurePlatformAdmin` checks the
+  token's own ability list, not `tokenCan()`, which a `*` school token would pass.
+  The same account signed in as a school's admin gets 403. The old "can't suspend
+  the school you're signed in to" guard is gone, since a platform token has no
+  school.
+- **Audit log:** `audit_logs` and `AuditLog::record()`. Recorded so far:
+  - system admin sign-in;
+  - school created, edited, suspended, reactivated;
+  - 2FA reset (CLI).
+
+  `GET /api/platform/audit-logs` with filters, the `/platform/audit` page, and
+  `audit:prune`. The middleware that records every request inside an entered school
+  comes with phase 5.
+- **Activity:** `users.last_login_at` (set by school login, system login and
+  self-service signup) and `school_memberships.last_seen_at` (set by
+  `ResolveSchool`, at most every 5 minutes).
+- **Monitoring:** everything is computed in `AppPlatformSchoolMetrics`
+  (query-builder aggregates grouped by `school_id`, cached 10 minutes, and
+  `?refresh=1` skips the cache).
+  - **Overview** (`/platform`): totals, and "collected this month" per currency,
+    never added across currencies. A schools table you can search, filter by status
+    and sort, with warnings: suspended, no admin, inactive for 30 days, no
+    attendance on the last 5 school days.
+  - **School detail** (`/platform/schools/{id}`): tabs for overview, people,
+    finance (6-month collections chart plus a table view), activity, usage and
+    audit.
+- **Deferred:** the `school_daily_stats` snapshots and growth charts need a
+  scheduler, which isn't configured yet ([gaps.md](./gaps.md)). Charts read live
+  data for now.

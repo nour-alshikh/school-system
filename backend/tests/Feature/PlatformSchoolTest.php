@@ -14,6 +14,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Testing\TestResponse;
+use Tests\Concerns\SignsInAsSystemAdmin;
 use Tests\TestCase;
 
 /**
@@ -23,6 +24,7 @@ use Tests\TestCase;
 class PlatformSchoolTest extends TestCase
 {
     use RefreshDatabase;
+    use SignsInAsSystemAdmin;
 
     private School $defaultSchool;
 
@@ -43,10 +45,17 @@ class PlatformSchoolTest extends TestCase
     {
         $schoolAdmin = $this->adminAt($this->defaultSchool);
 
-        $this->as($schoolAdmin)->getJson('/api/platform/schools')->assertForbidden();
+        $this->withToken($this->loginToken($schoolAdmin))->getJson('/api/platform/schools')->assertForbidden();
         $this->as($this->platformAdmin)->getJson('/api/platform/schools')
             ->assertOk()
             ->assertJsonPath('schools.0.slug', $this->defaultSchool->slug);
+    }
+
+    public function test_a_platform_admins_school_token_does_not_reach_platform_routes(): void
+    {
+        // The same account, signed in as the school's admin instead of
+        // through the system admin login.
+        $this->withToken($this->loginToken($this->platformAdmin))->getJson('/api/platform/schools')->assertForbidden();
     }
 
     public function test_creating_a_school_with_a_new_email_invites_its_first_admin(): void
@@ -102,13 +111,17 @@ class PlatformSchoolTest extends TestCase
         $this->withToken($token)->getJson('/api/user')->assertUnauthorized();
     }
 
-    public function test_cannot_suspend_the_school_you_are_signed_in_to(): void
+    public function test_suspending_a_school_the_system_admin_belongs_to_keeps_their_platform_session(): void
     {
-        $this->as($this->platformAdmin)
-            ->patchJson("/api/platform/schools/{$this->defaultSchool->id}", ['status' => 'suspended'])
-            ->assertUnprocessable();
+        $token = $this->systemAdminToken($this->platformAdmin);
 
-        $this->assertSame(SchoolStatus::Active, $this->defaultSchool->fresh()->status);
+        $this->withToken($token)
+            ->patchJson("/api/platform/schools/{$this->defaultSchool->id}", ['status' => 'suspended'])
+            ->assertOk();
+
+        $this->assertSame(SchoolStatus::Suspended, $this->defaultSchool->fresh()->status);
+        $this->app['auth']->forgetGuards();
+        $this->withToken($token)->getJson('/api/platform/schools')->assertOk();
     }
 
     private function createSchool(array $overrides = []): TestResponse
@@ -130,12 +143,13 @@ class PlatformSchoolTest extends TestCase
         return $user;
     }
 
-    /** Signed in the real way, so the token is bound to a school. */
+    /** Signed in through the system admin login (password + two-factor). */
     private function as(User $user): self
     {
+        $token = $this->systemAdminToken($user);
         $this->app['auth']->forgetGuards();
 
-        return $this->withToken($this->loginToken($user));
+        return $this->flushHeaders()->withToken($token);
     }
 
     private function loginToken(User $user, ?int $schoolId = null): string

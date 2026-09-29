@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
+import { isPlatformSession } from "@/lib/platform";
 import { AvatarUploader } from "@/components/avatar-uploader";
 import { PageLoader } from "@/components/page-loader";
 import { StudentDashboardPage } from "@/features/student-dashboard/student-dashboard-page";
@@ -18,17 +19,23 @@ export default function DashboardPage() {
 
   // A plain account (from /register) belongs to no school, so every
   // dashboard widget would answer 403 — send it to create one instead.
-  const hasNoSchool = !!user && user.memberships.length === 0;
+  // A system admin's platform session belongs to no school either: its
+  // home is the central dashboard.
+  const platformSession = isPlatformSession(user);
+  const hasNoSchool =
+    !!user && !platformSession && user.memberships.length === 0;
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace("/login");
+    } else if (platformSession) {
+      router.replace("/platform");
     } else if (hasNoSchool) {
       router.replace("/create-school");
     }
-  }, [isLoading, user, hasNoSchool, router]);
+  }, [isLoading, user, platformSession, hasNoSchool, router]);
 
-  if (isLoading || !user || hasNoSchool) {
+  if (isLoading || !user || platformSession || hasNoSchool) {
     return <PageLoader />;
   }
 

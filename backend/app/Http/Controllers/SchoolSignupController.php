@@ -56,6 +56,8 @@ class SchoolSignupController extends Controller
 
     private function respond(array $result): JsonResponse
     {
+        $this->auth->markLoggedIn($result['user']);
+
         return response()->json([
             'user' => $this->auth->userAt($result['user'], $result['membership']),
             'token' => $result['token'],

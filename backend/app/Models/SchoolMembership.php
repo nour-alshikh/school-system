@@ -28,6 +28,8 @@ class SchoolMembership extends Model
         'status' => MembershipStatus::class,
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
+        // Set by ResolveSchool, at most every 5 minutes (central dashboard, phase 3).
+        'last_seen_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

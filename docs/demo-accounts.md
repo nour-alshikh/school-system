@@ -38,6 +38,16 @@ App\Models\Student::with('user','parentUser','grade')->get()->each(fn(\$s) =>
 "
 ```
 
+## System admin (central dashboard)
+
+`test@example.com` / `password` is also the system admin. Sign in at
+**`/en/login/system`** (or "System admin sign-in" under the login chooser). The first
+time, scan the QR code with an authenticator app (Google Authenticator, Microsoft
+Authenticator, 1Password…), enter its 6-digit code, and keep the recovery codes. You
+land on the **central dashboard** (`/platform`), which covers every school.
+Lost the app? Run `php artisan platform:reset-2fa test@example.com`, and it's set up
+again at the next sign-in.
+
 ## Other seeded data worth knowing about for a demo
 
 - **Activity** (`database/seeders/Demo`, see [demo-seeder-plan.md](./demo-seeder-plan.md)),

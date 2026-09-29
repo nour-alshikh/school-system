@@ -68,6 +68,13 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // A system admin's code step: 5 tries a minute. Named, so it has its
+        // own counter: unnamed throttle:N,M limits share one per address, and
+        // mistyped passwords would otherwise use up the code attempts.
+        RateLimiter::for('two-factor', function (Request $request) {
+            return Limit::perMinute(5)->by('two-factor:'.$request->ip());
+        });
+
         // Creating a school is open to anyone, so it's tighter than login:
         // a few per hour from one address (docs/self-service-schools-plan.md).
         // Only schools actually created count — a form resubmitted after a

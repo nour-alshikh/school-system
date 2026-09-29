@@ -20,7 +20,9 @@ class LoginRequest extends FormRequest
             // Which per-role login form the request came from — checked
             // against the user's actual role in AuthService::login() so a
             // valid password on the wrong role's form still gets rejected.
-            'role' => ['required', 'string', Rule::in(['admin', 'teacher', 'student', 'parent'])],
+            // "system": the system admin's own login, not tied to a school
+            // (docs/central-dashboard-plan.md, phase 1).
+            'role' => ['required', 'string', Rule::in(['admin', 'teacher', 'student', 'parent', 'system'])],
             // Only needed when the account has this role at more than one
             // school — see AuthService::login().
             'school_id' => ['nullable', 'integer'],

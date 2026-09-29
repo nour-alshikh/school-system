@@ -7,6 +7,7 @@ use App\Models\PersonalAccessToken;
 use App\Models\School;
 use App\Models\SchoolMembership;
 use App\Models\User;
+use App\Services\AuthService;
 use App\Services\MembershipService;
 use App\Tenancy\TenantContext;
 use Closure;
@@ -79,6 +80,19 @@ class ResolveSchool
 
         $this->context->set($membership->school);
         $request->attributes->set(self::MEMBERSHIP, $membership);
+        $this->markSeen($membership);
+    }
+
+    /**
+     * When this member was last active at the school (central dashboard,
+     * phase 3). At most one write every 5 minutes per membership, not one
+     * per request; a query, so no model events fire.
+     */
+    private function markSeen(SchoolMembership $membership): void
+    {
+        if ($membership->last_seen_at === null || $membership->last_seen_at->lt(now()->subMinutes(5))) {
+            SchoolMembership::whereKey($membership->id)->update(['last_seen_at' => now()]);
+        }
     }
 
     private function membershipFor(User $user): ?SchoolMembership
@@ -87,6 +101,12 @@ class ResolveSchool
 
         if ($token instanceof PersonalAccessToken && $token->school_membership_id !== null) {
             return $token->membership()->with('school')->first();
+        }
+
+        // A system admin's platform token acts as no school, even for an
+        // account that is also a member somewhere.
+        if ($token instanceof PersonalAccessToken && in_array(AuthService::PLATFORM_ABILITY, $token->abilities ?? [], true)) {
+            return null;
         }
 
         // Tokens issued before memberships existed, and session logins:
