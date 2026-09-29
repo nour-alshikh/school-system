@@ -52,11 +52,15 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
   });
 
   // switch-school answers like login: a new token (bound to another school)
-  // that replaces the cookie.
+  // that replaces the cookie. So do the two ways of creating a school
+  // (school-signup for a guest, POST schools for a signed-in user): the
+  // token is bound to the new school.
   if (
     pathname === "login" ||
     pathname === "register" ||
-    pathname === "switch-school"
+    pathname === "switch-school" ||
+    pathname === "school-signup" ||
+    (pathname === "schools" && method === "POST")
   ) {
     return handleAuthResponse(laravelResponse);
   }

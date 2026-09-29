@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\SchoolSource;
 use App\Enums\SchoolStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -16,15 +18,19 @@ class School extends Model
         'name',
         'slug',
         'status',
+        'created_by_id',
+        'source',
     ];
 
     protected $casts = [
         'status' => SchoolStatus::class,
+        'source' => SchoolSource::class,
     ];
 
-    // Mirrors the column default, so a just-created school has it in memory.
+    // Mirrors the column defaults, so a just-created school has them in memory.
     protected $attributes = [
         'status' => 'active',
+        'source' => 'platform',
     ];
 
     public function memberships(): HasMany
@@ -37,5 +43,11 @@ class School extends Model
         return $this->belongsToMany(User::class, 'school_memberships')
             ->withPivot(['role', 'status'])
             ->withTimestamps();
+    }
+
+    /** Whoever created it through self-service; null for platform/seeded schools. */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_id');
     }
 }

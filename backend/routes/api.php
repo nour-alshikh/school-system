@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
-use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -30,6 +30,7 @@ use App\Http\Controllers\Platform\SchoolController as PlatformSchoolController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
+use App\Http\Controllers\SchoolSignupController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
@@ -55,6 +56,12 @@ Route::middleware('throttle:10,1')->group(function () {
     Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 });
 
+// Self-service schools (docs/self-service-schools-plan.md): anyone can
+// create one. Signing up answers like login; the slug check is public so
+// the form can show availability as the user types.
+Route::middleware('throttle:school-signup')->post('/school-signup', [SchoolSignupController::class, 'signUp']);
+Route::middleware('throttle:30,1')->get('/school-slugs/{slug}', [SchoolSignupController::class, 'slugAvailability']);
+
 // Deliberately outside auth:sanctum — Zoom's redirect back here is a plain
 // top-level browser navigation from zoom.us, which Sanctum's cookie-based
 // "fromFrontend" check would never recognize as authenticated. See
@@ -70,6 +77,7 @@ Route::get('/settings', [SettingController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/switch-school', [AuthController::class, 'switchSchool']);
+    Route::post('/schools', [SchoolSignupController::class, 'store'])->middleware('throttle:school-signup');
 
     // Student attachments: staff, the student, or their parent — checked in
     // the controller, since no single permission covers all three.

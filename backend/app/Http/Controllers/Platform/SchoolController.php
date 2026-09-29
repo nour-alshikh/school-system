@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Platform;
 use App\Enums\SchoolStatus;
 use App\Http\Controllers\Controller;
 use App\Models\School;
+use App\Rules\SchoolSlug;
 use App\Services\SchoolProvisioner;
 use App\Tenancy\TenantContext;
 use App\TypeScript\PlatformSchoolType;
@@ -30,7 +31,7 @@ class SchoolController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:63', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'unique:schools,slug'],
+            'slug' => ['required', 'string', new SchoolSlug],
             'admin_name' => ['required', 'string', 'max:255'],
             'admin_email' => ['required', 'string', 'email', 'max:255'],
         ]);

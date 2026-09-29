@@ -68,6 +68,20 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Creating a school is open to anyone, so it's tighter than login:
+        // a few per hour from one address (docs/self-service-schools-plan.md).
+        // Only schools actually created count — a form resubmitted after a
+        // validation error (slug taken, weak password) doesn't use one up;
+        // the general 'api' limit above still caps raw request volume.
+        RateLimiter::for('school-signup', function (Request $request) {
+            $created = fn ($response) => $response->status() === 201;
+
+            return [
+                Limit::perHour(3)->by('hour:'.$request->ip())->after($created),
+                Limit::perDay(10)->by('day:'.$request->ip())->after($created),
+            ];
+        });
+
         // Admins bypass every Policy check (see app/Policies) without each
         // policy needing to special-case the admin role individually.
         Gate::before(function (User $user, string $ability) {

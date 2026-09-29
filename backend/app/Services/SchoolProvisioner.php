@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Enums\MembershipRole;
+use App\Enums\SchoolSource;
 use App\Enums\SettingGroup;
 use App\Models\School;
+use App\Models\SchoolMembership;
 use App\Models\Setting;
 use App\Models\User;
 use App\Tenancy\TenantContext;
@@ -54,8 +56,6 @@ class SchoolProvisioner
     public function create(string $name, string $slug, string $adminName, string $adminEmail): array
     {
         [$school, $admin, $invited] = DB::transaction(function () use ($name, $slug, $adminName, $adminEmail) {
-            $school = School::create(['name' => $name, 'slug' => $slug]);
-
             $admin = User::where('email', $adminEmail)->first();
             $invited = $admin === null;
             $admin ??= User::create([
@@ -65,10 +65,10 @@ class SchoolProvisioner
                 'password' => Hash::make(Str::random(64)),
             ]);
 
-            $this->context->runAs($school, function () use ($school, $admin) {
-                $this->seedDefaultSettings(['school_name' => $school->name]);
-                $this->memberships->grant($admin, MembershipRole::Admin);
-            });
+            ['school' => $school] = $this->provision(
+                ['name' => $name, 'slug' => $slug, 'source' => SchoolSource::Platform],
+                $admin,
+            );
 
             return [$school, $admin, $invited];
         });
@@ -79,6 +79,43 @@ class SchoolProvisioner
         }
 
         return ['school' => $school, 'admin' => $admin, 'invited' => $invited];
+    }
+
+    /**
+     * Self-service: $owner creates a school and becomes its first admin.
+     * They already have a password, so no invitation goes out. See
+     * docs/self-service-schools-plan.md.
+     *
+     * @return array{school: School, membership: SchoolMembership}
+     */
+    public function createForOwner(User $owner, string $name, string $slug): array
+    {
+        return DB::transaction(fn () => $this->provision(
+            ['name' => $name, 'slug' => $slug, 'source' => SchoolSource::SelfService, 'created_by_id' => $owner->id],
+            $owner,
+            ['email' => $owner->email],
+        ));
+    }
+
+    /**
+     * The part every new school shares: the row, its default settings and
+     * its first admin. Callers wrap it in a transaction.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, string|null>  $settings  beyond school_name
+     * @return array{school: School, membership: SchoolMembership}
+     */
+    private function provision(array $attributes, User $admin, array $settings = []): array
+    {
+        $school = School::create($attributes);
+
+        $membership = $this->context->runAs($school, function () use ($school, $admin, $settings) {
+            $this->seedDefaultSettings(['school_name' => $school->name, ...$settings]);
+
+            return $this->memberships->grant($admin, MembershipRole::Admin);
+        });
+
+        return ['school' => $school, 'membership' => $membership];
     }
 
     /**

@@ -178,6 +178,12 @@ return [
     |
     */
 
+    'school_slug' => [
+        'invalid' => 'Use 3–63 lowercase letters, numbers and single dashes (e.g. green-valley).',
+        'reserved' => 'This address is reserved. Please choose another.',
+        'taken' => 'Another school already uses this address.',
+    ],
+
     'parent_account_shared' => 'This parent account is also used at another school, so only the parent can change its email or password.',
 
     'custom' => [

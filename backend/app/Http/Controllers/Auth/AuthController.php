@@ -11,7 +11,6 @@ use App\Models\SchoolMembership;
 use App\Models\User;
 use App\Services\AuthService;
 use App\Services\MembershipService;
-use App\Tenancy\TenantContext;
 use App\TypeScript\SchoolMembershipType;
 use Illuminate\Http\Request;
 
@@ -42,7 +41,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'user' => $this->userAt($result['user'], $result['membership']),
+            'user' => $this->authService->userAt($result['user'], $result['membership']),
             'token' => $result['token'],
         ]);
     }
@@ -68,20 +67,7 @@ class AuthController extends Controller
             $current->delete();
         }
 
-        return response()->json(['user' => $this->userAt($user, $membership), 'token' => $token]);
-    }
-
-    /**
-     * The user as seen from $membership's school. This request was resolved
-     * for another school (or none), and roles/permissions are per school, so
-     * switch before reading them.
-     */
-    private function userAt(User $user, SchoolMembership $membership): UserResource
-    {
-        app(TenantContext::class)->set($membership->school);
-        $user->unsetRelation('roles')->unsetRelation('permissions');
-
-        return new UserResource($user, $membership);
+        return response()->json(['user' => $this->authService->userAt($user, $membership), 'token' => $token]);
     }
 
     public function logout(Request $request)

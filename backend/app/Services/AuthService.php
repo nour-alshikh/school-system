@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Enums\MembershipRole;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\SchoolMembership;
 use App\Models\User;
+use App\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -81,6 +83,20 @@ class AuthService
         $this->establishSessionIfAvailable($request, $user);
 
         return ['user' => $user, 'token' => $this->memberships->issueToken($user, $membership), 'membership' => $membership];
+    }
+
+    /**
+     * The user as seen from $membership's school, for a response that just
+     * issued a token bound to it (login, switch-school, a new school). This
+     * request was resolved for another school (or none), and roles/
+     * permissions are per school, so switch before reading them.
+     */
+    public function userAt(User $user, SchoolMembership $membership): UserResource
+    {
+        app(TenantContext::class)->set($membership->school);
+        $user->unsetRelation('roles')->unsetRelation('permissions');
+
+        return new UserResource($user, $membership);
     }
 
     /**
