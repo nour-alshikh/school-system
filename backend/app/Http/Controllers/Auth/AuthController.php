@@ -32,9 +32,13 @@ class AuthController extends Controller
     {
         $result = $this->authService->login($request);
 
-        // A system admin: no token until the two-factor step (twoFactor()).
+        // A system admin: no token until the two-factor step (twoFactor()) —
+        // unless two-factor is turned off, and they're signed in already.
         if (isset($result['two_factor'])) {
             return response()->json($result['two_factor']);
+        }
+        if (isset($result['platform_token'])) {
+            return response()->json(['user' => new UserResource($result['user']), 'token' => $result['platform_token']]);
         }
 
         // Same role at several schools: the frontend shows a school picker

@@ -128,6 +128,25 @@ class SystemAdminLoginTest extends TestCase
         $this->withToken($token)->getJson('/api/user')->assertJsonPath('user.current_membership', null);
     }
 
+    public function test_with_two_factor_turned_off_the_password_signs_in(): void
+    {
+        config(['platform.two_factor' => false]);
+
+        $token = $this->password()->assertOk()
+            ->assertJsonMissingPath('two_factor')
+            ->assertJsonPath('user.is_platform_admin', true)
+            ->assertJsonPath('user.platform_two_factor', false)
+            ->json('token');
+
+        $this->app['auth']->forgetGuards();
+        $this->withToken($token)->getJson('/api/platform/schools')->assertOk();
+        $this->assertDatabaseHas('audit_logs', ['action' => 'platform.signed_in', 'actor_id' => $this->admin->id]);
+
+        // Still only for system admins.
+        $someone = User::factory()->create();
+        $this->postJson('/api/login', ['email' => $someone->email, 'password' => 'password', 'role' => 'system'])->assertJsonValidationErrors('email');
+    }
+
     public function test_the_cli_resets_two_factor(): void
     {
         $this->setUpTwoFactor();

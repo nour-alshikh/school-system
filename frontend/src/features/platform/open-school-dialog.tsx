@@ -29,11 +29,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-const schema = z.object({
-  code: z.string().trim().min(6).max(10),
-  reason: z.string().max(500).optional(),
-});
-type Values = z.infer<typeof schema>;
+type Values = { code: string; reason?: string };
+
+// A code is asked for only when two-factor is on (user.platform_two_factor).
+function makeSchema(needsCode: boolean) {
+  return z.object({
+    code: needsCode ? z.string().trim().min(6).max(10) : z.string(),
+    reason: z.string().max(500).optional(),
+  });
+}
 
 /**
  * "Open school": a fresh two-factor code and an optional reason, then the
@@ -42,11 +46,12 @@ type Values = z.infer<typeof schema>;
 export function OpenSchoolDialog({ schoolId, schoolName }: { schoolId: number; schoolName: string }) {
   const t = useTranslations("Platform.enter");
   const tErrors = useTranslations("Errors");
-  const { enterSchool } = useAuth();
+  const { enterSchool, user } = useAuth();
+  const needsCode = user?.platform_two_factor ?? true;
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
-  const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { code: "", reason: "" } });
+  const form = useForm<Values>({ resolver: zodResolver(makeSchema(needsCode)), defaultValues: { code: "", reason: "" } });
 
   async function onSubmit(values: Values) {
     try {
@@ -70,10 +75,11 @@ export function OpenSchoolDialog({ schoolId, schoolName }: { schoolId: number; s
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t("title", { school: schoolName })}</DialogTitle>
-            <DialogDescription>{t("description")}</DialogDescription>
+            <DialogDescription>{needsCode ? t("description") : t("descriptionNoCode")}</DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+              {needsCode && (
               <FormField
                 control={form.control}
                 name="code"
@@ -87,6 +93,7 @@ export function OpenSchoolDialog({ schoolId, schoolName }: { schoolId: number; s
                   </FormItem>
                 )}
               />
+              )}
               <FormField
                 control={form.control}
                 name="reason"

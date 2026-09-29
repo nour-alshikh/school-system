@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { DemoLoginButton } from "@/components/demo-login-button";
 
 /**
  * The system admin's own login, not tied to a school
@@ -62,7 +63,7 @@ export function SystemLoginPage() {
       />
     );
   } else {
-    content = <PasswordStep onChallenge={setChallenge} />;
+    content = <PasswordStep onChallenge={setChallenge} onSignedIn={goToPlatform} />;
   }
 
   return (
@@ -74,8 +75,11 @@ export function SystemLoginPage() {
 
 function PasswordStep({
   onChallenge,
+  onSignedIn,
 }: {
   onChallenge: (challenge: TwoFactorChallenge) => void;
+  /** Two-factor turned off on the server: signed in by the password alone. */
+  onSignedIn: () => void;
 }) {
   const t = useTranslations("SystemLoginPage");
   const tValidation = useTranslations("Validation");
@@ -90,7 +94,9 @@ function PasswordStep({
 
   async function onSubmit(values: LoginFormValues) {
     try {
-      onChallenge(await startSystemLogin(values.email, values.password));
+      const challenge = await startSystemLogin(values.email, values.password);
+      if (challenge) onChallenge(challenge);
+      else onSignedIn();
     } catch (err) {
       const message = applyServerErrors(
         form,
@@ -112,6 +118,14 @@ function PasswordStep({
           <h1 className="text-xl font-semibold">{t("heading")}</h1>
           <p className="text-sm text-muted-foreground">{t("subheading")}</p>
         </div>
+
+        <DemoLoginButton
+          role="system"
+          onFill={(email, password) => {
+            form.setValue("email", email, { shouldValidate: true });
+            form.setValue("password", password, { shouldValidate: true });
+          }}
+        />
 
         <FormField
           control={form.control}

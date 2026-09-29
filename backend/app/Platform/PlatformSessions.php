@@ -38,7 +38,9 @@ class PlatformSessions
      */
     public function enter(User $user, PersonalAccessToken $platformToken, School $school, ?string $reason): array
     {
-        if ($platformToken->platform_confirmed_at === null || $platformToken->platform_confirmed_at->lt(now()->subMinutes(self::CONFIRM_MINUTES))) {
+        // No re-confirmation when two-factor is turned off (config platform.two_factor).
+        $confirmed = $platformToken->platform_confirmed_at?->gte(now()->subMinutes(self::CONFIRM_MINUTES)) ?? false;
+        if (config('platform.two_factor') && ! $confirmed) {
             throw ValidationException::withMessages(['code' => __('api.platform_confirm_required')]);
         }
 

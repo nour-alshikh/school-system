@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { DemoLoginButton } from "@/components/demo-login-button";
 import {
   Select,
   SelectContent,
@@ -109,6 +110,14 @@ function RoleLoginForm({ role }: { role: LoginRole }) {
         className="w-full max-w-sm flex flex-col gap-4"
       >
         <h1 className="text-xl font-semibold">{t(headingKeys[role])}</h1>
+
+        <DemoLoginButton
+          role={role}
+          onFill={(email, password) => {
+            form.setValue("email", email, { shouldValidate: true });
+            form.setValue("password", password, { shouldValidate: true });
+          }}
+        />
 
         <FormField
           control={form.control}

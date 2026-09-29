@@ -54,6 +54,15 @@ class PlatformSessionTest extends TestCase
         $this->assertSame(0, PlatformSession::count());
     }
 
+    public function test_with_two_factor_turned_off_entering_needs_no_code(): void
+    {
+        config(['platform.two_factor' => false]);
+
+        $this->asPlatform()->postJson("/api/platform/schools/{$this->school->id}/enter")
+            ->assertCreated()
+            ->assertJsonPath('user.acting_as.school_id', $this->school->id);
+    }
+
     public function test_the_session_acts_as_the_schools_admin_and_nowhere_else(): void
     {
         $response = $this->enter()

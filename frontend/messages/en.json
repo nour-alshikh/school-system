@@ -1727,7 +1727,8 @@
       "reasonLabel": "Reason (optional)",
       "reasonPlaceholder": "e.g. Support request #42",
       "open": "Open school",
-      "opening": "Opening…"
+      "opening": "Opening…",
+      "descriptionNoCode": "You’ll see and change everything its admins can. The session lasts 2 hours, and the school’s admins can see what you do."
     },
     "members": {
       "heading": "Members",
@@ -1907,5 +1908,8 @@
   },
   "Announcements": {
     "dismiss": "Dismiss"
+  },
+  "DemoLogin": {
+    "fill": "Use the demo account"
   }
 }

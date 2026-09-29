@@ -42,6 +42,8 @@ final class UserType
          * @var string[]|null
          */
         public readonly ?array $plan_features = null,
+        /** Whether a system admin needs a two-factor code to open a school (config platform.two_factor). */
+        public readonly bool $platform_two_factor = true,
     ) {}
 
     public static function fromModel(User $user, ?SchoolMembership $current = null, ?PlatformSession $session = null): self
@@ -63,6 +65,7 @@ final class UserType
                 ->all(),
             acting_as: $session ? ActingAsType::fromSession($session) : null,
             plan_features: ($current?->school ?? $session?->school)?->effectivePlan()->features,
+            platform_two_factor: (bool) config('platform.two_factor'),
         );
     }
 }

@@ -8,6 +8,7 @@ use App\Enums\SchoolStatus;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Models\AuditLog;
 use App\Models\SchoolMembership;
 use App\Models\User;
 use App\Tenancy\TenantContext;
@@ -121,9 +122,11 @@ class AuthService
      * Step one of a system admin's login: a correct password for a
      * platform admin starts a two-factor challenge, and no token yet. Any
      * other account gets the usual message, so this form doesn't reveal
-     * who is a system admin.
+     * who is a system admin. With two-factor turned off (config
+     * platform.two_factor, local development), a correct password signs in
+     * straight away.
      *
-     * @return array{two_factor: array}
+     * @return array{two_factor: array}|array{user: User, platform_token: string}
      */
     private function systemLogin(LoginRequest $request): array
     {
@@ -131,6 +134,13 @@ class AuthService
 
         if (! $user?->is_platform_admin || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages(['email' => __('auth.failed')]);
+        }
+
+        if (! config('platform.two_factor')) {
+            $this->markLoggedIn($user);
+            AuditLog::record('platform.signed_in', details: ['two_factor' => false], actor: $user, platformWide: true);
+
+            return ['user' => $user, 'platform_token' => $this->issuePlatformToken($user)];
         }
 
         return ['two_factor' => app(TwoFactor::class)->startChallenge($user)];

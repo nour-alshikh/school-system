@@ -24,8 +24,11 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<void>;
-  /** System admin, step one: email + password start a two-factor challenge. */
-  startSystemLogin: (email: string, password: string) => Promise<TwoFactorChallenge>;
+  /**
+   * System admin, step one: email + password start a two-factor challenge.
+   * Null when two-factor is turned off on the server: already signed in.
+   */
+  startSystemLogin: (email: string, password: string) => Promise<TwoFactorChallenge | null>;
   /**
    * Step two: a code (or recovery code) signs in with a platform token.
    * Returns the recovery codes right after first-time setup, to show once.
@@ -198,12 +201,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const startSystemLogin = useCallback(
-    (email: string, password: string) =>
-      apiFetch<TwoFactorChallenge>("/api/login", {
+    async (email: string, password: string) => {
+      const data = await apiFetch<TwoFactorChallenge | { user: User }>("/api/login", {
         method: "POST",
         body: JSON.stringify({ email, password, role: "system" }),
-      }),
-    []
+      });
+      if ("user" in data) {
+        queryClient.clear();
+        setUser(data.user);
+        return null;
+      }
+      return data;
+    },
+    [queryClient, setUser]
   );
 
   const completeSystemLogin = useCallback(
@@ -228,10 +238,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const enterSchool = useCallback(
     async (schoolId: number, code: string, reason?: string) => {
-      await apiFetch<void>("/api/platform/confirm", {
-        method: "POST",
-        body: JSON.stringify({ code }),
-      });
+      // No code when two-factor is turned off on the server.
+      if (code) {
+        await apiFetch<void>("/api/platform/confirm", {
+          method: "POST",
+          body: JSON.stringify({ code }),
+        });
+      }
       const data = await apiFetch<{ user: User }>(`/api/platform/schools/${schoolId}/enter`, {
         method: "POST",
         body: JSON.stringify({ reason: reason || null }),
