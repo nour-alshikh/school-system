@@ -13,6 +13,17 @@ return [
     ],
 
     /*
+    | Currencies a school's admin can pick (ISO 4217). The frontend formats
+    | amounts with Intl.NumberFormat, so any code works there; this list just
+    | keeps the picker short and the value valid.
+    */
+    'currencies' => [
+        'EGP', 'SAR', 'AED', 'KWD', 'QAR', 'BHD', 'OMR', 'JOD', 'IQD', 'LBP',
+        'SYP', 'YER', 'LYD', 'TND', 'DZD', 'MAD', 'SDG', 'USD', 'EUR', 'GBP',
+        'TRY',
+    ],
+
+    /*
     | How many schools one account can create through self-service. Platform
     | admins aren't limited. Counted by schools.created_by_id.
     */

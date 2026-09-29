@@ -941,7 +941,8 @@
     "statusLate": "Late",
     "statusExcused": "Excused",
     "loadError": "Couldn't load classrooms.",
-    "rosterLoadError": "Couldn't load the student list."
+    "rosterLoadError": "Couldn't load the student list.",
+    "notSchoolDay": "This isn't one of your school days. You can still take attendance, for example for a make-up day."
   },
   "AttendanceHistoryPage": {
     "heading": "Attendance history",
@@ -1388,7 +1389,13 @@
     "changeFile": "Upload",
     "uploading": "Uploading…",
     "fileUploadSuccess": "File uploaded.",
-    "fileUploadError": "Failed to upload file."
+    "fileUploadError": "Failed to upload file.",
+    "schoolYearTab": "School year",
+    "currencyLabel": "Currency",
+    "currencyPlaceholder": "Choose a currency",
+    "currencyHint": "Fees and payments are shown in this currency.",
+    "schoolDaysLabel": "School days",
+    "schoolDaysHint": "The days your school is open. Attendance is taken on these days."
   },
   "HomePage": {
     "heroHeadline": "Run your school from one place.",
@@ -1524,6 +1531,10 @@
       "students": {
         "title": "Register your first student",
         "body": "A parent account is created with them."
+      },
+      "school_week_currency": {
+        "title": "Choose your school week and currency",
+        "body": "Which days you're open, and the currency for fees."
       }
     }
   }

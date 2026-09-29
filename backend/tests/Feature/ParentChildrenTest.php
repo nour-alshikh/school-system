@@ -11,6 +11,7 @@ use App\Models\Governorate;
 use App\Models\Nationality;
 use App\Models\Religion;
 use App\Models\School;
+use App\Models\Setting;
 use App\Models\Stage;
 use App\Models\Student;
 use App\Models\User;
@@ -120,6 +121,25 @@ class ParentChildrenTest extends TestCase
 
         $this->withToken($token)->getJson("/api/parent/student?student_id={$kid2->id}")
             ->assertJsonPath('student.id', $kid2->id);
+    }
+
+    public function test_each_childs_fees_come_in_their_own_schools_currency(): void
+    {
+        $this->register($this->schoolA, 'kid1');
+        $this->register($this->schoolB, 'kid2', password: null);
+        $this->inSchool($this->schoolA, fn () => Setting::updateOrCreate(['key' => 'currency'], ['value' => 'EGP', 'group' => 'general']));
+        $this->inSchool($this->schoolB, fn () => Setting::updateOrCreate(['key' => 'currency'], ['value' => 'USD', 'group' => 'general']));
+        $kid1 = Student::withoutSchoolScope()->whereHas('user', fn ($q) => $q->where('email', 'kid1@family.test'))->sole();
+        $kid2 = Student::withoutSchoolScope()->whereHas('user', fn ($q) => $q->where('email', 'kid2@family.test'))->sole();
+
+        // Signed in at school A, looking at a child at school B.
+        $token = $this->parentToken();
+        $this->withToken($token)->getJson("/api/parent/fees?student_id={$kid1->id}")->assertJsonPath('currency', 'EGP');
+        $this->withToken($token)->getJson("/api/parent/fees?student_id={$kid2->id}")->assertJsonPath('currency', 'USD');
+
+        $children = collect($this->withToken($token)->getJson('/api/parent/children')->json('children'))->keyBy('school_id');
+        $this->assertSame('EGP', $children[$this->schoolA->id]['currency']);
+        $this->assertSame('USD', $children[$this->schoolB->id]['currency']);
     }
 
     public function test_parent_cannot_read_someone_elses_child(): void

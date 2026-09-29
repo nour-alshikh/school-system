@@ -40,7 +40,7 @@ class OnboardingTest extends TestCase
 
         $steps = collect($response->json('onboarding.steps'));
         $this->assertSame(
-            ['branding', 'academic_year', 'stages', 'grades', 'classrooms', 'subjects', 'teachers', 'students'],
+            ['branding', 'school_week_currency', 'academic_year', 'stages', 'grades', 'classrooms', 'subjects', 'teachers', 'students'],
             $steps->pluck('key')->all(),
         );
         $this->assertFalse($steps->contains('done', true));

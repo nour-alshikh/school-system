@@ -44,6 +44,8 @@ class SchoolMembershipTest extends TestCase
         $plainUser = User::factory()->create();
 
         // Re-run the backfill as if these users existed before the upgrade.
+        // Later migrations add settings rows for every school; they'd block the delete.
+        DB::table('settings')->delete();
         DB::table('schools')->delete();
         $migration = require database_path('migrations/2026_09_28_090002_create_default_school_and_backfill_memberships.php');
         $migration->up();

@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useStaggerIn } from "@/hooks/use-stagger-in";
+import { isSchoolDay, useSchoolDays } from "@/hooks/use-school-settings";
 import {
   Form,
   FormControl,
@@ -62,6 +63,7 @@ export function AttendancePage() {
 
   const [classroomId, setClassroomId] = useState<string>("");
   const [date, setDate] = useState<string>(today());
+  const schoolDays = useSchoolDays();
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -227,6 +229,13 @@ export function AttendancePage() {
             aria-label={t("dateLabel")}
           />
         </div>
+
+        {/* A notice, not a block: make-up days and trips happen. */}
+        {!isSchoolDay(date, schoolDays) && (
+          <p className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-300">
+            {t("notSchoolDay")}
+          </p>
+        )}
 
         {!isLoadingClassrooms && classrooms.length === 0 && (
           <p className="text-sm text-muted-foreground">{t("noClassrooms")}</p>

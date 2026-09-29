@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\StudentPortal;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Models\Student;
 use App\TypeScript\FeeChargeType;
 use App\TypeScript\StudentFeesSummaryType;
@@ -25,6 +26,7 @@ class FeeController extends Controller
         return response()->json([
             'summary' => (array) StudentFeesSummaryType::fromCharges($charges),
             'fee_charges' => $charges->map(fn ($charge) => FeeChargeType::fromModel($charge))->values()->all(),
+            'currency' => Setting::currency(),
         ]);
     }
 

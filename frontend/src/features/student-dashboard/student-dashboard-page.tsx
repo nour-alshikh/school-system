@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useMoney } from "@/hooks/use-money";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
@@ -68,6 +69,8 @@ export function StudentDashboardPage() {
     late: t("attendanceLate"),
     excused: t("attendanceExcused"),
   };
+
+  const money = useMoney(dashboard?.currency);
 
   if (isLoading || !dashboard) {
     return (
@@ -150,11 +153,11 @@ export function StudentDashboardPage() {
           <p className="text-sm text-muted-foreground">
             {t("totalOutstandingLabel")}:{" "}
             <span className="font-medium text-foreground">
-              {Number(fees_summary.total_outstanding).toFixed(2)}
+              {money(fees_summary.total_outstanding)}
             </span>
           </p>
           <p className="text-sm text-muted-foreground">
-            {t("totalDueLabel")}: {Number(fees_summary.total_due).toFixed(2)}
+            {t("totalDueLabel")}: {money(fees_summary.total_due)}
           </p>
         </Card>
 

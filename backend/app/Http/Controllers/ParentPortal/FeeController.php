@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ParentPortal;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Models\Student;
 use App\Services\ParentChildren;
 use App\TypeScript\FeeChargeType;
@@ -24,6 +25,9 @@ class FeeController extends Controller
         return response()->json([
             'summary' => (array) StudentFeesSummaryType::fromCharges($charges),
             'fee_charges' => $charges->map(fn ($charge) => FeeChargeType::fromModel($charge))->values()->all(),
+            // The child's school's (student() switched to it), which may
+            // not be the school the parent is signed in to.
+            'currency' => Setting::currency(),
         ]);
     }
 

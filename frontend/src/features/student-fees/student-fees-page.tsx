@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useMoney } from "@/hooks/use-money";
 import { useRouter } from "@/i18n/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -52,11 +53,17 @@ export function StudentFeesPage() {
   } = useQuery({
     queryKey: ["student-fees"],
     queryFn: () =>
-      apiFetch<{ summary: StudentFeesSummary; fee_charges: FeeCharge[] }>(
+      apiFetch<{
+        summary: StudentFeesSummary;
+        fee_charges: FeeCharge[];
+        currency: string | null;
+      }>(
         "/api/student/fees"
       ),
     enabled: !isAuthLoading && !!user && hasRole("student"),
   });
+
+  const money = useMoney(data?.currency);
 
   useEffect(() => {
     if (!error) return;
@@ -108,8 +115,8 @@ export function StudentFeesPage() {
                         <TableCell>
                           {locale === "ar" ? charge.fee_name_ar : charge.fee_name_en}
                         </TableCell>
-                        <TableCell>{Number(charge.amount_due).toFixed(2)}</TableCell>
-                        <TableCell>{Number(charge.amount_paid).toFixed(2)}</TableCell>
+                        <TableCell>{money(charge.amount_due)}</TableCell>
+                        <TableCell>{money(charge.amount_paid)}</TableCell>
                         <TableCell>
                           <span
                             className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusBadgeClass[charge.status]}`}
@@ -127,16 +134,16 @@ export function StudentFeesPage() {
               <div className="flex flex-wrap gap-4 text-sm">
                 <p>
                   {t("totalDueLabel")}:{" "}
-                  <span className="font-medium">{Number(data.summary.total_due).toFixed(2)}</span>
+                  <span className="font-medium">{money(data.summary.total_due)}</span>
                 </p>
                 <p>
                   {t("totalPaidLabel")}:{" "}
-                  <span className="font-medium">{Number(data.summary.total_paid).toFixed(2)}</span>
+                  <span className="font-medium">{money(data.summary.total_paid)}</span>
                 </p>
                 <p>
                   {t("totalOutstandingLabel")}:{" "}
                   <span className="font-medium">
-                    {Number(data.summary.total_outstanding).toFixed(2)}
+                    {money(data.summary.total_outstanding)}
                   </span>
                 </p>
               </div>

@@ -7,6 +7,7 @@ use App\Enums\ExamStatus;
 use App\Models\Attendance;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
+use App\Models\Setting;
 use App\Models\Student;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -25,6 +26,7 @@ final class StudentDashboardType
         public readonly ?AttendanceRecordType $latest_attendance,
         public readonly int $subjects_count,
         public readonly StudentFeesSummaryType $fees_summary,
+        public readonly ?string $currency,
         public readonly int $exams_total,
         public readonly int $exams_pending_count,
         public readonly ?StudentExamListEntryType $next_exam,
@@ -72,6 +74,7 @@ final class StudentDashboardType
                 : null,
             subjects_count: $subjectsCount,
             fees_summary: StudentFeesSummaryType::fromCharges($feeCharges),
+            currency: Setting::currency(),
             exams_total: $exams->count(),
             exams_pending_count: $pendingExams->count(),
             next_exam: $nextExam ? StudentExamListEntryType::build($nextExam, $attemptsByExam->get($nextExam->id)) : null,

@@ -3,6 +3,7 @@
 namespace App\TypeScript;
 
 use App\Models\Attendance;
+use App\Models\Setting;
 use App\Models\Student;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -19,6 +20,8 @@ final class ParentChildType
         public readonly string $school_name,
         public readonly StudentAttendanceSummaryType $attendance,
         public readonly StudentFeesSummaryType $fees,
+        /** This child's school's, which may differ between children. */
+        public readonly ?string $currency,
     ) {}
 
     public static function fromModel(Student $student): self
@@ -33,6 +36,7 @@ final class ParentChildType
             school_name: $student->school->name,
             attendance: StudentAttendanceSummaryType::fromRecords($attendance),
             fees: StudentFeesSummaryType::fromCharges($student->feeCharges()->with('payments')->get()),
+            currency: Setting::currency(),
         );
     }
 }

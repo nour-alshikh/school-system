@@ -941,7 +941,8 @@
     "statusLate": "متأخر",
     "statusExcused": "معذور",
     "loadError": "تعذر تحميل الفصول.",
-    "rosterLoadError": "تعذر تحميل قائمة الطلاب."
+    "rosterLoadError": "تعذر تحميل قائمة الطلاب.",
+    "notSchoolDay": "هذا اليوم ليس من أيام الدراسة في مدرستك. لا يزال بإمكانك تسجيل الحضور، مثلًا ليوم تعويضي."
   },
   "AttendanceHistoryPage": {
     "heading": "سجل الحضور",
@@ -1388,7 +1389,13 @@
     "changeFile": "رفع",
     "uploading": "جارٍ الرفع…",
     "fileUploadSuccess": "تم رفع الملف.",
-    "fileUploadError": "فشل رفع الملف."
+    "fileUploadError": "فشل رفع الملف.",
+    "schoolYearTab": "العام الدراسي",
+    "currencyLabel": "العملة",
+    "currencyPlaceholder": "اختر عملة",
+    "currencyHint": "تُعرض الرسوم والمدفوعات بهذه العملة.",
+    "schoolDaysLabel": "أيام الدراسة",
+    "schoolDaysHint": "الأيام التي تعمل فيها مدرستك. يُسجَّل الحضور في هذه الأيام."
   },
   "HomePage": {
     "heroHeadline": "أدر مدرستك من مكان واحد.",
@@ -1524,6 +1531,10 @@
       "students": {
         "title": "سجّل أول طالب",
         "body": "يُنشأ حساب ولي الأمر معه."
+      },
+      "school_week_currency": {
+        "title": "اختر أيام الدراسة والعملة",
+        "body": "الأيام التي تعمل فيها المدرسة، والعملة المستخدمة للرسوم."
       }
     }
   }

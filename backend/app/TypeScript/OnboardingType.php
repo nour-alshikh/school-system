@@ -31,7 +31,7 @@ final class OnboardingType
 
     public static function build(): self
     {
-        $settings = Setting::whereIn('key', ['primary_color', 'logo', 'onboarding_dismissed_at'])->get()->keyBy('key');
+        $settings = Setting::whereIn('key', ['primary_color', 'logo', 'currency', 'school_days', 'onboarding_dismissed_at'])->get()->keyBy('key');
 
         $counted = fn (string $key, int $count) => new OnboardingStepType($key, $count > 0, $count);
 
@@ -40,6 +40,11 @@ final class OnboardingType
                 new OnboardingStepType(
                     'branding',
                     filled($settings->get('primary_color')?->value) || (bool) $settings->get('logo')?->hasMedia('file'),
+                    null,
+                ),
+                new OnboardingStepType(
+                    'school_week_currency',
+                    filled($settings->get('currency')?->value) && filled($settings->get('school_days')?->value),
                     null,
                 ),
                 $counted('academic_year', AcademicYear::where('is_current', true)->count()),

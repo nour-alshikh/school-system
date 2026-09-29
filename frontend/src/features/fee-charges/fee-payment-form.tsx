@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useMoney } from "@/hooks/use-money";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -55,15 +56,16 @@ export function FeePaymentForm({
   onSuccess?: () => void;
 }) {
   const t = useTranslations("FeePaymentForm");
+  const money = useMoney();
   const tValidation = useTranslations("Validation");
   const tErrors = useTranslations("Errors");
   const queryClient = useQueryClient();
 
   const schema = useMemo(() => createFeePaymentSchema(tValidation), [tValidation]);
 
-  const balance = (
+  const balance = money(
     Number(feeCharge.amount_due) - Number(feeCharge.amount_paid)
-  ).toFixed(2);
+  );
 
   const methodLabels: Record<(typeof feePaymentMethods)[number], string> = {
     cash: t("methodCash"),

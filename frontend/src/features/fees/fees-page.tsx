@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useMoney } from "@/hooks/use-money";
 import { useRouter } from "@/i18n/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -47,6 +48,7 @@ const statusBadgeClass: Record<"active" | "inactive", string> = {
 
 export function FeesPage() {
   const t = useTranslations("FeesPage");
+  const money = useMoney();
   const tTable = useTranslations("Table");
   const locale = useLocale();
   const { user, isLoading: isAuthLoading, can } = useAuth();
@@ -319,7 +321,7 @@ export function FeesPage() {
                       <TableCell>
                         {academicYearNames.get(fee.academic_year_id) ?? "—"}
                       </TableCell>
-                      <TableCell>{Number(fee.amount).toFixed(2)}</TableCell>
+                      <TableCell>{money(fee.amount)}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {scopeLabel(fee)}
                       </TableCell>

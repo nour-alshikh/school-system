@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useMoney } from "@/hooks/use-money";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
@@ -42,6 +43,7 @@ function StatCard({
 
 export function AdminDashboardPage() {
   const t = useTranslations("AdminDashboardPage");
+  const money = useMoney();
 
   const {
     data: dashboard,
@@ -111,8 +113,8 @@ export function AdminDashboardPage() {
         />
         <StatCard
           heading={t("feesCollectedHeading")}
-          value={fees_collected}
-          subtext={t("feesOutstandingLabel", { amount: fees_outstanding })}
+          value={money(fees_collected)}
+          subtext={t("feesOutstandingLabel", { amount: money(fees_outstanding) })}
           href="/fees"
           linkLabel={t("view")}
         />

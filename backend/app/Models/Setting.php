@@ -32,6 +32,32 @@ class Setting extends Model implements HasMedia
         return 'key';
     }
 
+    /** A setting's value at the current school. */
+    public static function valueOf(string $key): ?string
+    {
+        return static::where('key', $key)->value('value');
+    }
+
+    /** The current school's currency (ISO 4217), or null until its admin picks one. */
+    public static function currency(): ?string
+    {
+        return static::valueOf('currency');
+    }
+
+    /**
+     * The current school's school days as weekday numbers (0 = Sunday …
+     * 6 = Saturday, like Carbon's dayOfWeek), or null until its admin
+     * picks them — then every day counts.
+     *
+     * @return list<int>|null
+     */
+    public static function schoolDays(): ?array
+    {
+        $value = static::valueOf('school_days');
+
+        return filled($value) ? array_map('intval', explode(',', $value)) : null;
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('file')->singleFile();

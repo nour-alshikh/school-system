@@ -1,6 +1,6 @@
 # Demo Seeder Plan
 
-Status: **plan, not implemented** (written 2026-09-28).
+Status: **step 0 done** (2026-09-29: school week and currency settings); the seeder itself is not implemented yet (plan written 2026-09-28).
 
 ## Why
 
@@ -19,6 +19,37 @@ no activity. After a fresh seed:
 So the dashboards show zeros, most list pages are empty, and none of the
 multi-school work ([multi-tenancy.md](./multi-tenancy.md)) is visible. The goal: every
 page has realistic content right after `migrate:fresh --seed`.
+
+## Decisions (2026-09-29)
+
+| Question | Decision |
+|---|---|
+| School week | **Each school's admin chooses it** (new `school_days` setting). Not a seeder constant. |
+| Currency | **Each school's admin chooses it** (new `currency` setting). Fee amounts are up to the seeder. |
+| Student names | Reuse the existing `StudentSeeder` style. |
+| Zoom | A placeholder meeting link is fine. |
+
+So before the seeder there's a **step 0**: add the two settings to the app (see below). The
+seeder then plays the admin: it saves each school's week and currency, and seeds
+attendance only on that school's school days.
+
+## Step 0 — School week and currency settings
+
+- Two new per-school settings, empty until the admin picks them: `currency` (ISO 4217
+  code from a supported list in `config/schools.php`) and `school_days` (weekday
+  numbers, 0 = Sunday … 6 = Saturday, stored as `"0,1,2,3,4"`). They're added to
+  `SchoolProvisioner::DEFAULT_SETTINGS`, and a migration adds the rows for existing
+  schools. `UpdateSettingsRequest` validates both.
+- Admin settings page: a **School year** tab with a currency picker and seven
+  weekday toggles.
+- Money everywhere is formatted with the school's currency (`Intl.NumberFormat`); with
+  no currency chosen it stays a plain number, as today. Parent and student fee
+  endpoints return `currency` themselves, because a parent's children can be at
+  schools with different currencies.
+- Take attendance: a notice when the chosen date isn't one of the school's days (not
+  a block: make-up days happen). With no week chosen, every day counts.
+- Setup checklist: a new step, "Choose your school week and currency", done once both
+  are set.
 
 ## Principles
 
@@ -104,8 +135,8 @@ The accounts that show off memberships:
 
 ### 4. Attendance — `AttendanceDemoSeeder` (per school)
 
-- The last 20 school days (skip Fridays/Saturdays, or whatever the school week is —
-  check with the user), for every student in their classroom.
+- The last 20 of **that school's** school days (its `school_days` setting), for every
+  student in their classroom.
 - `unique(student_id, date)`.
 - Status mix: ~88% present, ~6% absent, ~4% late, ~2% excused. Give 2–3 students a
   noticeably worse record, so the reports have something to show.
@@ -196,9 +227,4 @@ To add to [demo-accounts.md](./demo-accounts.md) when implemented:
 
 ## Open questions
 
-- **School week:** which days are school days (Sun–Thu vs Mon–Fri) for attendance?
-- **Currency / amounts:** which currency and realistic fee amounts?
-- **Names:** Arabic/English name lists for the second school's students, or reuse the
-  existing `StudentSeeder` style?
-- **Zoom:** is a placeholder meeting link fine for demos, or should meetings be left
-  out until Zoom is configured?
+None left. See "Decisions" above.

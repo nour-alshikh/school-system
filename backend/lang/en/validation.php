@@ -178,6 +178,9 @@ return [
     |
     */
 
+    'school_currency' => 'Choose one of the listed currencies.',
+    'school_days' => 'Choose each school day once, from Sunday to Saturday.',
+
     'school_slug' => [
         'invalid' => 'Use 3–63 lowercase letters, numbers and single dashes (e.g. green-valley).',
         'reserved' => 'This address is reserved. Please choose another.',

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useMoney } from "@/hooks/use-money";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -87,6 +88,7 @@ function FeesPrintReport({
   charges: FeeCharge[];
 }) {
   const t = useTranslations("StudentFeesSection");
+  const money = useMoney();
   const tPayment = useTranslations("FeePaymentForm");
   const locale = useLocale();
 
@@ -136,15 +138,15 @@ function FeesPrintReport({
           </thead>
           <tbody>
             {charges.map((charge) => {
-              const balance = chargeBalance(charge).toFixed(2);
-              const waived = chargeWaivedAmount(charge).toFixed(2);
+              const balance = money(chargeBalance(charge));
+              const waived = money(chargeWaivedAmount(charge));
               return (
                 <tr key={charge.id} className="border-b">
                   <td className="p-1">
                     {locale === "ar" ? charge.fee_name_ar : charge.fee_name_en}
                   </td>
-                  <td className="p-1">{Number(charge.amount_due).toFixed(2)}</td>
-                  <td className="p-1">{Number(charge.amount_paid).toFixed(2)}</td>
+                  <td className="p-1">{money(charge.amount_due)}</td>
+                  <td className="p-1">{money(charge.amount_paid)}</td>
                   <td className="p-1">{waived}</td>
                   <td className="p-1">{balance}</td>
                   <td className="p-1">{t(`status_${charge.status}`)}</td>
@@ -155,10 +157,10 @@ function FeesPrintReport({
           <tfoot>
             <tr className="border-t font-semibold">
               <td className="p-1">{t("printTotalsLabel")}</td>
-              <td className="p-1">{totals.due.toFixed(2)}</td>
-              <td className="p-1">{totals.paid.toFixed(2)}</td>
-              <td className="p-1">{totals.waived.toFixed(2)}</td>
-              <td className="p-1">{totals.balance.toFixed(2)}</td>
+              <td className="p-1">{money(totals.due)}</td>
+              <td className="p-1">{money(totals.paid)}</td>
+              <td className="p-1">{money(totals.waived)}</td>
+              <td className="p-1">{money(totals.balance)}</td>
               <td className="p-1" />
             </tr>
           </tfoot>
@@ -185,7 +187,7 @@ function FeesPrintReport({
                 <tr key={payment.id} className="border-b">
                   <td className="p-1">{payment.paid_at}</td>
                   <td className="p-1">{payment.feeName}</td>
-                  <td className="p-1">{Number(payment.amount).toFixed(2)}</td>
+                  <td className="p-1">{money(payment.amount)}</td>
                   <td className="p-1">{methodLabel(tPayment, payment.method)}</td>
                   <td className="p-1">{payment.note || "—"}</td>
                 </tr>
@@ -200,6 +202,7 @@ function FeesPrintReport({
 
 export function StudentFeesSection({ student }: { student: Student }) {
   const t = useTranslations("StudentFeesSection");
+  const money = useMoney();
   const tPayment = useTranslations("FeePaymentForm");
   const locale = useLocale();
   const queryClient = useQueryClient();
@@ -336,7 +339,7 @@ export function StudentFeesSection({ student }: { student: Student }) {
                 <TableSkeletonRows columns={6} />
               ) : (
                 charges.map((charge) => {
-                  const balance = chargeBalance(charge).toFixed(2);
+                  const balance = money(chargeBalance(charge));
                   const canPay =
                     charge.status !== "paid" && charge.status !== "waived";
                   const canWaive = canPay;
@@ -348,8 +351,8 @@ export function StudentFeesSection({ student }: { student: Student }) {
                       <TableCell>
                         {locale === "ar" ? charge.fee_name_ar : charge.fee_name_en}
                       </TableCell>
-                      <TableCell>{Number(charge.amount_due).toFixed(2)}</TableCell>
-                      <TableCell>{Number(charge.amount_paid).toFixed(2)}</TableCell>
+                      <TableCell>{money(charge.amount_due)}</TableCell>
+                      <TableCell>{money(charge.amount_paid)}</TableCell>
                       <TableCell>{balance}</TableCell>
                       <TableCell>
                         <span
@@ -533,7 +536,7 @@ export function StudentFeesSection({ student }: { student: Student }) {
                   {viewingCharge?.payments.map((payment) => (
                     <TableRow key={payment.id}>
                       <TableCell>{payment.paid_at}</TableCell>
-                      <TableCell>{Number(payment.amount).toFixed(2)}</TableCell>
+                      <TableCell>{money(payment.amount)}</TableCell>
                       <TableCell>{methodLabel(tPayment, payment.method)}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {payment.note || "—"}

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useMoney } from "@/hooks/use-money";
 import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
@@ -17,6 +18,8 @@ import type { ParentChildType } from "@/types/generated";
  */
 function ChildCard({ child }: { child: ParentChildType }) {
   const t = useTranslations("ParentDashboardPage");
+  // Each child's own school's currency.
+  const money = useMoney(child.currency);
   const locale = useLocale();
   const { student, attendance, fees } = child;
   const query = `?student=${student.id}`;
@@ -43,7 +46,7 @@ function ChildCard({ child }: { child: ParentChildType }) {
         </div>
         <div>
           <p className="text-2xl font-bold">
-            {Number(fees.total_outstanding).toFixed(2)}
+            {money(fees.total_outstanding)}
           </p>
           <p className="text-sm text-muted-foreground">{t("outstandingLabel")}</p>
         </div>

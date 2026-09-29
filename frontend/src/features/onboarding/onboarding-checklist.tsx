@@ -13,7 +13,8 @@ const QUERY_KEY = ["admin-onboarding"];
 
 /** Where each step is done, in the order the checklist shows them. */
 const STEP_HREFS: Record<string, string> = {
-  branding: "/admin/settings",
+  branding: "/admin/settings?tab=branding",
+  school_week_currency: "/admin/settings?tab=school-year",
   academic_year: "/academic-years",
   stages: "/stages",
   grades: "/grades",

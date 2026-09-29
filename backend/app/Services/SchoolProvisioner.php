@@ -25,6 +25,9 @@ class SchoolProvisioner
     public const DEFAULT_SETTINGS = [
         'school_name' => SettingGroup::General,
         'tagline' => SettingGroup::General,
+        // Chosen by the school's admin; empty until then (see Setting::currency()).
+        'currency' => SettingGroup::General,
+        'school_days' => SettingGroup::General,
         'logo' => SettingGroup::Branding,
         'favicon' => SettingGroup::Branding,
         'primary_color' => SettingGroup::Branding,

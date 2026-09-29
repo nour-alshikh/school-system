@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -27,6 +27,15 @@ import {
   type SettingsFormValues,
 } from "./schema";
 import { SettingFileField } from "./setting-file-field";
+import { SchoolWeekField } from "./school-week-field";
+import { SCHOOL_CURRENCIES } from "@/lib/money";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Setting } from "./types";
 
 function valuesFromSettings(settings: Setting[]): SettingsFormValues {
@@ -37,7 +46,14 @@ function valuesFromSettings(settings: Setting[]): SettingsFormValues {
   ) as SettingsFormValues;
 }
 
-export function SettingsForm({ settings }: { settings: Setting[] }) {
+export function SettingsForm({
+  settings,
+  initialTab = "general",
+}: {
+  settings: Setting[];
+  /** ?tab= on the page, so links (e.g. the setup checklist) can open a tab. */
+  initialTab?: string;
+}) {
   const t = useTranslations("SettingsPage");
   const tValidation = useTranslations("Validation");
   const tErrors = useTranslations("Errors");
@@ -49,6 +65,15 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
     resolver: zodResolver(schema),
     defaultValues: valuesFromSettings(settings),
   });
+
+  const locale = useLocale();
+  // "EGP — Egyptian Pound" / "EGP — جنيه مصري", in the UI's language.
+  const currencyNames = useMemo(
+    () => new Intl.DisplayNames(locale, { type: "currency" }),
+    [locale]
+  );
+  const currencyLabel = (code: string) =>
+    `${code} — ${currencyNames.of(code) ?? code}`;
 
   const logo = settings.find((s) => s.key === "logo");
   const favicon = settings.find((s) => s.key === "favicon");
@@ -86,9 +111,10 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         className="flex flex-col gap-6"
       >
-        <Tabs defaultValue="general">
+        <Tabs defaultValue={initialTab}>
           <TabsList>
             <TabsTrigger value="general">{t("generalTab")}</TabsTrigger>
+            <TabsTrigger value="school-year">{t("schoolYearTab")}</TabsTrigger>
             <TabsTrigger value="branding">{t("brandingTab")}</TabsTrigger>
             <TabsTrigger value="contact">{t("contactTab")}</TabsTrigger>
             <TabsTrigger value="social">{t("socialTab")}</TabsTrigger>
@@ -118,6 +144,60 @@ export function SettingsForm({ settings }: { settings: Setting[] }) {
                   <FormControl>
                     <Input {...field} className="h-10" />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </TabsContent>
+
+          <TabsContent value="school-year" className="mt-4 flex flex-col gap-4">
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("currencyLabel")}</FormLabel>
+                  <Select
+                    items={SCHOOL_CURRENCIES.map((code) => ({
+                      value: code,
+                      label: currencyLabel(code),
+                    }))}
+                    value={field.value || null}
+                    onValueChange={(value) => field.onChange(value ?? "")}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full sm:w-80">
+                        <SelectValue placeholder={t("currencyPlaceholder")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {SCHOOL_CURRENCIES.map((code) => (
+                        <SelectItem key={code} value={code}>
+                          {currencyLabel(code)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {t("currencyHint")}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="school_days"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("schoolDaysLabel")}</FormLabel>
+                  <SchoolWeekField
+                    value={field.value ?? ""}
+                    onChange={field.onChange}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("schoolDaysHint")}
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

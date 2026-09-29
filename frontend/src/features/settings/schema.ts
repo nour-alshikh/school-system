@@ -14,6 +14,11 @@ export function createSettingsSchema(t: Translate) {
     school_name: z.string().min(1, t("schoolNameRequired")).max(255),
     tagline: optionalText(255),
 
+    // Chosen from fixed options (see school-week-field.tsx and
+    // SCHOOL_CURRENCIES); the API validates both.
+    currency: optionalText(3),
+    school_days: optionalText(20),
+
     primary_color: optionalText(20),
 
     address: optionalText(500),
@@ -48,6 +53,8 @@ export type SettingsFormValues = z.infer<ReturnType<typeof createSettingsSchema>
 export const SETTING_TEXT_KEYS = [
   "school_name",
   "tagline",
+  "currency",
+  "school_days",
   "primary_color",
   "address",
   "phone",

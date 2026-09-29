@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useMoney } from "@/hooks/use-money";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -61,6 +62,7 @@ export function FeeChargeForm({
   onSuccess?: () => void;
 }) {
   const t = useTranslations("FeeChargeForm");
+  const money = useMoney();
   const tValidation = useTranslations("Validation");
   const tErrors = useTranslations("Errors");
   const locale = useLocale();
@@ -145,7 +147,7 @@ export function FeeChargeForm({
                       <Select
                         items={rowOptions.map((fee) => ({
                           value: String(fee.id),
-                          label: `${locale === "ar" ? fee.name_ar : fee.name_en} — ${fee.amount}`,
+                          label: `${locale === "ar" ? fee.name_ar : fee.name_en} — ${money(fee.amount)}`,
                         }))}
                         value={field.value}
                         onValueChange={(value) => {

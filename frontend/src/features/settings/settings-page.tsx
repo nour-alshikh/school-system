@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +13,16 @@ import { SettingsForm } from "./settings-form";
 import type { Setting } from "./types";
 
 export function SettingsPage() {
+  // useSearchParams (for ?tab=) needs a Suspense boundary.
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <SettingsPageContent />
+    </Suspense>
+  );
+}
+
+function SettingsPageContent() {
+  const searchParams = useSearchParams();
   const t = useTranslations("SettingsPage");
   const { user, isLoading: isAuthLoading, can } = useAuth();
   const router = useRouter();
@@ -58,7 +69,10 @@ export function SettingsPage() {
       {settingsError ? (
         <p className="text-sm text-muted-foreground">{t("loadError")}</p>
       ) : (
-        <SettingsForm settings={settings} />
+        <SettingsForm
+          settings={settings}
+          initialTab={searchParams.get("tab") ?? undefined}
+        />
       )}
     </main>
   );
