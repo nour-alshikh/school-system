@@ -1,6 +1,6 @@
 # Central Dashboard Plan (system admin)
 
-Status: **phases 1–5 done** (2026-09-29); phases 6–9 planned (written 2026-09-28).
+Status: **phases 1–6 done** (2026-09-29); phases 7–9 planned (written 2026-09-28).
 See "As built" at the end. Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done).
 
@@ -380,3 +380,26 @@ On the school detail page, *People* tab:
 - **Frontend:** a banner on every page while inside (school, end time, Exit). The
   user menu hides "Switch to" and "Create a new school" there, since either would
   replace the session token.
+
+## As built (phase 6, 2026-09-29)
+
+- **Where:** the school's **People** tab. It has an "Add an admin" form and a
+  members table (search, role filter, pages of 25), with per-member actions: send a
+  password reset, suspend or reactivate, and remove as admin.
+- **API** (`AppHttpControllersPlatformMemberController`,
+  `AppPlatformSchoolMembers`):
+  - `GET /api/platform/schools/{id}/members`
+  - `POST …/admins`: an existing account is granted admin; a new email gets an
+    account and the set-password email.
+  - `DELETE …/admins/{user}`: `MembershipService::revoke()`.
+  - `PATCH …/members/{membership}`: `status` active or suspended.
+  - `POST …/members/{membership}/password-reset`
+  - A membership from another school answers 404.
+- **Last admin:** removing or suspending a school's last active admin is refused
+  (`api.last_admin`).
+- **Audit:** every action is recorded (`school.admin_added`, `…_removed`,
+  `school.member_suspended`, `…_reactivated`, `school.password_reset_sent`).
+  Any audited platform change also flushes the dashboard's 10-minute metrics cache
+  (`SchoolMetrics::flush()`), so warnings like "No admin" update right away.
+- **Not added:** "resend invitation" is the same email as a password reset, so it
+  isn't a separate action.

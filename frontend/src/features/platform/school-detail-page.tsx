@@ -19,6 +19,7 @@ import { PageLoader } from "@/components/page-loader";
 import { AuditTable } from "./audit-table";
 import { CollectionsChart } from "./collections-chart";
 import { formatBytes, timeAgo } from "./format";
+import { MembersPanel } from "./members-panel";
 import { OpenSchoolDialog } from "./open-school-dialog";
 import { usePlatformPage } from "./use-platform-page";
 import { WarningBadges } from "./warning-badges";
@@ -108,31 +109,7 @@ export function SchoolDetailPage({ id }: { id: string }) {
               <Figure key={role} label={tRoles(role)} value={number(data.people[role] ?? 0)} />
             ))}
           </div>
-          <section className="flex flex-col gap-2">
-            <h2 className="text-sm font-semibold">{t("adminsHeading")}</h2>
-            <div className="overflow-x-auto rounded-lg border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("name")}</TableHead>
-                    <TableHead>{t("email")}</TableHead>
-                    <TableHead>{t("status")}</TableHead>
-                    <TableHead>{t("lastLogin")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.admins.map((admin) => (
-                    <TableRow key={admin.id}>
-                      <TableCell>{admin.name}</TableCell>
-                      <TableCell dir="ltr" className="text-muted-foreground">{admin.email}</TableCell>
-                      <TableCell>{admin.status}</TableCell>
-                      <TableCell className="text-muted-foreground">{timeAgo(admin.last_login_at, locale) ?? t("never")}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </section>
+          <MembersPanel schoolId={school.id} />
         </TabsContent>
 
         <TabsContent value="finance" className="mt-4 flex flex-col gap-6">

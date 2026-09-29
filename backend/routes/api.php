@@ -28,6 +28,7 @@ use App\Http\Controllers\ParentPortal\LibraryController as ParentLibraryControll
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
 use App\Http\Controllers\Platform\DashboardController as PlatformDashboardController;
+use App\Http\Controllers\Platform\MemberController as PlatformMemberController;
 use App\Http\Controllers\Platform\SchoolController as PlatformSchoolController;
 use App\Http\Controllers\Platform\SessionController as PlatformSessionController;
 use App\Http\Controllers\PostController;
@@ -100,6 +101,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/confirm', [PlatformSessionController::class, 'confirm'])->middleware('throttle:two-factor');
         Route::post('/schools/{school}/enter', [PlatformSessionController::class, 'enter']);
         Route::get('/overview', [PlatformDashboardController::class, 'overview']);
+        // A school's admins and members (docs/central-dashboard-plan.md, phase 6).
+        Route::get('/schools/{school}/members', [PlatformMemberController::class, 'index']);
+        Route::post('/schools/{school}/admins', [PlatformMemberController::class, 'addAdmin']);
+        Route::delete('/schools/{school}/admins/{user}', [PlatformMemberController::class, 'removeAdmin']);
+        Route::patch('/schools/{school}/members/{membership}', [PlatformMemberController::class, 'update']);
+        Route::post('/schools/{school}/members/{membership}/password-reset', [PlatformMemberController::class, 'sendPasswordReset']);
         Route::get('/schools/{school}', [PlatformDashboardController::class, 'school']);
         Route::get('/audit-logs', [PlatformDashboardController::class, 'auditLogs']);
         Route::get('/schools', [PlatformSchoolController::class, 'index']);

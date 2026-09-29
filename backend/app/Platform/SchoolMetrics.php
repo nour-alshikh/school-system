@@ -32,6 +32,12 @@ class SchoolMetrics
     /** School days without attendance before a school gets that warning. */
     private const ATTENDANCE_GAP_SCHOOL_DAYS = 5;
 
+    /** After a platform change (a school, its admins), so the dashboard doesn't show stale warnings. */
+    public static function flush(): void
+    {
+        Cache::forget(self::CACHE_KEY);
+    }
+
     /**
      * One row per school, with its warnings.
      *

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Platform\SchoolMetrics;
 use App\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,6 +49,12 @@ class AuditLog extends Model
         $schoolId = $school?->id
             ?? ($subject instanceof School ? $subject->id : null)
             ?? (! $platformWide && $context->has() ? $context->id() : null);
+
+        // A change a system admin makes can change the dashboard's numbers
+        // and warnings; reads and sign-ins can't.
+        if (! in_array($action, ['platform.request', 'platform.signed_in'], true)) {
+            SchoolMetrics::flush();
+        }
 
         return static::create([
             'actor_id' => ($actor ?? $request->user())?->id,

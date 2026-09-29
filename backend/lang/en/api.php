@@ -14,6 +14,7 @@ return [
     'school_limit' => 'You\'ve reached the limit of :max schools you can create yourself. Contact support if you need more.',
     'structure_exists' => 'This school already has stages, so the standard structure wasn\'t added. Add what you need from each page instead.',
     'platform_confirm_required' => 'Enter a current code from your authenticator app to open this school.',
+    'last_admin' => 'This is the school\'s last active admin. Add another admin first.',
     'school_mismatch' => 'This request is for a different school than the one you are signed in to.',
 
 ];
