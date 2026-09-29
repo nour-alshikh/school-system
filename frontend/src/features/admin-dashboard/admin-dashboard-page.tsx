@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/features/calendar/calendar";
+import { OnboardingChecklist } from "@/features/onboarding/onboarding-checklist";
 import type { AdminDashboard } from "./types";
 
 function StatCard({
@@ -86,6 +87,8 @@ export function AdminDashboardPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
+      <OnboardingChecklist />
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           heading={t("studentsHeading")}

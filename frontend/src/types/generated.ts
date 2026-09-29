@@ -266,6 +266,15 @@ readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type OnboardingStepType = {
+readonly key: string,
+readonly done: boolean,
+readonly count: number | null,
+};
+export type OnboardingType = {
+readonly steps: OnboardingStepType[],
+readonly dismissed: boolean,
+};
 export type ParentChildType = {
 readonly student: StudentType,
 readonly school_id: number,

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttachmentController;
@@ -321,6 +322,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'show']);
+
+        // A new school's setup checklist (docs/self-service-schools-plan.md).
+        Route::get('/admin/onboarding', [OnboardingController::class, 'show']);
+        Route::post('/admin/onboarding/dismiss', [OnboardingController::class, 'dismiss']);
+        Route::post('/admin/onboarding/standard-structure', [OnboardingController::class, 'standardStructure']);
     });
 
     // Reading the calendar is shared more broadly than managing it —

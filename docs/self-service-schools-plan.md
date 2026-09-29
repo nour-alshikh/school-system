@@ -1,7 +1,7 @@
 # Self-Service Schools Plan
 
-Status: **phases 1–3 done** (2026-09-29; email verification deferred, see phase 3);
-phases 4–5 planned (written 2026-09-29). Builds on
+Status: **phases 1–4 done** (2026-09-29; email verification deferred, see phase 3);
+phase 5 waits on the central dashboard (written 2026-09-29). Builds on
 [multi-tenancy.md](./multi-tenancy.md) (steps 1–8 are done). Related:
 [central-dashboard-plan.md](./central-dashboard-plan.md),
 [demo-seeder-plan.md](./demo-seeder-plan.md).
@@ -192,7 +192,7 @@ routes behind Laravel's `verified` middleware.
 A new school has nothing in it, and most pages depend on structure existing first
 (students need classrooms, classrooms need grades, and so on).
 
-- `GET /api/onboarding` (admin, current school) →
+- `GET /api/admin/onboarding` (admin, current school) →
   `{ steps: [{ key, done, count }], dismissed: bool }`. Steps are computed live from
   counts, so no progress is stored:
   1. branding (school name + logo or primary colour set),
@@ -203,11 +203,15 @@ A new school has nothing in it, and most pages depend on structure existing firs
   (in dependency order). It's hidden once every step is done, or after "Dismiss", which
   is stored as a setting `onboarding_dismissed_at` (a new row in
   `SchoolProvisioner::DEFAULT_SETTINGS`, group General).
-- **Quick start (optional, recommended):** on the checklist, "Create a standard
-  structure" makes a current academic year, stages, grades and one classroom per grade,
-  using the same shape as the base seeders (move that logic into a service,
-  `SchoolStructureTemplate`, used by both the seeder and this button). This action is
-  only offered while the school has no stages.
+- **Quick start:** on the checklist, "Create a standard structure"
+  (`POST /api/admin/onboarding/standard-structure`) makes a current academic year
+  (this calendar year), 3 stages, 12 grades, one classroom per grade and the 10 usual
+  subjects, using the same data as the base seeders. That data now lives in
+  `AppServicesSchoolStructureTemplate`, and the Stage, Grade, Classroom and Subject
+  seeders call it (the seeders make 3 classrooms per grade). It's only offered, and only
+  accepted, while the school has no stages.
+- Dismiss: `POST /api/admin/onboarding/dismiss` (`updateOrCreate`, because schools created
+  before the setting existed don't have the row).
 - Everything goes through the existing services and the current school context, so
   nothing new bypasses `BelongsToSchool`.
 

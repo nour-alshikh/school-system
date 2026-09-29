@@ -1481,5 +1481,50 @@
     "submitting": "Creating school…",
     "haveAccount": "Already have an account?",
     "loginToAdd": "Log in to add a school"
+  },
+  "Onboarding": {
+    "heading": "Set up your school",
+    "progress": "{done} of {total} done",
+    "dismiss": "Hide the setup checklist",
+    "go": "Set up",
+    "quickStart": "Create a standard structure",
+    "quickStartRunning": "Creating…",
+    "quickStartBody": "Start from a typical structure: this year, 3 stages, 12 grades, a classroom per grade and 10 subjects. You can rename or remove anything afterwards.",
+    "quickStartDone": "Standard structure created",
+    "coveredByQuickStart": "The standard structure covers this.",
+    "steps": {
+      "branding": {
+        "title": "Add your branding",
+        "body": "Upload your logo or pick your school's colour."
+      },
+      "academic_year": {
+        "title": "Set the current academic year",
+        "body": "Fees, promotions and reports are organised by year."
+      },
+      "stages": {
+        "title": "Add stages",
+        "body": "For example Primary, Preparatory and Secondary."
+      },
+      "grades": {
+        "title": "Add grades",
+        "body": "The grades within each stage."
+      },
+      "classrooms": {
+        "title": "Add classrooms",
+        "body": "Students are placed in a classroom of their grade."
+      },
+      "subjects": {
+        "title": "Add subjects",
+        "body": "And the stages or grades that study them."
+      },
+      "teachers": {
+        "title": "Add teachers",
+        "body": "Each teacher gets their own login."
+      },
+      "students": {
+        "title": "Register your first student",
+        "body": "A parent account is created with them."
+      }
+    }
   }
 }
