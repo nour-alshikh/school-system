@@ -45,4 +45,11 @@ return [
         'redirect_uri' => env('ZOOM_REDIRECT_URI'),
     ],
 
+    // AI drafts of announcements (App\Services\AnnouncementWriter). No key:
+    // the "Draft with AI" button says it isn't set up.
+    'openrouter' => [
+        'key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'nvidia/nemotron-3-ultra-550b-a55b:free'),
+    ],
+
 ];

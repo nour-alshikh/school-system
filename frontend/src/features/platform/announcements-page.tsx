@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Megaphone, Plus } from "lucide-react";
+import { Loader2, Megaphone, Plus, Sparkles } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import { Button } from "@/components/ui/button";
@@ -204,6 +204,25 @@ function AnnouncementDialog({
     },
   });
 
+  // AI draft from rough notes: fills the four text fields, saves nothing.
+  const [notes, setNotes] = useState("");
+  const draft = useMutation({
+    mutationFn: () =>
+      apiFetch<{ draft: { title: { en: string; ar: string }; body: { en: string; ar: string } } }>("/api/platform/announcements/draft", {
+        method: "POST",
+        body: JSON.stringify({ notes, level: form.getValues("level") }),
+      }).then((d) => d.draft),
+    onSuccess: (d) => {
+      const opts = { shouldDirty: true, shouldValidate: true };
+      form.setValue("title_en", d.title.en, opts);
+      form.setValue("title_ar", d.title.ar, opts);
+      form.setValue("body_en", d.body.en, opts);
+      form.setValue("body_ar", d.body.ar, opts);
+      toast.success(t("aiDrafted"));
+    },
+    onError: (err) => toast.error(err instanceof ApiError ? err.message : tErrors("somethingWentWrong")),
+  });
+
   async function onSubmit(v: Values) {
     const payload = {
       title: { en: v.title_en, ar: v.title_ar },
@@ -264,6 +283,33 @@ function AnnouncementDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
+              <Label htmlFor="ai-notes" className="flex items-center gap-2">
+                <Sparkles className="size-4" />
+                {t("aiHeading")}
+              </Label>
+              <Textarea
+                id="ai-notes"
+                rows={2}
+                maxLength={2000}
+                placeholder={t("aiNotesPlaceholder")}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground">{t("aiHint")}</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={!notes.trim() || draft.isPending}
+                  onClick={() => draft.mutate()}
+                >
+                  {draft.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                  {t("aiDraft")}
+                </Button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {text("title_en", t("titleEn"), "ltr")}
               {text("title_ar", t("titleAr"), "rtl")}

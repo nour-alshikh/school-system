@@ -18,6 +18,8 @@ return [
     'archive_expired' => 'This school was archived more than :days days ago and can no longer be restored.',
     'export_expired' => 'This export link has expired. Create a new export.',
     'announcement_not_dismissible' => 'Critical announcements can’t be dismissed.',
+    'ai_not_configured' => 'AI drafting isn’t set up. Add OPENROUTER_API_KEY to the backend .env.',
+    'ai_draft_failed' => 'The AI couldn’t write a draft right now. Try again in a minute.',
     'plan_student_limit' => 'Your plan allows :max students. Contact support to change plans.',
     'plan_storage_limit' => 'Your plan allows :max of files, and this would go over it. Remove some files or contact support to change plans.',
     'plan_feature_missing' => 'Not included in your plan.',

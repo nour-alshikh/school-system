@@ -111,6 +111,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/schools/{school}/plan', [PlatformPlanController::class, 'assign']);
         Route::get('/announcements', [PlatformAnnouncementController::class, 'index']);
         Route::post('/announcements', [PlatformAnnouncementController::class, 'store']);
+        // Free models allow few calls; this keeps one admin from using them all up.
+        Route::post('/announcements/draft', [PlatformAnnouncementController::class, 'draft'])->middleware('throttle:10,1');
         Route::put('/announcements/{announcement}', [PlatformAnnouncementController::class, 'update']);
         Route::post('/announcements/{announcement}/end', [PlatformAnnouncementController::class, 'end']);
         // A school's admins and members (docs/central-dashboard-plan.md, phase 6).

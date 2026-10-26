@@ -1865,7 +1865,12 @@
       "startsAtHint": "Empty: now.",
       "endsAt": "Ends",
       "endsAtHint": "Empty: until you end it.",
-      "save": "Save"
+      "save": "Save",
+      "aiHeading": "Draft with AI",
+      "aiHint": "Write rough notes in any language. AI writes the title and message in English and Arabic. Check them before saving.",
+      "aiNotesPlaceholder": "e.g. system down tonight 10-11pm for maintenance",
+      "aiDraft": "Draft",
+      "aiDrafted": "Draft added. Review it before saving."
     },
     "plans": {
       "heading": "Plans",

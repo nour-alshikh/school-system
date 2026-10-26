@@ -9,6 +9,7 @@ use App\Services\MembershipService;
 use App\Tenancy\TenantContext;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Testing\TestResponse;
 use Tests\Concerns\SignsInAsSystemAdmin;
 use Tests\TestCase;
@@ -99,6 +100,47 @@ class AnnouncementTest extends TestCase
     {
         $this->create(['title' => ['en' => 'Only English'], 'level' => 'loud', 'audience' => ['janitor']])
             ->assertJsonValidationErrors(['title.ar', 'level', 'audience.0']);
+    }
+
+    public function test_the_system_admin_gets_an_ai_draft_in_both_languages(): void
+    {
+        config(['services.openrouter.key' => 'test-key']);
+        Http::fake(['openrouter.ai/*' => Http::response(['choices' => [['message' => [
+            'content' => "```json\n{\"title\":{\"en\":\"Maintenance tonight\",\"ar\":\"صيانة الليلة\"},\"body\":{\"en\":\"The system is down 10-11pm.\",\"ar\":\"النظام متوقف من 10 إلى 11 مساءً.\"}}\n```",
+        ]]]])]);
+
+        $this->as($this->platformToken)->postJson('/api/platform/announcements/draft', ['notes' => 'down 10-11pm tonight', 'level' => 'warning'])
+            ->assertOk()
+            ->assertJsonPath('draft.title.en', 'Maintenance tonight')
+            ->assertJsonPath('draft.body.ar', 'النظام متوقف من 10 إلى 11 مساءً.');
+
+        Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer test-key')
+            && str_contains($request['messages'][1]['content'], 'down 10-11pm tonight'));
+        $this->assertDatabaseCount('announcements', 0);
+    }
+
+    public function test_an_ai_draft_fails_cleanly(): void
+    {
+        $draft = fn () => $this->as($this->platformToken)->postJson('/api/platform/announcements/draft', ['notes' => 'x', 'level' => 'info']);
+
+        config(['services.openrouter.key' => null]);
+        $draft()->assertStatus(503);
+
+        config(['services.openrouter.key' => 'test-key']);
+        Http::fake(['openrouter.ai/*' => Http::sequence()
+            ->push(['error' => ['message' => 'Rate limit exceeded']], 429)
+            ->push(['choices' => [['message' => ['content' => 'Sorry, I cannot help.']]]])]);
+        $draft()->assertStatus(502);
+        $draft()->assertStatus(502);
+    }
+
+    public function test_only_the_system_admin_gets_ai_drafts(): void
+    {
+        Http::fake();
+
+        $this->as($this->signIn(MembershipRole::Admin))->postJson('/api/platform/announcements/draft', ['notes' => 'x', 'level' => 'info'])
+            ->assertForbidden();
+        Http::assertNothingSent();
     }
 
     private function create(array $overrides): TestResponse

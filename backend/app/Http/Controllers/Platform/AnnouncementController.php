@@ -7,9 +7,11 @@ use App\Enums\MembershipRole;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\AuditLog;
+use App\Services\AnnouncementWriter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use RuntimeException;
 
 /**
  * The system admin writes, edits and ends announcements
@@ -46,6 +48,24 @@ class AnnouncementController extends Controller
         AuditLog::record('announcement.updated', $announcement, ['title' => $announcement->getTranslation('title', 'en')], $announcement->school);
 
         return response()->json(['announcement' => $this->payload($announcement->load(['school:id,name', 'creator:id,name']))]);
+    }
+
+    /** An AI draft of the title and message in both languages, from rough notes. Nothing is saved. */
+    public function draft(Request $request, AnnouncementWriter $writer): JsonResponse
+    {
+        $data = $request->validate([
+            'notes' => ['required', 'string', 'max:2000'],
+            'level' => ['required', Rule::enum(AnnouncementLevel::class)],
+        ]);
+
+        abort_unless($writer->isConfigured(), 503, __('api.ai_not_configured'));
+
+        try {
+            return response()->json(['draft' => $writer->draft($data['notes'], $data['level'])]);
+        } catch (RuntimeException $e) {
+            report($e);
+            abort(502, __('api.ai_draft_failed'));
+        }
     }
 
     /** Takes it down now. */
