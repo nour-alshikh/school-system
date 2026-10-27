@@ -106,22 +106,37 @@ class AnnouncementTest extends TestCase
     {
         config(['services.openrouter.key' => 'test-key']);
         Http::fake(['openrouter.ai/*' => Http::response(['choices' => [['message' => [
-            'content' => "```json\n{\"title\":{\"en\":\"Maintenance tonight\",\"ar\":\"صيانة الليلة\"},\"body\":{\"en\":\"The system is down 10-11pm.\",\"ar\":\"النظام متوقف من 10 إلى 11 مساءً.\"}}\n```",
+            'content' => "```json\n{\"title\":{\"en\":\"Maintenance tonight\",\"ar\":\"صيانة الليلة\"},\"body\":{\"en\":\"The system is down 10-11pm.\",\"ar\":\"النظام متوقف من 10 إلى 11 مساءً.\"},\"level\":\"warning\",\"audience\":[\"Teacher\",\"admin\",\"janitor\"]}\n```",
         ]]]])]);
 
-        $this->as($this->platformToken)->postJson('/api/platform/announcements/draft', ['notes' => 'down 10-11pm tonight', 'level' => 'warning'])
+        $this->as($this->platformToken)->postJson('/api/platform/announcements/draft', ['notes' => 'staff: down 10-11pm tonight'])
             ->assertOk()
             ->assertJsonPath('draft.title.en', 'Maintenance tonight')
-            ->assertJsonPath('draft.body.ar', 'النظام متوقف من 10 إلى 11 مساءً.');
+            ->assertJsonPath('draft.body.ar', 'النظام متوقف من 10 إلى 11 مساءً.')
+            ->assertJsonPath('draft.level', 'warning')
+            ->assertJsonPath('draft.audience', ['teacher', 'admin']);
 
         Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer test-key')
             && str_contains($request['messages'][1]['content'], 'down 10-11pm tonight'));
         $this->assertDatabaseCount('announcements', 0);
     }
 
+    public function test_an_ai_draft_without_a_usable_level_or_audience_is_info_for_everyone(): void
+    {
+        config(['services.openrouter.key' => 'test-key']);
+        Http::fake(['openrouter.ai/*' => Http::response(['choices' => [['message' => [
+            'content' => '{"title":{"en":"Hi","ar":"مرحبا"},"body":{"en":"Hello.","ar":"أهلا."},"level":"urgent","audience":"everyone"}',
+        ]]]])]);
+
+        $this->as($this->platformToken)->postJson('/api/platform/announcements/draft', ['notes' => 'hello'])
+            ->assertOk()
+            ->assertJsonPath('draft.level', 'info')
+            ->assertJsonPath('draft.audience', []);
+    }
+
     public function test_an_ai_draft_fails_cleanly(): void
     {
-        $draft = fn () => $this->as($this->platformToken)->postJson('/api/platform/announcements/draft', ['notes' => 'x', 'level' => 'info']);
+        $draft = fn () => $this->as($this->platformToken)->postJson('/api/platform/announcements/draft', ['notes' => 'x']);
 
         config(['services.openrouter.key' => null]);
         $draft()->assertStatus(503);
@@ -138,7 +153,7 @@ class AnnouncementTest extends TestCase
     {
         Http::fake();
 
-        $this->as($this->signIn(MembershipRole::Admin))->postJson('/api/platform/announcements/draft', ['notes' => 'x', 'level' => 'info'])
+        $this->as($this->signIn(MembershipRole::Admin))->postJson('/api/platform/announcements/draft', ['notes' => 'x'])
             ->assertForbidden();
         Http::assertNothingSent();
     }

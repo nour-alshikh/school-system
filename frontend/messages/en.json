@@ -1867,10 +1867,14 @@
       "endsAtHint": "Empty: until you end it.",
       "save": "Save",
       "aiHeading": "Draft with AI",
-      "aiHint": "Write rough notes in any language. AI writes the title and message in English and Arabic. Check them before saving.",
+      "aiHint": "Write rough notes in any language. AI writes the title and message in English and Arabic, and picks the level and audience. Check them before saving.",
       "aiNotesPlaceholder": "e.g. system down tonight 10-11pm for maintenance",
       "aiDraft": "Draft",
-      "aiDrafted": "Draft added. Review it before saving."
+      "aiDrafted": "Draft added. Review it before saving.",
+      "micStart": "Speak",
+      "micStop": "Stop",
+      "micBlocked": "Microphone access is blocked. Allow it in your browser to dictate.",
+      "micFailed": "Couldn't hear you. Try again or type your notes."
     },
     "plans": {
       "heading": "Plans",

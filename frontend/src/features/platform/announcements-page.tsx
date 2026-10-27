@@ -7,7 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Megaphone, Plus, Sparkles } from "lucide-react";
+import { Loader2, Megaphone, Mic, MicOff, Plus, Sparkles } from "lucide-react";
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { apiFetch, ApiError } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,7 @@ function AnnouncementDialog({
   const t = useTranslations("Platform.announcements");
   const tRoles = useTranslations("LoginChooserPage");
   const tErrors = useTranslations("Errors");
+  const locale = useLocale();
 
   const { data: overview } = useQuery({
     queryKey: ["platform", "overview"],
@@ -204,13 +206,21 @@ function AnnouncementDialog({
     },
   });
 
-  // AI draft from rough notes: fills the four text fields, saves nothing.
+  // AI draft from rough notes: fills the text fields, level and audience, saves nothing.
   const [notes, setNotes] = useState("");
+  // Dictated phrases are appended to the notes, in the UI's language.
+  const speech = useSpeechRecognition({
+    lang: locale === "ar" ? "ar-SA" : "en-US",
+    onText: (text) => setNotes((n) => (n.trim() ? `${n.trimEnd()} ${text}` : text).slice(0, 2000)),
+    onError: (error) => toast.error(error === "not-allowed" || error === "service-not-allowed" ? t("micBlocked") : t("micFailed")),
+  });
   const draft = useMutation({
     mutationFn: () =>
-      apiFetch<{ draft: { title: { en: string; ar: string }; body: { en: string; ar: string } } }>("/api/platform/announcements/draft", {
+      apiFetch<{
+        draft: { title: { en: string; ar: string }; body: { en: string; ar: string }; level: Values["level"]; audience: Values["audience"] };
+      }>("/api/platform/announcements/draft", {
         method: "POST",
-        body: JSON.stringify({ notes, level: form.getValues("level") }),
+        body: JSON.stringify({ notes }),
       }).then((d) => d.draft),
     onSuccess: (d) => {
       const opts = { shouldDirty: true, shouldValidate: true };
@@ -218,6 +228,8 @@ function AnnouncementDialog({
       form.setValue("title_ar", d.title.ar, opts);
       form.setValue("body_en", d.body.en, opts);
       form.setValue("body_ar", d.body.ar, opts);
+      form.setValue("level", d.level, opts);
+      form.setValue("audience", d.audience, opts);
       toast.success(t("aiDrafted"));
     },
     onError: (err) => toast.error(err instanceof ApiError ? err.message : tErrors("somethingWentWrong")),
@@ -298,16 +310,34 @@ function AnnouncementDialog({
               />
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-xs text-muted-foreground">{t("aiHint")}</p>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={!notes.trim() || draft.isPending}
-                  onClick={() => draft.mutate()}
-                >
-                  {draft.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-                  {t("aiDraft")}
-                </Button>
+                <div className="flex items-center gap-2">
+                  {speech.supported && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={speech.listening ? "destructive" : "outline"}
+                      aria-pressed={speech.listening}
+                      disabled={draft.isPending}
+                      onClick={speech.listening ? speech.stop : speech.start}
+                    >
+                      {speech.listening ? <MicOff className="size-4" /> : <Mic className="size-4" />}
+                      {speech.listening ? t("micStop") : t("micStart")}
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={!notes.trim() || draft.isPending}
+                    onClick={() => {
+                      speech.stop();
+                      draft.mutate();
+                    }}
+                  >
+                    {draft.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                    {t("aiDraft")}
+                  </Button>
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -50,18 +50,17 @@ class AnnouncementController extends Controller
         return response()->json(['announcement' => $this->payload($announcement->load(['school:id,name', 'creator:id,name']))]);
     }
 
-    /** An AI draft of the title and message in both languages, from rough notes. Nothing is saved. */
+    /** An AI draft of the title and message in both languages, plus a level and audience, from rough notes. Nothing is saved. */
     public function draft(Request $request, AnnouncementWriter $writer): JsonResponse
     {
         $data = $request->validate([
             'notes' => ['required', 'string', 'max:2000'],
-            'level' => ['required', Rule::enum(AnnouncementLevel::class)],
         ]);
 
         abort_unless($writer->isConfigured(), 503, __('api.ai_not_configured'));
 
         try {
-            return response()->json(['draft' => $writer->draft($data['notes'], $data['level'])]);
+            return response()->json(['draft' => $writer->draft($data['notes'])]);
         } catch (RuntimeException $e) {
             report($e);
             abort(502, __('api.ai_draft_failed'));
