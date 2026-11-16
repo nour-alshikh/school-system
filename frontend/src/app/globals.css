@@ -39,8 +39,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-accent-red: var(--accent-red);
-  --color-accent-red-foreground: var(--accent-red-foreground);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -62,90 +62,89 @@ html[dir="rtl"] {
   font-family: var(--font-cairo);
 }
 
+/* Brand: deep teal (teal-700, #0F766E) as primary, amber (amber-500,
+   #F59E0B) as the secondary brand accent. Teal-700 is dark enough for white
+   text to clear AA (~5.5:1); amber is light, so it pairs with dark text.
+   Neutral surfaces carry a faint teal tint (hue ~190, very low chroma) so
+   greys feel part of the brand instead of a flat, colorless grey.
+   --accent stays a neutral hover surface (shadcn uses it for menu/ghost
+   hover states); the amber brand color lives in --brand-accent instead. */
 :root {
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.18 0.02 200);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.18 0.02 200);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  /* Brand color (lime-700, not the lighter lime-600) — dark enough that
-     white text on it clears AA contrast, unlike lime-600 which needed
-     dark text and looked off on a button. Drives every component keyed
-     off --primary/--ring (Button's default variant, Checkbox/RadioGroup/
-     Slider's checked state, focus rings, "link"-style buttons) rather
-     than being hand-applied per component. */
-  --primary: oklch(0.532 0.157 131.589);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.18 0.02 200);
+  --primary: oklch(0.511 0.086 186.391);
+  --primary-foreground: oklch(0.985 0.005 190);
+  --secondary: oklch(0.965 0.008 190);
+  --secondary-foreground: oklch(0.25 0.03 195);
+  --muted: oklch(0.967 0.006 190);
+  --muted-foreground: oklch(0.52 0.02 200);
+  --accent: oklch(0.955 0.015 185);
+  --accent-foreground: oklch(0.25 0.03 195);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.532 0.157 131.589);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: oklch(0.915 0.01 195);
+  --input: oklch(0.915 0.01 195);
+  --ring: oklch(0.6 0.118 184.704);
+  /* Chart series: teal, amber, sky, rose, violet — distinct hues so series
+     stay distinguishable side by side. */
+  --chart-1: oklch(0.6 0.118 184.704);
+  --chart-2: oklch(0.769 0.188 70.08);
+  --chart-3: oklch(0.685 0.169 237.323);
+  --chart-4: oklch(0.645 0.246 16.439);
+  --chart-5: oklch(0.606 0.25 292.717);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  /* Standalone accent token, not tied to primary/destructive -- apply
-     manually per component (bg-accent-red, text-accent-red-foreground,
-     etc.) rather than as a theme-wide replacement. Same values in light
-     and dark: a brand accent, not a surface color. */
-  --accent-red: #ff5b4f;
-  --accent-red-foreground: #ffffff;
+  --sidebar: oklch(0.982 0.006 190);
+  --sidebar-foreground: oklch(0.18 0.02 200);
+  --sidebar-primary: oklch(0.511 0.086 186.391);
+  --sidebar-primary-foreground: oklch(0.985 0.005 190);
+  --sidebar-accent: oklch(0.95 0.02 185);
+  --sidebar-accent-foreground: oklch(0.25 0.03 195);
+  --sidebar-border: oklch(0.915 0.01 195);
+  --sidebar-ring: oklch(0.6 0.118 184.704);
+  /* Amber brand accent — apply manually (bg-brand-accent, text-brand-accent)
+     for highlights, badges and callouts. Same in both themes. */
+  --brand-accent: oklch(0.769 0.188 70.08);
+  --brand-accent-foreground: oklch(0.25 0.06 50);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  /* Same brand lime as :root — a brand accent stays the same color in
-     both themes rather than inverting like the grayscale surface tokens
-     around it. */
-  --primary: oklch(0.532 0.157 131.589);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.16 0.015 210);
+  --foreground: oklch(0.97 0.005 190);
+  --card: oklch(0.205 0.018 205);
+  --card-foreground: oklch(0.97 0.005 190);
+  --popover: oklch(0.205 0.018 205);
+  --popover-foreground: oklch(0.97 0.005 190);
+  /* Same teal as light mode — a brand color stays put while surfaces flip. */
+  --primary: oklch(0.511 0.086 186.391);
+  --primary-foreground: oklch(0.985 0.005 190);
+  --secondary: oklch(0.27 0.02 200);
+  --secondary-foreground: oklch(0.97 0.005 190);
+  --muted: oklch(0.27 0.02 200);
+  --muted-foreground: oklch(0.72 0.02 195);
+  --accent: oklch(0.29 0.03 190);
+  --accent-foreground: oklch(0.97 0.005 190);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.532 0.157 131.589);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.704 0.14 182.503);
+  --chart-1: oklch(0.704 0.14 182.503);
+  --chart-2: oklch(0.828 0.189 84.429);
+  --chart-3: oklch(0.746 0.16 232.661);
+  --chart-4: oklch(0.712 0.194 13.428);
+  --chart-5: oklch(0.702 0.183 293.541);
+  --sidebar: oklch(0.185 0.017 208);
+  --sidebar-foreground: oklch(0.97 0.005 190);
+  --sidebar-primary: oklch(0.6 0.118 184.704);
+  --sidebar-primary-foreground: oklch(0.985 0.005 190);
+  --sidebar-accent: oklch(0.27 0.03 190);
+  --sidebar-accent-foreground: oklch(0.97 0.005 190);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --accent-red: #ff5b4f;
-  --accent-red-foreground: #ffffff;
+  --sidebar-ring: oklch(0.704 0.14 182.503);
+  --brand-accent: oklch(0.769 0.188 70.08);
+  --brand-accent-foreground: oklch(0.25 0.06 50);
 }
 
 @layer base {

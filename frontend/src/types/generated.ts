@@ -14,6 +14,58 @@ readonly school_id: number,
 readonly school_name: string,
 readonly expires_at: string,
 };
+export type AdminDashboardActivityType = {
+readonly type: 'payment' | 'student' | 'exam',
+readonly subject_id: number,
+readonly label_en: string,
+readonly label_ar: string,
+readonly amount: string | null,
+readonly at: string,
+};
+export type AdminDashboardAttendanceDayType = {
+readonly date: string,
+readonly present: number,
+readonly late: number,
+readonly absent: number,
+readonly excused: number,
+};
+export type AdminDashboardClassroomRefType = {
+readonly id: number,
+readonly name: string,
+readonly grade_name_en: string,
+readonly grade_name_ar: string,
+};
+export type AdminDashboardExamType = {
+readonly id: number,
+readonly title: string,
+readonly opens_at: string,
+readonly subject_name_en: string,
+readonly subject_name_ar: string,
+readonly grade_name_en: string,
+readonly grade_name_ar: string,
+readonly classroom_name: string | null,
+};
+export type AdminDashboardFeeMonthType = {
+readonly month: string,
+readonly charged: string,
+readonly collected: string,
+};
+export type AdminDashboardMonthCountType = {
+readonly month: string,
+readonly count: number,
+};
+export type AdminDashboardOverdueType = {
+readonly student_id: number,
+readonly name_en: string,
+readonly name_ar: string,
+readonly outstanding: string,
+};
+export type AdminDashboardStageCountType = {
+readonly stage_id: number,
+readonly name_en: string,
+readonly name_ar: string,
+readonly count: number,
+};
 export type AdminDashboardType = {
 readonly students_count: number,
 readonly teachers_count: number,
@@ -26,6 +78,17 @@ readonly attendance_present_today: number,
 readonly attendance_marked_today: number,
 readonly upcoming_meetings_count: number,
 readonly library_resources_count: number,
+readonly attendance_trend: AdminDashboardAttendanceDayType[],
+readonly fees_by_month: AdminDashboardFeeMonthType[],
+readonly enrollments_by_month: AdminDashboardMonthCountType[],
+readonly students_by_stage: AdminDashboardStageCountType[],
+readonly overdue_students_count: number,
+readonly top_overdue: AdminDashboardOverdueType[],
+readonly is_school_day: boolean,
+readonly classrooms_unmarked_today: AdminDashboardClassroomRefType[],
+readonly low_attendance_students_count: number,
+readonly upcoming_exams: AdminDashboardExamType[],
+readonly recent_activity: AdminDashboardActivityType[],
 };
 export type AdminUserType = {
 readonly id: number,
