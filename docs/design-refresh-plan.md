@@ -34,12 +34,11 @@ brand: deep teal + amber.
 
 ## Design references
 
-Flow AI output, saved in `frontend/public/` (move them to `docs/design/`
-before committing; `public/` is served to everyone):
+Flow AI output, in `docs/design/`:
 
-- `Design_SaaS_landing_page_7f4fef9d_2K.jpg` — landing page, light LTR + dark RTL, desktop + mobile.
-- `Design_school_management_admin_d…_0319bddb.jpg` — admin dashboard, light LTR + dark RTL.
-- `Design_three_new_dashboards_700cc820.jpg` — teacher, parent, student dashboards.
+- `landing-page.jpg` — landing page, light LTR + dark RTL, desktop + mobile.
+- `admin-dashboard.jpg` — admin dashboard, light LTR + dark RTL.
+- `role-dashboards.jpg` — teacher, parent, student dashboards.
 
 Notes on the references:
 
