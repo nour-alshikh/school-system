@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('school_id')->nullable()->constrained()->cascadeOnDelete();
             // Roles that see it; null: everyone.
             $table->json('audience')->nullable();
-            $table->timestamp('starts_at');
+            $table->dateTime('starts_at');
             $table->timestamp('ends_at')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();

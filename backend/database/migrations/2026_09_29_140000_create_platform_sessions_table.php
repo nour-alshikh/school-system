@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('school_id')->constrained()->cascadeOnDelete();
             $table->string('reason', 500)->nullable();
-            $table->timestamp('started_at');
-            $table->timestamp('expires_at');
+            $table->dateTime('started_at');
+            $table->dateTime('expires_at');
             $table->timestamp('ended_at')->nullable();
             $table->timestamps();
 

@@ -55,28 +55,32 @@ Notes on the references:
 - Read the chart/shadcn docs for the installed versions —
   `frontend/AGENTS.md` warns this Next.js differs from older versions.
 
-## Step 1 — Admin dashboard UI
+## Step 1 — Admin dashboard UI ✅
 
-File: `frontend/src/features/admin-dashboard/admin-dashboard-page.tsx`.
+Done. `frontend/src/features/admin-dashboard/`:
 
-- [ ] Add shadcn charts (`npx shadcn add chart`, uses Recharts); colors from `--chart-1..5`.
-- [ ] Greeting row: "Good morning, {name}", date, quick actions (Add student,
-      Take attendance, Record payment, New announcement).
-- [ ] 4 KPI cards with sparkline + ▲/▼ % change: students (enrollments),
-      teachers (number only, no trend data), attendance today (trend),
-      fees collected (fees by month).
-- [ ] Attendance area chart, last 30 days (8 cols); skip days with nothing marked.
-- [ ] Students-by-stage donut (4 cols).
-- [ ] Fees charged vs collected bar chart, 6 months (6 cols).
-- [ ] Needs attention panel (6 cols): overdue fees (top 5 + count),
-      unmarked classrooms, low-attendance count — each linking to its page.
-- [ ] Recent activity feed (4 cols), sentences from `type` via i18n.
-- [ ] Upcoming exams timeline (4 cols) — there is no class timetable, so exams only.
-- [ ] Compact mini calendar (4 cols) in place of the full `Calendar`.
-- [ ] Keep `OnboardingChecklist` at the top for new schools.
-- [ ] Loading skeletons in the same grid; empty states for a brand-new school.
-- [ ] Check RTL (charts read right-to-left, numbers stay LTR), dark mode, phone width.
-- [ ] Add every new string to both `en.json` and `ar.json`.
+- `admin-dashboard-page.tsx` — greeting row (time-of-day greeting, date,
+  academic year, quick actions gated by permission and plan features),
+  KPI row, chart grid, and the full `Calendar` kept at the bottom
+  (`#calendar`) since it's where admins manage events.
+- `kpi-card.tsx` — number, ▲/▼ change badge, sparkline strip along the bottom.
+- `charts.tsx` — attendance area chart (school days only, 0–100%), students
+  by stage donut (≤ 4 colored stages, the rest folded into "Other"), fees
+  charged vs collected bars. Chart colors from `--chart-1..5`, validated for
+  color-blind separation in both themes. Recharts axes flip for Arabic.
+- `panels.tsx` — needs attention (unmarked classes link to
+  `/attendance?classroom=ID`, top 5 unpaid balances link to the student),
+  recent activity, upcoming exams, mini calendar.
+- `/attendance` now accepts `?classroom=` to preselect a classroom.
+- shadcn `chart`, `card`, `badge` added (`recharts` dependency).
+
+Follow-ups:
+
+- [ ] Admins lost the avatar uploader (the old centered "Welcome" block was
+      hidden for them) — add "Change avatar" to the avatar menu in step 2.
+- [ ] ~25 existing `<Button render={<Link />}>` elsewhere log a Base UI
+      warning; add `nativeButton={false}` to them (done for the dashboard).
+- [ ] Teachers KPI shows a number only — no teacher history to trend yet.
 
 ## Step 2 — App shell
 
@@ -84,7 +88,8 @@ Files: `frontend/src/components/site-sidebar.tsx`, `site-header.tsx`.
 
 - [ ] Sidebar grouped into sections (Overview, Academics, People, Finance,
       Communication), teal active indicator, collapsible icon-only mode.
-- [ ] Top bar: search with ⌘K hint, academic year selector, notifications, avatar menu.
+- [ ] Top bar: search with ⌘K hint, academic year selector, notifications, avatar menu
+      (including "Change avatar" — see step 1 follow-ups).
 
 ## Step 3 — Landing page
 

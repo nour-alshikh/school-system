@@ -41,13 +41,16 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="flex flex-col items-center justify-center gap-4 p-6">
-        <AvatarUploader />
-        <h1 className="text-xl font-semibold">
-          {t("welcome", { name: user.name })}
-        </h1>
-        <p className="text-sm text-muted-foreground">{user.email}</p>
-      </div>
+      {/* The admin dashboard has its own greeting row. */}
+      {!hasRole("admin") && (
+        <div className="flex flex-col items-center justify-center gap-4 p-6">
+          <AvatarUploader />
+          <h1 className="text-xl font-semibold">
+            {t("welcome", { name: user.name })}
+          </h1>
+          <p className="text-sm text-muted-foreground">{user.email}</p>
+        </div>
+      )}
       {hasRole("admin") && <AdminDashboardPage />}
       {hasRole("student") && <StudentDashboardPage />}
       {hasRole("teacher") && <TeacherDashboardPage />}

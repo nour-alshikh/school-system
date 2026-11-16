@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -61,7 +62,9 @@ export function AttendancePage() {
 
   const canAccess = can("manage-attendance") || hasRole("teacher");
 
-  const [classroomId, setClassroomId] = useState<string>("");
+  const searchParams = useSearchParams();
+  // ?classroom= preselects one, e.g. from the admin dashboard's "not marked yet" list.
+  const [classroomId, setClassroomId] = useState<string>(() => searchParams.get("classroom") ?? "");
   const [date, setDate] = useState<string>(today());
   const schoolDays = useSchoolDays();
 

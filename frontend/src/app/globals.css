@@ -130,11 +130,13 @@ html[dir="rtl"] {
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.704 0.14 182.503);
-  --chart-1: oklch(0.704 0.14 182.503);
-  --chart-2: oklch(0.828 0.189 84.429);
-  --chart-3: oklch(0.746 0.16 232.661);
-  --chart-4: oklch(0.712 0.194 13.428);
-  --chart-5: oklch(0.702 0.183 293.541);
+  /* Dark chart steps chosen separately (not a flip), validated against the
+     dark surface: lightness 0.62-0.67 so no series glares or sinks. */
+  --chart-1: oklch(0.66 0.12 183);
+  --chart-2: oklch(0.67 0.15 68);
+  --chart-3: oklch(0.64 0.14 237);
+  --chart-4: oklch(0.645 0.2 15);
+  --chart-5: oklch(0.62 0.19 293);
   --sidebar: oklch(0.185 0.017 208);
   --sidebar-foreground: oklch(0.97 0.005 190);
   --sidebar-primary: oklch(0.6 0.118 184.704);
