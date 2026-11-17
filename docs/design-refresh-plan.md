@@ -222,3 +222,27 @@ Follow-ups (new modules, if wanted):
 - [ ] Library lending with due dates.
 - [ ] School-level announcements (admin → teachers / parents / students).
 - [ ] A per-user notifications feed (also a step 2 follow-up).
+
+## Feedback pass (Nov 17) ✅
+
+- **Loading states** — `components/app-skeletons.tsx`. While auth loads and
+  the `auth_status` cookie says someone is probably signed in
+  (`useSessionHint()` in `auth-context.tsx`), the sidebar and top bar show
+  skeletons of the new shell instead of the old guest bar. `PageLoader` is a
+  title + table skeleton; `/dashboard` uses `DashboardSkeleton`; role
+  dashboards use `KpiSkeleton` / `PanelSkeleton`.
+- **Amber used more** — `KpiCard` takes `tone="teal" | "amber"` (alternated
+  in each KPI row), amber active bar in the sidebar, `BrandMark` logo with an
+  amber dot, amber header badges (`headerBadgeClass`), fees "charged" series
+  in amber, `--brand-accent-strong` for amber text on light surfaces.
+- **Warm paper surfaces** — light `--background` is an off-white (hue ~85),
+  cards a step brighter.
+- **Landing** — `features/home/doodles.tsx` (SVG doodles that draw in on
+  view), hero pointer tilt, amber glow + squiggle, clickable attendance demo
+  and hoverable score bars in the bento, pointer spotlight on tiles, a
+  marching dashed path in How it works, amber final CTA.
+
+Follow-up:
+
+- [ ] Re-capture `public/landing/*.jpg` (`npm run screenshots:landing`
+      against a production build) — they still show white surfaces.

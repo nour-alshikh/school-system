@@ -16,6 +16,14 @@ export interface KpiChange {
   caption: string;
 }
 
+/** The two brand colors, alternated across a KPI row. */
+const TONES = {
+  teal: { chip: "bg-primary/10 text-primary dark:text-teal-300", line: "var(--chart-1)", bar: "bg-primary" },
+  amber: { chip: "bg-brand-accent/15 text-brand-accent-strong", line: "var(--chart-2)", bar: "bg-brand-accent" },
+} as const;
+
+export type KpiTone = keyof typeof TONES;
+
 /**
  * A headline number with an optional sparkline and change badge. The
  * sparkline is decoration for the trend's shape only — the number and the
@@ -29,6 +37,7 @@ export function KpiCard({
   subtext,
   spark,
   href,
+  tone = "teal",
 }: {
   icon: ComponentType<{ className?: string }>;
   title: string;
@@ -37,11 +46,14 @@ export function KpiCard({
   subtext?: ReactNode;
   spark?: number[];
   href?: string;
+  tone?: KpiTone;
 }) {
+  const style = TONES[tone];
   const body = (
-    <Card className="h-full gap-3 px-4 pb-2 transition-shadow hover:shadow-md">
+    <Card className="relative h-full gap-3 overflow-hidden px-4 pb-2 transition-[box-shadow,translate] hover:-translate-y-0.5 hover:shadow-md">
+      <span aria-hidden className={cn("absolute inset-x-0 top-0 h-0.5", style.bar)} />
       <div className="flex items-center gap-2 text-muted-foreground">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-md", style.chip)}>
           <Icon className="size-4" />
         </span>
         <span className="text-sm font-medium">{title}</span>
@@ -55,7 +67,7 @@ export function KpiCard({
         {!change && subtext}
       </div>
       {change && subtext && <div className="-mt-2 text-xs text-muted-foreground">{subtext}</div>}
-      {spark && spark.length > 1 && <Sparkline values={spark} />}
+      {spark && spark.length > 1 && <Sparkline values={spark} color={style.line} />}
     </Card>
   );
 
@@ -86,7 +98,7 @@ function ChangeBadge({ change }: { change: KpiChange }) {
   );
 }
 
-function Sparkline({ values }: { values: number[] }) {
+function Sparkline({ values, color }: { values: number[]; color: string }) {
   const data = values.map((v, i) => ({ i, v }));
 
   return (
@@ -97,7 +109,7 @@ function Sparkline({ values }: { values: number[] }) {
           <Line
             type="monotone"
             dataKey="v"
-            stroke="var(--chart-1)"
+            stroke={color}
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}

@@ -6,7 +6,8 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { Building2, Camera, Languages, LogOut, Menu, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth, useSessionHint } from "@/contexts/auth-context";
+import { HeaderSkeleton } from "@/components/app-skeletons";
 import { useFadeIn } from "@/hooks/use-fade-in";
 import { UserAvatar } from "@/components/user-avatar";
 import { AvatarUploader } from "@/components/avatar-uploader";
@@ -188,11 +189,15 @@ export function UserMenu() {
 export function SiteHeader() {
   const t = useTranslations("Nav");
   const { user, isLoading } = useAuth();
+  const sessionHint = useSessionHint();
   const pathname = usePathname();
   const ref = useFadeIn<HTMLElement>({ y: -12 });
 
   // The landing page has its own navbar (features/home/landing-navbar.tsx).
   if (pathname === "/") return null;
+
+  // Probably signed in, still loading: the signed-in bar's shape.
+  if (isLoading && sessionHint) return <HeaderSkeleton />;
 
   // Guests (login, register, …) get the simple bar.
   if (isLoading || !user) {

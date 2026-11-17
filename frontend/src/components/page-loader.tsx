@@ -1,13 +1,9 @@
-import { Loader2 } from "lucide-react";
+import { PageSkeleton } from "@/components/app-skeletons";
 
-// Generic placeholder for a page's brief pre-auth-resolved state (see
+// Placeholder for a page's brief pre-auth-resolved state (see
 // docs/layout.md — isLoading is true for the whole server-rendered HTML).
-// A centered spinner rather than a skeleton — there's no known layout yet to
-// mimic at this point, since auth hasn't resolved to a page shape.
+// A generic title + table skeleton in the new layout's shape; pages with a
+// known shape (the dashboard) use their own.
 export function PageLoader() {
-  return (
-    <main className="flex flex-1 items-center justify-center p-6">
-      <Loader2 className="size-6 animate-spin text-muted-foreground" />
-    </main>
-  );
+  return <PageSkeleton />;
 }

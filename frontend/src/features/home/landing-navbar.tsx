@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { GraduationCap, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useFadeIn } from "@/hooks/use-fade-in";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
@@ -22,9 +23,7 @@ export function Brand() {
   const tNav = useTranslations("Nav");
   return (
     <Link href="/" className="flex shrink-0 items-center gap-2 rounded-lg font-semibold">
-      <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <GraduationCap className="size-4.5" />
-      </span>
+      <BrandMark />
       <span className="text-[15px]">{tNav("brand")}</span>
     </Link>
   );

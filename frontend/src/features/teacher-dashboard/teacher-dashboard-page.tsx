@@ -11,7 +11,7 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { KpiSkeleton, PanelSkeleton } from "@/components/app-skeletons";
 import { Calendar } from "@/features/calendar/calendar";
 import { EmptyState, Panel } from "@/features/admin-dashboard/charts";
 import { KpiCard } from "@/features/admin-dashboard/kpi-card";
@@ -91,11 +91,11 @@ export function TeacherDashboardPage() {
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 md:p-6">
         {header}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
+          {(["teal", "amber", "teal", "amber"] as const).map((tone, i) => <KpiSkeleton key={i} tone={tone} />)}
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-          <Skeleton className="h-80 rounded-xl lg:col-span-7" />
-          <Skeleton className="h-80 rounded-xl lg:col-span-5" />
+          <PanelSkeleton className="lg:col-span-7" variant="list" />
+          <PanelSkeleton className="lg:col-span-5" variant="list" />
         </div>
       </main>
     );
@@ -112,7 +112,7 @@ export function TeacherDashboardPage() {
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard icon={DoorOpen} title={t("kpiClassrooms")} value={formatNumber(d.classrooms_count, locale)} href="/my-classrooms"
           subtext={t("kpiSubjects", { count: d.subjects_count })} />
-        <KpiCard icon={Users} title={t("kpiStudents")} value={formatNumber(d.students_total, locale)} />
+        <KpiCard tone="amber" icon={Users} title={t("kpiStudents")} value={formatNumber(d.students_total, locale)} />
         <KpiCard
           icon={CheckSquare}
           title={t("kpiMarkedToday")}
@@ -121,7 +121,7 @@ export function TeacherDashboardPage() {
           subtext={d.is_school_day ? t("classroomsMarked") : t("notSchoolDay")}
         />
         {showExams && (
-          <KpiCard
+          <KpiCard tone="amber"
             icon={ClipboardList}
             title={t("kpiAverageScore")}
             value={resultsAverage === null ? "—" : formatPercent(resultsAverage, locale, 0)}

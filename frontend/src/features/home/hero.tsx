@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType } from "react";
+import { useRef, type ComponentType, type PointerEvent } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowRight, CircleCheck, ClipboardCheck, Languages, Wallet } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -9,6 +9,8 @@ import { useFadeIn } from "@/hooks/use-fade-in";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { BrowserFrame, Screenshot } from "@/features/home/screenshot";
+import { BookDoodle, CapDoodle, PencilDoodle, RulerDoodle, Sparkle, Squiggle } from "@/features/home/doodles";
+import { prefersReducedMotion } from "@/lib/gsap";
 
 /** A small floating card over the hero screenshot. Decorative: the screenshot carries the meaning. */
 function MiniCard({
@@ -52,13 +54,41 @@ export function Hero() {
   const { user, isLoading } = useAuth();
   const textRef = useFadeIn<HTMLDivElement>({ y: 20 });
   const visualRef = useFadeIn<HTMLDivElement>({ y: 32, delay: 0.15, duration: 0.7 });
+  const tiltRef = useRef<HTMLDivElement>(null);
+  const frame = useRef(0);
+
+  // The screenshot leans toward the pointer a little (mouse only, and not
+  // under reduced motion). Written straight to the style: no re-renders.
+  function onPointerMove(event: PointerEvent<HTMLElement>) {
+    if (event.pointerType !== "mouse" || prefersReducedMotion() || !tiltRef.current) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(() => {
+      if (!tiltRef.current) return;
+      tiltRef.current.style.transform = `rotateY(${x * 8}deg) rotateX(${-y * 6}deg) translate3d(${x * 10}px, ${y * 10}px, 0)`;
+    });
+  }
+
+  function onPointerLeave() {
+    cancelAnimationFrame(frame.current);
+    if (tiltRef.current) tiltRef.current.style.transform = "";
+  }
 
   return (
-    <section className="relative isolate overflow-hidden">
-      {/* Soft teal glow and a faint grid behind the hero. */}
+    <section className="relative isolate overflow-hidden" onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
+      {/* Teal and amber glows, a dot grid, and a few drifting doodles. */}
       <div aria-hidden className="absolute inset-0 -z-10">
-        <div className="absolute -top-40 start-1/2 h-[36rem] w-[60rem] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl rtl:translate-x-1/2 dark:bg-primary/20" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:48px_48px] opacity-40 [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_70%)]" />
+        <div className="absolute -top-40 start-1/4 h-[34rem] w-[48rem] rounded-full bg-primary/15 blur-3xl dark:bg-primary/20" />
+        <div className="absolute top-24 -end-32 h-[26rem] w-[30rem] rounded-full bg-brand-accent/20 blur-3xl dark:bg-brand-accent/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(var(--border)_1.2px,transparent_1.2px)] bg-[size:22px_22px] opacity-70 [mask-image:radial-gradient(ellipse_at_top,black_25%,transparent_70%)]" />
+        <BookDoodle draw className="absolute top-28 start-[4%] hidden size-12 text-primary/40 motion-safe:animate-[landing-drift_9s_ease-in-out_infinite] xl:block" />
+        <PencilDoodle draw delay="0.3s" className="absolute bottom-16 start-[38%] hidden size-10 text-brand-accent motion-safe:animate-[landing-drift_7s_ease-in-out_-2s_infinite] lg:block" />
+        <CapDoodle draw delay="0.6s" className="absolute top-20 end-[42%] hidden size-11 text-primary/35 motion-safe:animate-[landing-drift_11s_ease-in-out_-4s_infinite] lg:block" />
+        <RulerDoodle draw delay="0.9s" className="absolute bottom-8 end-[6%] hidden size-10 text-brand-accent/80 motion-safe:animate-[landing-drift_8s_ease-in-out_-1s_infinite] lg:block" />
+        <Sparkle className="absolute top-40 start-[46%] size-4 text-brand-accent motion-safe:animate-[landing-twinkle_3s_ease-in-out_infinite]" />
+        <Sparkle className="absolute top-[62%] start-[8%] size-3 text-primary/60 motion-safe:animate-[landing-twinkle_4s_ease-in-out_-1s_infinite]" />
       </div>
 
       <div className="mx-auto grid w-full max-w-6xl gap-14 px-6 pt-16 pb-20 lg:grid-cols-12 lg:items-center lg:gap-8 lg:pt-24 lg:pb-28">
@@ -67,8 +97,10 @@ export function Hero() {
             <Languages className="size-3.5" />
             {t("heroBadge")}
           </span>
-          <h1 className="text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]">
+          <h1 className="relative text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]">
             {t("heroHeadline")}
+            <Sparkle className="absolute -top-3 -end-2 size-6 text-brand-accent motion-safe:animate-[landing-twinkle_2.6s_ease-in-out_infinite] sm:-end-6" />
+            <Squiggle draw delay="0.4s" className="mt-2 block h-3 w-3/5 text-brand-accent" />
           </h1>
           <p className="max-w-lg text-lg leading-relaxed text-muted-foreground">{t("heroSubtext")}</p>
           <div className="flex flex-wrap items-center gap-3">
@@ -85,10 +117,12 @@ export function Hero() {
         </div>
 
         <div ref={visualRef} className="relative lg:col-span-7">
-          <div className="lg:[perspective:2200px]">
+          <div className="[perspective:2200px]">
+            <div ref={tiltRef} className="transition-transform duration-300 ease-out will-change-transform">
             <BrowserFrame className="lg:origin-left lg:[transform:rotateY(-14deg)_rotateX(6deg)] rtl:lg:origin-right rtl:lg:[transform:rotateY(14deg)_rotateX(6deg)]">
               <Screenshot name="admin" alt={t("heroScreenshotAlt")} priority sizes="(min-width: 1024px) 60vw, 100vw" />
             </BrowserFrame>
+            </div>
           </div>
 
           <MiniCard

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { isPlatformSession } from "@/lib/platform";
-import { PageLoader } from "@/components/page-loader";
+import { DashboardSkeleton } from "@/components/app-skeletons";
 import { StudentDashboardPage } from "@/features/student-dashboard/student-dashboard-page";
 import { TeacherDashboardPage } from "@/features/teacher-dashboard/teacher-dashboard-page";
 import { ParentDashboardPage } from "@/features/parent-dashboard/parent-dashboard-page";
@@ -33,7 +33,7 @@ export default function DashboardPage() {
   }, [isLoading, user, platformSession, hasNoSchool, router]);
 
   if (isLoading || !user || platformSession || hasNoSchool) {
-    return <PageLoader />;
+    return <DashboardSkeleton />;
   }
 
   return (

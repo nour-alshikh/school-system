@@ -259,7 +259,7 @@ export function StagesDonut({ stages, className }: { stages: AdminDashboardStage
 }
 
 const feesConfig = {
-  charged: { label: "charged", color: "var(--chart-3)" },
+  charged: { label: "charged", color: "var(--chart-2)" },
   collected: { label: "collected", color: "var(--chart-1)" },
 } satisfies ChartConfig;
 

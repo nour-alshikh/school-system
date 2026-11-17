@@ -10,7 +10,7 @@ import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useMoney } from "@/hooks/use-money";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PanelSkeleton } from "@/components/app-skeletons";
 import { Calendar } from "@/features/calendar/calendar";
 import { EmptyState, Panel } from "@/features/admin-dashboard/charts";
 import { useParentChildren } from "@/features/parent-children/use-parent-children";
@@ -251,7 +251,9 @@ export function ParentDashboardPage() {
 
       {!children ? (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-56 rounded-xl" />)}
+          <PanelSkeleton variant="list" rows={3} />
+          <PanelSkeleton />
+          <PanelSkeleton variant="list" rows={3} />
         </div>
       ) : !selected ? (
         <EmptyState>{t("noChildren")}</EmptyState>

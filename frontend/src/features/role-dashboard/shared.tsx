@@ -12,6 +12,9 @@ import type { DashboardAgendaItemType } from "@/types/generated";
 import { EmptyState, Panel } from "@/features/admin-dashboard/charts";
 import { formatNumber, formatPercent, greetingKey, intlLocale } from "@/features/admin-dashboard/utils";
 
+/** Amber pill for the facts beside the date (year, grade, child). */
+export const headerBadgeClass = "bg-brand-accent/15 text-brand-accent-strong ring-1 ring-brand-accent/30";
+
 /** Greeting, today's date, a few badges and the role's quick actions. */
 export function DashboardHeader({
   title,

@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, GraduationCap, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth, useSessionHint } from "@/contexts/auth-context";
+import { SidebarSkeleton } from "@/components/app-skeletons";
 import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/brand-mark";
 import { useNavSections, type NavItem } from "@/components/app-nav";
 
 const STORAGE_KEY = "sidebar-collapsed";
@@ -46,9 +48,7 @@ export function SidebarBrand({ collapsed = false }: { collapsed?: boolean }) {
       className={cn("flex min-w-0 items-center gap-2.5 rounded-lg", collapsed && "justify-center")}
       title={collapsed ? t("brand") : undefined}
     >
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <GraduationCap className="size-4.5" />
-      </span>
+      <BrandMark />
       {!collapsed && (
         <span className="flex min-w-0 flex-col leading-tight">
           <span className="truncate text-sm font-semibold">{t("brand")}</span>
@@ -62,9 +62,9 @@ export function SidebarBrand({ collapsed = false }: { collapsed?: boolean }) {
 const linkBase =
   "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring";
 const linkIdle = "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
-// Teal tint plus a bar on the inline-start edge (flips for Arabic).
+// Teal tint plus an amber bar on the inline-start edge (flips for Arabic).
 const linkActive =
-  "bg-primary/10 font-medium text-primary dark:bg-sidebar-accent dark:text-sidebar-foreground before:absolute before:inset-y-1.5 before:start-0 before:w-[3px] before:rounded-full before:bg-primary dark:before:bg-sidebar-primary";
+  "bg-primary/10 font-medium text-primary dark:bg-sidebar-accent dark:text-sidebar-foreground before:absolute before:inset-y-1.5 before:start-0 before:w-[3px] before:rounded-full before:bg-brand-accent";
 
 function SidebarLink({
   item,
@@ -212,6 +212,7 @@ export function useLogout() {
 export function SiteSidebar() {
   const t = useTranslations("Nav");
   const { user, isLoading } = useAuth();
+  const sessionHint = useSessionHint();
   const pathname = usePathname();
   const handleLogout = useLogout();
   const [collapsed, setCollapsed] = useState(() => readStored(STORAGE_KEY, false));
@@ -226,7 +227,9 @@ export function SiteSidebar() {
 
   // No sidebar until there's someone logged in to show nav for. The landing
   // page is a full-width marketing page even for logged-in users.
-  if (isLoading || !user || pathname === "/") return null;
+  if (pathname === "/") return null;
+  if (isLoading && sessionHint) return <SidebarSkeleton collapsed={collapsed} />;
+  if (isLoading || !user) return null;
 
   const footerButton = cn(linkBase, linkIdle, "w-full", collapsed && "justify-center px-0");
 

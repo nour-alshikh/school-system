@@ -11,7 +11,7 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { useMoney } from "@/hooks/use-money";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { KpiSkeleton, PanelSkeleton } from "@/components/app-skeletons";
 import { Calendar } from "@/features/calendar/calendar";
 import { OnboardingChecklist } from "@/features/onboarding/onboarding-checklist";
 import { AttendanceChart, FeesChart, StagesDonut } from "./charts";
@@ -57,7 +57,7 @@ export function AdminDashboardPage() {
         <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           {new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: "full" }).format(new Date())}
           {dashboard?.current_academic_year && (
-            <Badge variant="secondary">{t("academicYearLabel", { year: dashboard.current_academic_year })}</Badge>
+            <Badge className="bg-brand-accent/15 text-brand-accent-strong ring-1 ring-brand-accent/30">{t("academicYearLabel", { year: dashboard.current_academic_year })}</Badge>
           )}
         </p>
       </div>
@@ -95,15 +95,15 @@ export function AdminDashboardPage() {
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 md:p-6">
         {header}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-36 rounded-xl" />
+          {(["teal", "amber", "teal", "amber"] as const).map((tone, i) => (
+            <KpiSkeleton key={i} tone={tone} />
           ))}
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-          <Skeleton className="h-80 rounded-xl lg:col-span-8" />
-          <Skeleton className="h-80 rounded-xl lg:col-span-4" />
-          <Skeleton className="h-80 rounded-xl lg:col-span-6" />
-          <Skeleton className="h-80 rounded-xl lg:col-span-6" />
+          <PanelSkeleton className="lg:col-span-8" />
+          <PanelSkeleton className="lg:col-span-4" variant="list" />
+          <PanelSkeleton className="lg:col-span-6" />
+          <PanelSkeleton className="lg:col-span-6" variant="list" />
         </div>
       </main>
     );
@@ -152,7 +152,7 @@ export function AdminDashboardPage() {
           spark={enrollments.map((m) => m.count)}
           subtext={t("newThisMonth", { count: newThisMonth })}
         />
-        <KpiCard
+        <KpiCard tone="amber"
           icon={Presentation}
           title={t("teachersHeading")}
           value={formatNumber(dashboard.teachers_count, locale)}
@@ -179,7 +179,7 @@ export function AdminDashboardPage() {
           }
         />
         {showFees ? (
-          <KpiCard
+          <KpiCard tone="amber"
             icon={Wallet}
             title={t("feesThisMonthHeading")}
             value={money(thisMonth)}
@@ -189,7 +189,7 @@ export function AdminDashboardPage() {
             subtext={t("feesOutstandingLabel", { amount: money(dashboard.fees_outstanding) })}
           />
         ) : (
-          <KpiCard
+          <KpiCard tone="amber"
             icon={ClipboardPlus}
             title={t("upcomingMeetingsHeading")}
             value={formatNumber(dashboard.upcoming_meetings_count, locale)}

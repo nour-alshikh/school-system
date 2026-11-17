@@ -15,6 +15,8 @@ import { RolePortals } from "@/features/home/role-portals";
 import { Pricing } from "@/features/home/pricing";
 import { Faq } from "@/features/home/faq";
 import { SectionHeading } from "@/features/home/section-heading";
+import { CheckDoodle, LoopArrow, Sparkle } from "@/features/home/doodles";
+import { cn } from "@/lib/utils";
 
 // Facts about the product, not usage figures: 4 role portals; 8 modules
 // (attendance, exams, fees, library, meetings, calendar, students and
@@ -32,10 +34,15 @@ function Stats() {
   return (
     <section aria-label={t("statsLabel")} className="mx-auto w-full max-w-6xl px-6">
       <dl className="grid grid-cols-2 divide-border rounded-2xl border bg-card/60 shadow-sm backdrop-blur md:grid-cols-4 md:divide-x">
-        {STATS.map((stat) => (
-          <div key={stat.labelKey} className="flex flex-col-reverse items-center gap-1 px-4 py-6 text-center">
+        {STATS.map((stat, i) => (
+          <div key={stat.labelKey} className="group flex flex-col-reverse items-center gap-1 px-4 py-6 text-center">
             <dt className="text-sm text-muted-foreground">{t(stat.labelKey)}</dt>
-            <dd className="text-3xl font-bold tracking-tight text-primary md:text-4xl">
+            <dd
+              className={cn(
+                "text-3xl font-bold tracking-tight transition-transform duration-300 group-hover:-translate-y-1 md:text-4xl",
+                i % 2 ? "text-brand-accent-strong" : "text-primary"
+              )}
+            >
               <CountUp value={stat.value} suffix={"suffix" in stat ? stat.suffix : ""} />
             </dd>
           </div>
@@ -54,12 +61,27 @@ function HowItWorks() {
       <SectionHeading eyebrow={t("howEyebrow")} heading={t("howHeading")} center />
 
       <ol ref={ref} className="relative grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-6">
-        {/* The line joining the three numbers. */}
-        <span aria-hidden className="absolute inset-x-[16%] top-6 hidden h-px bg-gradient-to-r from-primary/0 via-primary/40 to-primary/0 md:block" />
+        {/* A hand-drawn dashed wave joining the three numbers, drawn on scroll. */}
+        <svg
+          aria-hidden
+          viewBox="0 0 600 40"
+          preserveAspectRatio="none"
+          className="absolute inset-x-[16%] top-1 hidden h-10 w-[68%] text-brand-accent/70 md:block"
+        >
+          <path d="M0 23 C 100 -5, 200 45, 300 20 S 500 -5, 600 22" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="6 8" strokeLinecap="round" className="motion-safe:animate-[landing-march_1.6s_linear_infinite]" />
+        </svg>
         {[1, 2, 3].map((n) => (
-          <li key={n} data-animate="step" className="relative flex flex-col items-center gap-3 text-center">
-            <span className="flex size-12 items-center justify-center rounded-full border-4 border-background bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-primary/20">
+          <li key={n} data-animate="step" className="group relative flex flex-col items-center gap-3 text-center">
+            <span
+              className={cn(
+                "relative flex size-12 items-center justify-center rounded-full border-4 border-background text-lg font-bold shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6",
+                n === 2
+                  ? "bg-brand-accent text-brand-accent-foreground shadow-brand-accent/30"
+                  : "bg-primary text-primary-foreground shadow-primary/20"
+              )}
+            >
               {n}
+              {n === 3 && <Sparkle className="absolute -top-2 -end-2 size-4 text-brand-accent motion-safe:animate-[landing-twinkle_2.8s_ease-in-out_infinite]" />}
             </span>
             <h3 className="mt-1 text-lg font-semibold">{t(`step${n}Title`)}</h3>
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">{t(`step${n}Body`)}</p>
@@ -84,13 +106,18 @@ function FinalCta() {
         <div aria-hidden className="absolute inset-0 -z-10">
           <div className="absolute -top-24 -end-24 size-80 rounded-full bg-brand-accent/30 blur-3xl" />
           <div className="absolute -bottom-32 -start-16 size-80 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(rgb(255_255_255/0.12)_1.2px,transparent_1.2px)] bg-[size:20px_20px]" />
+          <LoopArrow draw className="absolute top-8 start-8 hidden h-14 w-28 text-brand-accent md:block rtl:-scale-x-100" />
+          <CheckDoodle draw delay="0.5s" className="absolute end-10 bottom-8 hidden size-14 text-white/40 md:block" />
+          <Sparkle className="absolute top-10 end-[22%] size-5 text-brand-accent motion-safe:animate-[landing-twinkle_3s_ease-in-out_infinite]" />
+          <Sparkle className="absolute bottom-12 start-[24%] size-3.5 text-white/60 motion-safe:animate-[landing-twinkle_3.6s_ease-in-out_-1s_infinite]" />
         </div>
         <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-balance md:text-4xl">{t("finalCtaHeading")}</h2>
         <p className="mx-auto mt-4 max-w-xl text-lg text-primary-foreground/80">{t("finalCtaSubtext")}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button
             size="lg"
-            className="bg-background px-5 text-foreground hover:bg-background/90"
+            className="bg-brand-accent px-5 text-brand-accent-foreground hover:bg-brand-accent/90"
             nativeButton={false}
             render={<Link href={user ? "/dashboard" : "/create-school"} />}
           >

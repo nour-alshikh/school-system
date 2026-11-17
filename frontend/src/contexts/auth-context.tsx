@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useSyncExternalStore, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch, ApiError } from "@/lib/api";
 import type { LoginPayload, RegisterPayload } from "@/lib/schemas";
@@ -90,6 +90,17 @@ async function fetchCurrentUser(): Promise<User | null> {
 
     throw error;
   }
+}
+
+const noSubscribe = () => () => {};
+
+/**
+ * Whether a session marker cookie is present — a hint, before /api/user
+ * answers, that someone is probably logged in. Lets the app shell show its
+ * skeleton instead of the guest bar while auth loads. False on the server.
+ */
+export function useSessionHint(): boolean {
+  return useSyncExternalStore(noSubscribe, hasAuthStatusCookie, () => false);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

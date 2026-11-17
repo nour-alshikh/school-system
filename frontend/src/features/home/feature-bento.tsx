@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType, ReactNode } from "react";
+import { useState, type ComponentType, type PointerEvent, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { BookOpen, CalendarDays, CheckSquare, ClipboardList, Layers, Receipt } from "lucide-react";
 import { useStaggerIn } from "@/hooks/use-stagger-in";
@@ -8,10 +8,10 @@ import { cn } from "@/lib/utils";
 import { formatNumber } from "@/features/admin-dashboard/utils";
 import { SectionHeading } from "@/features/home/section-heading";
 
-/** The small illustrated area at the top of a tile. Decorative. */
-function Preview({ children, className }: { children: ReactNode; className?: string }) {
+/** The small illustrated area at the top of a tile. Decorative unless `interactive`. */
+function Preview({ children, className, interactive = false }: { children: ReactNode; className?: string; interactive?: boolean }) {
   return (
-    <div aria-hidden className={cn("rounded-xl border bg-muted/40 p-4 text-xs select-none", className)}>
+    <div aria-hidden={interactive ? undefined : true} className={cn("rounded-xl border bg-muted/40 p-4 text-xs select-none", className)}>
       {children}
     </div>
   );
@@ -23,48 +23,66 @@ const STATUS_STYLES = {
   absent: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
 } as const;
 
+type Status = keyof typeof STATUS_STYLES;
+const NEXT_STATUS: Record<Status, Status> = { present: "late", late: "absent", absent: "present" };
+
+/** A tiny working register: tap a status to cycle it and watch the count change. */
 function AttendancePreview() {
   const t = useTranslations("HomePage");
-  const rows = [
-    { name: t("previewStudent1"), status: "present" },
-    { name: t("previewStudent2"), status: "present" },
-    { name: t("previewStudent3"), status: "late" },
-    { name: t("previewStudent4"), status: "absent" },
-  ] as const;
+  const locale = useLocale();
+  const names = [t("previewStudent1"), t("previewStudent2"), t("previewStudent3"), t("previewStudent4")];
+  const [statuses, setStatuses] = useState<Status[]>(["present", "present", "late", "absent"]);
   const label = { present: t("previewPresent"), late: t("previewLate"), absent: t("previewAbsent") };
+  const inClass = statuses.filter((s) => s !== "absent").length;
 
   return (
-    <Preview>
-      <div className="mb-3 flex items-center justify-between">
+    <Preview interactive>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <span className="font-semibold">{t("previewClassroom")}</span>
-        <span className="flex gap-1">
-          {(["present", "late", "absent"] as const).map((s) => (
-            <span key={s} className={cn("rounded-full px-2 py-0.5 font-medium", STATUS_STYLES[s])}>
-              {label[s]}
-            </span>
-          ))}
+        <span className="flex items-center gap-2">
+          <span className="text-muted-foreground">{t("previewTryIt")}</span>
+          <span aria-live="polite" className="rounded-full bg-primary px-2 py-0.5 font-semibold text-primary-foreground tabular-nums">
+            {t("previewInClass", { count: formatNumber(inClass, locale), total: formatNumber(statuses.length, locale) })}
+          </span>
         </span>
       </div>
       <ul className="flex flex-col gap-1.5">
-        {rows.map((row, i) => (
-          <li key={row.name} className="flex items-center gap-2.5 rounded-lg bg-background px-2.5 py-2 shadow-xs">
-            <span className="flex size-6 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground">
-              {row.name.charAt(0)}
-            </span>
-            <span className="flex-1 truncate">{row.name}</span>
-            <span className={cn("rounded-full px-2 py-0.5 font-medium", STATUS_STYLES[row.status])}>{label[row.status]}</span>
-            <span className="hidden text-muted-foreground tabular-nums sm:inline">{["08:01", "08:03", "08:24", "—"][i]}</span>
-          </li>
-        ))}
+        {names.map((name, i) => {
+          const status = statuses[i];
+          return (
+            <li key={name} className="flex items-center gap-2.5 rounded-lg bg-background px-2.5 py-2 shadow-xs">
+              <span className="flex size-6 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground">
+                {name.charAt(0)}
+              </span>
+              <span className="flex-1 truncate">{name}</span>
+              <span className="hidden text-muted-foreground tabular-nums sm:inline">
+                {status === "absent" ? "—" : ["08:01", "08:03", "08:24", "08:12"][i]}
+              </span>
+              <button
+                type="button"
+                onClick={() => setStatuses((prev) => prev.map((s, j) => (j === i ? NEXT_STATUS[s] : s)))}
+                aria-label={t("previewChangeStatus", { name, status: label[status] })}
+                className={cn(
+                  "min-w-16 cursor-pointer rounded-full px-2 py-0.5 font-medium transition-[scale,background-color] hover:scale-105 focus-visible:outline-2 focus-visible:outline-ring active:scale-95",
+                  STATUS_STYLES[status]
+                )}
+              >
+                {label[status]}
+              </button>
+            </li>
+          );
+        })}
       </ul>
     </Preview>
   );
 }
 
+/** Score distribution; hovering a bar shows its share. */
 function ExamsPreview() {
   const t = useTranslations("HomePage");
   const locale = useLocale();
   const bars = [18, 30, 46, 70, 92, 78, 52, 28];
+  const [active, setActive] = useState(4);
 
   return (
     <Preview className="flex h-full flex-col">
@@ -72,13 +90,23 @@ function ExamsPreview() {
         <span className="font-semibold">{t("previewScores")}</span>
         <span className="text-muted-foreground">{t("previewAverage", { value: formatNumber(76, locale) })}</span>
       </div>
-      <div className="flex h-24 flex-1 items-end gap-1.5" dir="ltr">
+      <div className="flex h-24 flex-1 items-end gap-1.5 pt-6" dir="ltr" onPointerLeave={() => setActive(4)}>
         {bars.map((h, i) => (
-          <span
-            key={i}
-            style={{ height: `${h}%` }}
-            className={cn("flex-1 rounded-t-md", i === 4 ? "bg-primary" : "bg-primary/30")}
-          />
+          <span key={i} className="relative flex h-full flex-1 items-end" onPointerEnter={() => setActive(i)}>
+            <span
+              style={{ height: `${h}%` }}
+              className={cn(
+                "relative w-full rounded-t-md transition-colors duration-200",
+                active === i ? "bg-brand-accent" : i === 4 ? "bg-primary" : "bg-primary/30"
+              )}
+            >
+              {active === i && (
+                <span className="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full rounded-md bg-foreground px-1.5 py-0.5 font-semibold text-background tabular-nums">
+                  {formatNumber(h, locale)}
+                </span>
+              )}
+            </span>
+          </span>
         ))}
       </div>
     </Preview>
@@ -228,6 +256,15 @@ const TILES: {
   { icon: BookOpen, titleKey: "libraryTitle", bodyKey: "libraryBody", preview: LibraryPreview, span: "lg:col-span-1" },
 ];
 
+/** Hands the pointer position to the tile's spotlight as --mx / --my. */
+function trackPointer(event: PointerEvent<HTMLElement>) {
+  if (event.pointerType !== "mouse") return;
+  const el = event.currentTarget;
+  const rect = el.getBoundingClientRect();
+  el.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+  el.style.setProperty("--my", `${event.clientY - rect.top}px`);
+}
+
 export function FeatureBento() {
   const t = useTranslations("HomePage");
   const ref = useStaggerIn<HTMLDivElement>({ selector: "[data-animate='tile']", scroll: true });
@@ -237,20 +274,35 @@ export function FeatureBento() {
       <SectionHeading eyebrow={t("featuresEyebrow")} heading={t("featuresHeading")} subtext={t("featuresSubtext")} />
 
       <div ref={ref} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {TILES.map(({ icon: Icon, titleKey, bodyKey, preview: TilePreview, span }) => (
+        {TILES.map(({ icon: Icon, titleKey, bodyKey, preview: TilePreview, span }, i) => (
           <article
             key={titleKey}
             data-animate="tile"
+            onPointerMove={trackPointer}
             className={cn(
-              "group flex flex-col gap-5 rounded-2xl border bg-card p-5 transition-[border-color,box-shadow] hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
+              "group relative isolate flex flex-col gap-5 overflow-hidden rounded-2xl border bg-card p-5 transition-[border-color,box-shadow,translate] duration-300 hover:-translate-y-1 hover:border-brand-accent/40 hover:shadow-xl hover:shadow-primary/10",
               span && `md:col-span-2 ${span}`
             )}
           >
+            {/* Soft amber spotlight that follows the pointer. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              style={{
+                background:
+                  "radial-gradient(320px circle at var(--mx, 50%) var(--my, 0%), color-mix(in oklch, var(--brand-accent) 16%, transparent), transparent 70%)",
+              }}
+            />
             <div className="flex-1">
               <TilePreview />
             </div>
             <div className="flex items-start gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <span
+                className={cn(
+                  "flex size-9 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6",
+                  i % 2 ? "bg-brand-accent/15 text-brand-accent-strong" : "bg-primary/10 text-primary dark:text-teal-300"
+                )}
+              >
                 <Icon className="size-4.5" />
               </span>
               <div className="flex flex-col gap-1">

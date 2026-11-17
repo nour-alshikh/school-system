@@ -41,6 +41,7 @@
   --color-card: var(--card);
   --color-brand-accent: var(--brand-accent);
   --color-brand-accent-foreground: var(--brand-accent-foreground);
+  --color-brand-accent-strong: var(--brand-accent-strong);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -62,7 +63,9 @@ html[dir="rtl"] {
   font-family: var(--font-cairo);
 }
 
-/* Brand: deep teal (teal-700, #0F766E) as primary, amber (amber-500,
+/* Light surfaces are a warm paper (hue ~85), not pure white: cards sit a
+   step brighter than the page so they lift off it without heavy shadows.
+   Brand: deep teal (teal-700, #0F766E) as primary, amber (amber-500,
    #F59E0B) as the secondary brand accent. Teal-700 is dark enough for white
    text to clear AA (~5.5:1); amber is light, so it pairs with dark text.
    Neutral surfaces carry a faint teal tint (hue ~190, very low chroma) so
@@ -70,23 +73,23 @@ html[dir="rtl"] {
    --accent stays a neutral hover surface (shadcn uses it for menu/ghost
    hover states); the amber brand color lives in --brand-accent instead. */
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(0.982 0.008 88);
   --foreground: oklch(0.18 0.02 200);
-  --card: oklch(1 0 0);
+  --card: oklch(0.995 0.004 88);
   --card-foreground: oklch(0.18 0.02 200);
-  --popover: oklch(1 0 0);
+  --popover: oklch(0.995 0.004 88);
   --popover-foreground: oklch(0.18 0.02 200);
   --primary: oklch(0.511 0.086 186.391);
   --primary-foreground: oklch(0.985 0.005 190);
-  --secondary: oklch(0.965 0.008 190);
+  --secondary: oklch(0.955 0.012 85);
   --secondary-foreground: oklch(0.25 0.03 195);
-  --muted: oklch(0.967 0.006 190);
-  --muted-foreground: oklch(0.52 0.02 200);
-  --accent: oklch(0.955 0.015 185);
+  --muted: oklch(0.955 0.01 85);
+  --muted-foreground: oklch(0.5 0.02 200);
+  --accent: oklch(0.945 0.018 170);
   --accent-foreground: oklch(0.25 0.03 195);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.915 0.01 195);
-  --input: oklch(0.915 0.01 195);
+  --border: oklch(0.905 0.014 85);
+  --input: oklch(0.89 0.014 85);
   --ring: oklch(0.6 0.118 184.704);
   /* Chart series: teal, amber, sky, rose, violet — distinct hues so series
      stay distinguishable side by side. */
@@ -96,18 +99,20 @@ html[dir="rtl"] {
   --chart-4: oklch(0.645 0.246 16.439);
   --chart-5: oklch(0.606 0.25 292.717);
   --radius: 0.625rem;
-  --sidebar: oklch(0.982 0.006 190);
+  --sidebar: oklch(0.968 0.012 85);
   --sidebar-foreground: oklch(0.18 0.02 200);
   --sidebar-primary: oklch(0.511 0.086 186.391);
   --sidebar-primary-foreground: oklch(0.985 0.005 190);
-  --sidebar-accent: oklch(0.95 0.02 185);
+  --sidebar-accent: oklch(0.935 0.02 80);
   --sidebar-accent-foreground: oklch(0.25 0.03 195);
-  --sidebar-border: oklch(0.915 0.01 195);
+  --sidebar-border: oklch(0.905 0.014 85);
   --sidebar-ring: oklch(0.6 0.118 184.704);
   /* Amber brand accent — apply manually (bg-brand-accent, text-brand-accent)
      for highlights, badges and callouts. Same in both themes. */
   --brand-accent: oklch(0.769 0.188 70.08);
   --brand-accent-foreground: oklch(0.25 0.06 50);
+  /* Text-safe amber for labels and icons on light surfaces (AA on paper). */
+  --brand-accent-strong: oklch(0.52 0.13 55);
 }
 
 .dark {
@@ -147,6 +152,7 @@ html[dir="rtl"] {
   --sidebar-ring: oklch(0.704 0.14 182.503);
   --brand-accent: oklch(0.769 0.188 70.08);
   --brand-accent-foreground: oklch(0.25 0.06 50);
+  --brand-accent-strong: oklch(0.82 0.15 75);
 }
 
 @layer base {
@@ -194,6 +200,57 @@ html {
   }
   50% {
     translate: 0 -8px;
+  }
+}
+
+/* Hand-drawn SVG strokes (features/home/doodles.tsx): paths use
+   pathLength="1", so a dash of 1 offset by 1 hides them until they
+   scroll into view and get data-visible. */
+@keyframes landing-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.landing-draw path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.landing-draw[data-visible] path {
+  animation: landing-draw 1.4s cubic-bezier(0.65, 0, 0.35, 1) var(--draw-delay, 0s) forwards;
+}
+
+@keyframes landing-march {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+@keyframes landing-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+  50% {
+    opacity: 0.45;
+    scale: 0.8;
+  }
+}
+
+@keyframes landing-drift {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  50% {
+    translate: 0 -10px;
+    rotate: 6deg;
   }
 }
 
