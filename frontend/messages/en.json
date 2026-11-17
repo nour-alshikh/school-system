@@ -1686,7 +1686,8 @@
         "title": "Choose your school week and currency",
         "body": "Which days you're open, and the currency for fees."
       }
-    }
+    },
+    "askAssistant": "Ask the assistant to help me set up"
   },
   "SystemLoginPage": {
     "heading": "System admin",
@@ -2168,6 +2169,51 @@
     "translate": "Translate",
     "translateFromEn": "Translate from English with AI",
     "translateFromAr": "Translate from Arabic with AI"
+  },
+  "Assistant": {
+    "title": "Assistant",
+    "open": "Ask the assistant",
+    "close": "Close",
+    "newChat": "New chat",
+    "clearHistory": "Clear history",
+    "cleared": "Chat history deleted.",
+    "intro": "Hi {name}! Ask me how to do something in the system, and I'll point you to the right page.",
+    "note": "I explain how to use the system. I can't see your school's data or change anything. Chats are kept for 30 days.",
+    "placeholder": "Ask how to do something…",
+    "send": "Send",
+    "thinking": "Thinking…",
+    "suggestions": "Try asking",
+    "open_link": "Open {page}",
+    "starters": {
+      "setUp": "How do I set up my school?",
+      "addStudent": "How do I register a student?",
+      "takeAttendance": "How do I take attendance?",
+      "createExam": "How do I create an exam?",
+      "myExams": "Where are my exams?",
+      "myAttendance": "Where can I see my attendance?",
+      "childAttendance": "How do I see my child's attendance?",
+      "changePassword": "How do I change my password?",
+      "addClassroom": "How do I add a classroom?",
+      "classroomTeachers": "How do I choose a classroom's teachers?",
+      "stagesGrades": "What's the difference between stages and grades?",
+      "addGrade": "How do I add a grade?",
+      "assignSubjects": "How do I assign subjects to teachers?",
+      "holidayAttendance": "Can I take attendance on a day off?",
+      "publishExam": "How do students see my exam?",
+      "chargeAll": "How do I charge a fee to every student?",
+      "recordPayment": "How do I record a payment?",
+      "addSibling": "How do I add a sibling of a current student?",
+      "promote": "How do I promote a classroom to the next grade?",
+      "undoPromotion": "Can I undo a promotion?",
+      "teacherLogin": "How do I give a teacher a login?",
+      "connectZoom": "How do I schedule an online lesson?",
+      "addResource": "How do I add a library resource?",
+      "changeLogo": "How do I change the school's logo?",
+      "schoolDays": "How do I set the school days?",
+      "newYear": "How do I start a new academic year?",
+      "addEvent": "How do I add an event to the calendar?"
+    },
+    "setUpQuestion": "Help me set up my school. Where should I start?"
   },
   "DescribeSchool": {
     "label": "Describe your school",

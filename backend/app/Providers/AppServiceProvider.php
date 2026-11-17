@@ -96,6 +96,12 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by('ai:'.($request->user()?->id ?: $request->ip()));
         });
 
+        // The assistant: a conversation goes quicker than drafting a form.
+        // The daily caps (config ai.caps) still count every message.
+        RateLimiter::for('assistant', function (Request $request) {
+            return Limit::perMinute(15)->by('assistant:'.($request->user()?->id ?: $request->ip()));
+        });
+
         // "Describe your school" is public and costs a call each time: a
         // few per hour from one address, refining included
         // (docs/ai-assistant-plan.md, phase 2). A daily cap across everyone

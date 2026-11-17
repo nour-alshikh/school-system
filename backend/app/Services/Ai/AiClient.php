@@ -41,6 +41,21 @@ class AiClient
      */
     public function json(string $feature, string $system, string $user, ?callable $shape = null, float $temperature = 0.4, int $maxTokens = 1500): array
     {
+        return $this->chat($feature, $system, [['role' => 'user', 'content' => $user]], $shape, $temperature, $maxTokens);
+    }
+
+    /**
+     * Like json(), with a conversation instead of one message: earlier turns
+     * first, the new user message last (the assistant, phase 4).
+     *
+     * @param  list<array{role: 'user'|'assistant', content: string}>  $messages
+     * @param  (callable(array): array)|null  $shape
+     *
+     * @throws AiCapReached
+     * @throws RuntimeException
+     */
+    public function chat(string $feature, string $system, array $messages, ?callable $shape = null, float $temperature = 0.4, int $maxTokens = 1500): array
+    {
         $this->ensureWithinCaps();
 
         $started = hrtime(true);
@@ -54,7 +69,7 @@ class AiClient
                     'model' => config('services.openrouter.model'),
                     'messages' => [
                         ['role' => 'system', 'content' => $system],
-                        ['role' => 'user', 'content' => $user],
+                        ...array_map(fn (array $m) => ['role' => $m['role'], 'content' => $m['content']], $messages),
                     ],
                     'temperature' => $temperature,
                     'max_tokens' => $maxTokens,

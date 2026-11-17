@@ -15,6 +15,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
 import { AcademicYearMenu } from "@/components/academic-year-menu";
 import { NotificationsMenu } from "@/components/notifications-menu";
+import { AssistantPanel } from "@/features/assistant/assistant-panel";
 import { SidebarBrand, SidebarNav, useLogout } from "@/components/site-sidebar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -234,6 +235,7 @@ export function SiteHeader() {
       <MobileNav />
       <CommandMenu />
       <div className="ms-auto flex items-center gap-1 sm:gap-2">
+        <AssistantPanel />
         <AcademicYearMenu />
         <NotificationsMenu />
         <ThemeToggle />

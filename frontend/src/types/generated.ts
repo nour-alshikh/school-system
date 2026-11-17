@@ -97,6 +97,18 @@ readonly email: string,
 readonly roles: RoleType[],
 };
 export type AnnouncementLevel = 'info' | 'warning' | 'critical';
+export type AssistantConversationType = {
+readonly id: number,
+readonly title: string,
+readonly messages: AssistantMessageType[],
+};
+export type AssistantMessageType = {
+readonly id: number,
+readonly role: string,
+readonly content: string,
+readonly links: string[],
+readonly created_at: string,
+};
 export type AttachmentType = {
 readonly id: number,
 readonly url: string,

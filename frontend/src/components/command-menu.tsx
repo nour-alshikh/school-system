@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 const noopSubscribe = () => () => {};
 
 /** ⌘ on Apple keyboards, Ctrl elsewhere. False on the server. */
-function useIsMac() {
+export function useIsMac() {
   return useSyncExternalStore(
     noopSubscribe,
     () => /Mac|iPhone|iPad/.test(navigator.userAgent),

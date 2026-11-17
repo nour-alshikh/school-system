@@ -22,8 +22,9 @@ class EnforcePlanFeatures
         'exams' => ['api/exams', 'api/exams/*', 'api/student/exams', 'api/student/exams/*'],
         'meetings' => ['api/meetings', 'api/meetings/*', 'api/student/meetings', 'api/zoom/connection', 'api/zoom/connect-url', 'api/zoom/status'],
         'library' => ['api/library-resources', 'api/library-resources/*', 'api/parent/library-resources', 'api/student/library-resources'],
-        // AI drafts; AiAccess checks it too, for a system admin inside the school.
-        'ai' => ['api/ai/*'],
+        // AI drafts and the assistant; AiAccess checks it too, for a system
+        // admin inside the school. Clearing the assistant's history stays open.
+        'ai' => ['api/ai/*', 'api/assistant/conversation', 'api/assistant/messages'],
     ];
 
     public function __construct(private readonly PlanLimits $limits) {}

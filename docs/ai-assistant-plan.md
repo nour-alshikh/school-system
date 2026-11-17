@@ -1,6 +1,6 @@
 # AI Assistant Plan
 
-Status: **phases 1–3 done** (written 2026-11-17; decisions settled the same day). Related:
+Status: **phases 1–4 done** (written 2026-11-17; decisions settled the same day). Related:
 [self-service-schools-plan.md](./self-service-schools-plan.md) (signup and
 the setup checklist), [central-dashboard-plan.md](./central-dashboard-plan.md)
 (where "Draft with AI" started), [authorization.md](./authorization.md).
@@ -270,6 +270,37 @@ cleanup job), caps from phase 1. Suggested starter questions per page
 
 Also: the setup checklist's empty school gets "Ask the assistant to help me
 set up" which opens the chat with that question.
+
+**Done (2026-11-17).** As built, where it differs from the sketch above:
+
+- Help pages live in `backend/resources/help/{en,ar}/*.md` (not `docs/help`),
+  so they ship with the backend. 20 pages, each with front matter: `title`,
+  `pages` (paths it's about), `access` (permissions or `role:<name>`, any
+  of), `feature` (plan module), `keywords`. `HelpLibrary` sends the overview
+  plus up to 3 pages the user may read, scored by current page and keyword
+  match (Arabic "ال" ignored). A test checks both languages have the same
+  pages and gates.
+- `Assistant` builds the prompt (role, permissions, plan modules, current
+  page, the user's pages, help pages as reference) and sends the last 10
+  turns via `AiClient::chat()` (multi-turn; `json()` now calls it). Reply
+  `{"reply", "links"}`; links are paths, kept only if among the pages the
+  frontend sent from the user's nav (max 3), and the frontend shows them
+  only if still in its nav. Logged as feature `assistant`, same caps.
+- Routes: `GET /api/assistant/conversation` (latest within 30 days),
+  `POST /api/assistant/messages` (`throttle:assistant` 15/min), `DELETE
+  /api/assistant/conversations` ("Clear history", works with AI off). Same
+  refusals as drafts (`AiAccess`, plan feature `ai`). Nothing is saved when
+  the call fails.
+- `assistant:prune` deletes chats untouched for 30 days, scheduled daily in
+  `routes/console.php` (needs `schedule:run` in cron); older ones are hidden
+  before that anyway.
+- Frontend: `features/assistant/` — ✦ in the top bar and Ctrl/⌘ J open a
+  non-modal side sheet (stays open while following the steps; full screen
+  on phones, closes when a link is followed there). Starter questions per
+  page and role, typing indicator, Enter to send, New chat, Clear history.
+  `openAssistant(question)` opens it from anywhere; the setup checklist of
+  an empty school uses it ("Ask the assistant to help me set up").
+- Cap messages now say "AI requests" instead of "AI drafts".
 
 ### Phase 5 — Assistant v2: answers from school data (L)
 

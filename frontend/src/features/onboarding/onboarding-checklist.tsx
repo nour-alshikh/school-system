@@ -3,10 +3,12 @@
 import { useTranslations } from "next-intl";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, Sparkles, X } from "lucide-react";
+import { CheckCircle2, Circle, MessageCircleQuestion, Sparkles, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { useAiAvailable } from "@/hooks/use-ai-draft";
+import { openAssistant } from "@/features/assistant/open-assistant";
 import type { OnboardingType } from "@/types/generated";
 
 const QUERY_KEY = ["admin-onboarding"];
@@ -35,6 +37,8 @@ const STRUCTURE_STEPS = ["academic_year", "stages", "grades", "classrooms", "sub
 export function OnboardingChecklist() {
   const t = useTranslations("Onboarding");
   const tErrors = useTranslations("Errors");
+  const tAssistant = useTranslations("Assistant");
+  const aiAvailable = useAiAvailable();
   const queryClient = useQueryClient();
 
   const { data: onboarding } = useQuery({
@@ -126,15 +130,27 @@ export function OnboardingChecklist() {
       {canQuickStart && (
         <div className="flex flex-col gap-3 rounded-md bg-muted/40 p-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm">{t("quickStartBody")}</p>
-          <Button
-            size="sm"
-            className="shrink-0"
-            disabled={quickStart.isPending}
-            onClick={() => quickStart.mutate()}
-          >
-            <Sparkles className="size-4" />
-            {quickStart.isPending ? t("quickStartRunning") : t("quickStart")}
-          </Button>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            {/* An empty school: the assistant can walk the admin through it. */}
+            {aiAvailable && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => openAssistant(tAssistant("setUpQuestion"))}
+              >
+                <MessageCircleQuestion className="size-4" />
+                {t("askAssistant")}
+              </Button>
+            )}
+            <Button
+              size="sm"
+              disabled={quickStart.isPending}
+              onClick={() => quickStart.mutate()}
+            >
+              <Sparkles className="size-4" />
+              {quickStart.isPending ? t("quickStartRunning") : t("quickStart")}
+            </Button>
+          </div>
         </div>
       )}
 

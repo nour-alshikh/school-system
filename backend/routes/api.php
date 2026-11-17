@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
-use App\Http\Controllers\AiDraftController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AiDraftController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\AuthController;
@@ -29,6 +30,7 @@ use App\Http\Controllers\ParentPortal\FeeController as ParentFeeController;
 use App\Http\Controllers\ParentPortal\LibraryController as ParentLibraryController;
 use App\Http\Controllers\ParentPortal\ProfileController;
 use App\Http\Controllers\ParentPortal\StudentController as ParentStudentController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\Platform\AnnouncementController as PlatformAnnouncementController;
 use App\Http\Controllers\Platform\DashboardController as PlatformDashboardController;
 use App\Http\Controllers\Platform\LifecycleController as PlatformLifecycleController;
@@ -41,7 +43,6 @@ use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\SchoolBlueprintController;
 use App\Http\Controllers\SchoolSignupController;
-use App\Http\Controllers\PlanController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
@@ -147,6 +148,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Plan feature "ai" (EnforcePlanFeatures), the school's ai_enabled
     // setting and the kind's own permission are checked in the controller.
     Route::post('/ai/draft/{kind}', [AiDraftController::class, 'store'])->where('kind', '[a-z_]+')->middleware('throttle:ai');
+
+    // The help assistant (docs/ai-assistant-plan.md, phase 4): any signed-in
+    // user whose school has AI; AiAccess is checked in the controller.
+    Route::get('/assistant/conversation', [AssistantController::class, 'show']);
+    Route::post('/assistant/messages', [AssistantController::class, 'store'])->middleware('throttle:assistant');
+    Route::delete('/assistant/conversations', [AssistantController::class, 'destroy']);
 
     // Announcements from the system admin (docs/central-dashboard-plan.md, phase 8).
     Route::get('/announcements', [AnnouncementController::class, 'index']);
