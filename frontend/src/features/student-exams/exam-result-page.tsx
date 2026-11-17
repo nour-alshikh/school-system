@@ -68,7 +68,7 @@ export function ExamResultPage({ id }: { id: string }) {
         {exam.score ?? 0}
         <span className="text-lg font-normal text-muted-foreground">/{exam.total_marks}</span>
       </p>
-      <Button render={<Link href="/my-exams" />}>{t("backToList")}</Button>
+      <Button nativeButton={false} render={<Link href="/my-exams" />}>{t("backToList")}</Button>
     </main>
   );
 }

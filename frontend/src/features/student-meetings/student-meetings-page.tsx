@@ -99,6 +99,7 @@ export function StudentMeetingsPage() {
                       <TableCell>{t("minutes", { count: meeting.duration_minutes })}</TableCell>
                       <TableCell className="text-end">
                         <Button
+                          nativeButton={false}
                           size="sm"
                           render={
                             <a href={meeting.join_url} target="_blank" rel="noopener noreferrer" />

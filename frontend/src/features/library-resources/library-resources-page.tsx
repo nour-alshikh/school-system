@@ -253,6 +253,7 @@ export function LibraryResourcesPage() {
                         <div className="flex justify-end gap-1">
                           {resource.type === "link" ? (
                             <Button
+                              nativeButton={false}
                               variant="ghost"
                               size="icon"
                               aria-label={t("openLink")}
@@ -266,6 +267,7 @@ export function LibraryResourcesPage() {
                           ) : (
                             resource.file && (
                               <Button
+                                nativeButton={false}
                                 variant="ghost"
                                 size="icon"
                                 aria-label={t("download")}

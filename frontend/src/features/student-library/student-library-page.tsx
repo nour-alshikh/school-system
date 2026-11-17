@@ -164,6 +164,7 @@ export function StudentLibraryPage() {
                       <TableCell className="text-end">
                         {resource.type === "link" ? (
                           <Button
+                            nativeButton={false}
                             variant="ghost"
                             size="icon"
                             aria-label={t("openLink")}
@@ -177,6 +178,7 @@ export function StudentLibraryPage() {
                         ) : (
                           resource.file && (
                             <Button
+                              nativeButton={false}
                               variant="ghost"
                               size="icon"
                               aria-label={t("download")}

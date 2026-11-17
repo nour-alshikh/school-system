@@ -75,7 +75,7 @@ export function TeacherClassroomsPage() {
             <h2 className="text-lg font-semibold">{t("heading")}</h2>
             <p className="text-sm text-muted-foreground">{t("description")}</p>
           </div>
-          <Button variant="outline" size="sm" render={<Link href="/attendance" />}>
+          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/attendance" />}>
             {t("takeAttendance")}
           </Button>
         </div>

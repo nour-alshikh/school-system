@@ -124,11 +124,11 @@ export function StudentExamsPage() {
                         </TableCell>
                         <TableCell className="text-end">
                           {status === "submitted" ? (
-                            <Button variant="outline" size="sm" render={<Link href={`/my-exams/${exam.id}/result`} />}>
+                            <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/my-exams/${exam.id}/result`} />}>
                               {t("viewResult")}
                             </Button>
                           ) : (
-                            <Button size="sm" render={<Link href={`/my-exams/${exam.id}`} />}>
+                            <Button size="sm" nativeButton={false} render={<Link href={`/my-exams/${exam.id}`} />}>
                               {status === "in_progress" ? t("continue") : t("start")}
                             </Button>
                           )}

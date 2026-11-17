@@ -144,10 +144,11 @@ export function ExamsPage() {
                       </TableCell>
                       <TableCell className="text-end">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" render={<Link href={`/exams/${exam.id}/results`} aria-label={t("viewResults")} />}>
+                          <Button variant="ghost" size="icon" nativeButton={false} render={<Link href={`/exams/${exam.id}/results`} aria-label={t("viewResults")} />}>
                             <BarChart3 className="size-4" />
                           </Button>
                           <Button
+                            nativeButton={false}
                             variant="ghost"
                             size="icon"
                             disabled={exam.attempts_count > 0}

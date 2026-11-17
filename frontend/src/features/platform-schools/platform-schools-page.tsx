@@ -238,7 +238,7 @@ export function PlatformSchoolsPage() {
                     <TableCell className="text-end">
                       {/* Suspending, archiving and exporting (with a
                           reason) are on the school's own page. */}
-                      <Button variant="outline" size="sm" render={<Link href={`/platform/schools/${school.id}`} />}>
+                      <Button variant="outline" size="sm" nativeButton={false} render={<Link href={`/platform/schools/${school.id}`} />}>
                         {t("manage")}
                       </Button>
                     </TableCell>

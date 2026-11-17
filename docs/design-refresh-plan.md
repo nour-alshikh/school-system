@@ -78,8 +78,8 @@ Follow-ups:
 
 - [x] Admins lost the avatar uploader — "Change avatar" is in the avatar
       menu now (step 2).
-- [ ] ~25 existing `<Button render={<Link />}>` elsewhere log a Base UI
-      warning; add `nativeButton={false}` to them (done for the dashboard).
+- [x] `<Button render={<Link />}>` elsewhere logged a Base UI warning —
+      every Button rendering a link or anchor now has `nativeButton={false}`.
 - [ ] Teachers KPI shows a number only — no teacher history to trend yet.
 
 ## Step 2 — App shell ✅

@@ -168,6 +168,7 @@ export function OnboardingChecklist() {
               </span>
             ) : !step.done ? (
               <Button
+                nativeButton={false}
                 size="sm"
                 variant={step.key === nextKey ? "default" : "outline"}
                 render={<Link href={STEP_HREFS[step.key]} />}

@@ -217,6 +217,7 @@ export function MeetingsPage() {
                       <TableCell className="text-end">
                         <div className="flex justify-end gap-1">
                           <Button
+                            nativeButton={false}
                             variant="ghost"
                             size="icon"
                             render={
