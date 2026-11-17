@@ -404,6 +404,14 @@ readonly created_at: string,
 readonly rolled_back_at: string | null,
 readonly rolled_back_by_name: string | null,
 };
+export type PublicPlanType = {
+readonly key: string,
+readonly name: string,
+readonly max_students: number | null,
+readonly max_storage_mb: number | null,
+readonly features: string[],
+readonly self_service: boolean,
+};
 export type ReligionType = {
 readonly id: number,
 readonly name_en: string,

@@ -30,6 +30,12 @@ return [
     'self_service_plan' => env('SCHOOLS_SELF_SERVICE_PLAN', 'basic'),
 
     /*
+    | Where the landing page's "Contact us" goes for plans a school can't
+    | pick by itself. Null hides the button.
+    */
+    'contact_email' => env('SCHOOLS_CONTACT_EMAIL'),
+
+    /*
     | How many schools one account can create through self-service. Platform
     | admins aren't limited. Counted by schools.created_by_id.
     */

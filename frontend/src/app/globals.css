@@ -175,6 +175,28 @@ html[dir="rtl"] {
   }
 }
 
+/* Landing page: anchor links land below the sticky navbar, and the
+   hero's mini-cards bob gently (off under reduced motion, below). */
+html {
+  scroll-padding-top: 6rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@keyframes landing-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -8px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

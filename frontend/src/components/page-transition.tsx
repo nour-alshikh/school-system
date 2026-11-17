@@ -4,7 +4,7 @@ import { useGSAP } from "@gsap/react";
 import { useRef, type ReactNode } from "react";
 
 import { usePathname } from "@/i18n/navigation";
-import { DURATION, EASE, gsap } from "@/lib/gsap";
+import { DURATION, EASE, gsap, prefersReducedMotion } from "@/lib/gsap";
 
 export function PageTransition({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -12,7 +12,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
 
   useGSAP(
     () => {
-      if (!ref.current) return;
+      if (!ref.current || prefersReducedMotion()) return;
       gsap.from(ref.current, {
         opacity: 0,
         y: 8,

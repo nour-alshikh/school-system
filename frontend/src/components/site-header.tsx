@@ -25,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-function LocaleSwitcher() {
+export function LocaleSwitcher() {
   const t = useTranslations("Nav");
   const locale = useLocale();
   const pathname = usePathname();
@@ -77,7 +77,7 @@ function MobileNav() {
   );
 }
 
-function UserMenu() {
+export function UserMenu() {
   const t = useTranslations("Nav");
   const tRoles = useTranslations("LoginChooserPage");
   const tAvatar = useTranslations("Avatar");
@@ -191,10 +191,11 @@ export function SiteHeader() {
   const pathname = usePathname();
   const ref = useFadeIn<HTMLElement>({ y: -12 });
 
-  // Guests, and everyone on the landing page (a full-width marketing page
-  // with no sidebar), get the simple bar. Step 3 of the design refresh
-  // replaces the landing page's.
-  if (isLoading || !user || pathname === "/") {
+  // The landing page has its own navbar (features/home/landing-navbar.tsx).
+  if (pathname === "/") return null;
+
+  // Guests (login, register, …) get the simple bar.
+  if (isLoading || !user) {
     return (
       <header ref={ref} className="border-b print:hidden">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
@@ -202,24 +203,18 @@ export function SiteHeader() {
             {t("brand")}
           </Link>
           <div className="flex items-center gap-2">
-            {!isLoading &&
-              (user ? (
-                <Button size="sm" nativeButton={false} render={<Link href="/dashboard" />}>
-                  {t("dashboard")}
-                </Button>
-              ) : (
-                <div className="flex items-center gap-4 text-sm">
-                  <Link href="/login" className="underline">
-                    {t("login")}
-                  </Link>
-                  <Link href="/register" className="underline">
-                    {t("register")}
-                  </Link>
-                </div>
-              ))}
+            {!isLoading && (
+              <div className="flex items-center gap-4 text-sm">
+                <Link href="/login" className="underline">
+                  {t("login")}
+                </Link>
+                <Link href="/register" className="underline">
+                  {t("register")}
+                </Link>
+              </div>
+            )}
             <ThemeToggle />
             <LocaleSwitcher />
-            {user && <UserMenu />}
           </div>
         </div>
       </header>

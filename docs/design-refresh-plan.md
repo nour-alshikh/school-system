@@ -120,22 +120,47 @@ Follow-ups:
 - [ ] Non-admin dashboards still show the old centered avatar uploader;
       drop it when they're redesigned in step 4.
 
-## Step 3 — Landing page
+## Step 3 — Landing page ✅
 
-File: `frontend/src/features/home/home-page.tsx`.
+Done. `frontend/src/features/home/`:
 
-- [ ] Sticky glass navbar (Features, Portals, Pricing, FAQ, language, Log in, Create your school).
-- [ ] Hero: headline, subtext, two CTAs, real screenshot of the new admin
-      dashboard in a tilted browser frame, with floating mini-cards and an amber badge.
-- [ ] Stats strip (schools, students, uptime) with count-up.
-- [ ] Bento feature grid (6 tiles with small UI previews: attendance,
-      exam chart, invoice, library, calendar, class structure).
-- [ ] Role portals tab switcher (Admin / Teacher / Parent / Student) with screenshots.
-- [ ] How it works (3 steps), pricing from the existing plans, FAQ accordion,
-      final CTA band, footer.
-- [ ] GSAP scroll animations via the existing `useFadeIn` / `useStaggerIn` hooks;
-      respect reduced motion.
-- [ ] Real copy in English and Arabic; check both directions and both themes.
+- `landing-navbar.tsx` — sticky glass navbar: Features, Portals, Pricing,
+  FAQ (anchors), the other language, theme, Log in, Create your school
+  (Go to dashboard + avatar menu when signed in); a menu below `md`. The
+  app's `SiteHeader` now renders nothing on `/`.
+- `hero.tsx` — amber badge, headline, CTAs, the real admin dashboard in a
+  tilted browser frame (mirrored for Arabic) with three floating
+  mini-cards.
+- Stats strip in `home-page.tsx` — **product facts, not usage figures**
+  (decided with the owner: there's no real source for schools / students /
+  uptime): 4 role portals, 8 modules, 2 languages, 100% RTL, with
+  `count-up.tsx`.
+- `feature-bento.tsx` — 6 tiles with small HTML previews (attendance,
+  score chart, invoice, calendar, class structure, library).
+- `role-portals.tsx` — Admin / Teacher / Parent / Student tabs with
+  screenshots and a link to each login.
+- How it works, `pricing.tsx`, `faq.tsx` (Base UI accordion), final CTA
+  band, footer.
+- **Pricing has no prices** (billing is out of scope): cards come from the
+  new public `GET /api/plans` (`PlanController`, `PublicPlanType`, tested
+  in `PublicPlanTest`) with student limit, storage and modules. The
+  self-service plan says "Create your school"; the others "Contact us",
+  which mails `SCHOOLS_CONTACT_EMAIL` and is hidden when that's unset.
+- Screenshots: `public/landing/{role}-{en|ar}-{light|dark}.jpg`, both
+  themes in the markup, CSS shows the right one (`screenshot.tsx`).
+  Captured from the demo data with `npm run screenshots:landing`
+  (`scripts/capture-landing-screenshots.mjs`, `playwright-core`; the
+  script's header says how to run the app for it).
+- Scroll animations: `useFadeIn` / `useStaggerIn` take `scroll: true`
+  (ScrollTrigger, plays once). Those hooks and `PageTransition` now skip
+  entirely under `prefers-reduced-motion`.
+- Copy in `messages/{en,ar}.json` → `HomePage` (rewritten).
+
+Follow-ups:
+
+- [ ] Re-run `npm run screenshots:landing` after step 4 — the teacher,
+      parent and student shots show the old dashboards.
+- [ ] Set `SCHOOLS_CONTACT_EMAIL` in production.
 
 ## Step 4 — Teacher, parent and student dashboards
 

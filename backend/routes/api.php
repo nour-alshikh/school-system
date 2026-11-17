@@ -39,6 +39,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
 use App\Http\Controllers\SchoolSignupController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\StudentController;
@@ -85,6 +86,9 @@ Route::middleware('throttle:30,1')->get('/zoom/callback', [ZoomController::class
 // this deliberately sits outside auth:sanctum like /zoom/callback above.
 // Nothing sensitive lives on this table; only writes need gating.
 Route::get('/settings', [SettingController::class, 'index']);
+
+// Public — the landing page's pricing section. Limits and modules only.
+Route::get('/plans', [PlanController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
