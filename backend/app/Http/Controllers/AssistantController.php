@@ -13,7 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * The in-app help assistant (docs/ai-assistant-plan.md, phase 4), for every
+ * The in-app assistant (docs/ai-assistant-plan.md, phases 4–5), for every
  * signed-in user whose school has AI available. Chats belong to the user at
  * the current school and are kept 30 days (assistant:prune).
  */
@@ -36,7 +36,11 @@ class AssistantController extends Controller
             ->with('messages')
             ->first();
 
-        return response()->json(['conversation' => $conversation ? AssistantConversationType::fromModel($conversation) : null]);
+        return response()->json([
+            'conversation' => $conversation ? AssistantConversationType::fromModel($conversation) : null,
+            // Whether answers can use school data (the assistant_data setting).
+            'reads_data' => $this->access->readsData($this->context->school()),
+        ]);
     }
 
     public function store(Request $request, Assistant $assistant): JsonResponse
@@ -69,6 +73,7 @@ class AssistantController extends Controller
             $data['page'] ?? null,
             $links,
             app()->getLocale(),
+            $this->access->readsData($this->context->school()),
         ), 'api.assistant_failed');
 
         return response()->json([

@@ -48,6 +48,8 @@ export function createSettingsSchema(t: Translate) {
 
     // Stored as "1"/"0" (empty: on), sent separately from the text keys.
     ai_enabled: z.boolean(),
+    // "1" lets the assistant look up school data; empty or "0": off.
+    assistant_data: z.boolean(),
   });
 }
 

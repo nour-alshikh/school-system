@@ -7,7 +7,7 @@ keywords: settings, logo, branding, colour, color, currency, school days, contac
 
 **Administration → Settings** has tabs:
 
-- **General**: school name, tagline, and the **AI features** switch (turns Draft with AI and the assistant off for everyone at the school).
+- **General**: school name, tagline, the **AI features** switch (turns Draft with AI and the assistant off for everyone at the school), and **Let the assistant read school data** (off by default; lets the assistant answer questions about attendance, results and fees, sending those results to the AI provider).
 - **Branding**: logo, favicon, primary colour.
 - **School year**: currency (used for fees) and school days (when attendance is expected).
 - **Contact** and **Social media**: shown publicly with the school's branding.

@@ -24,14 +24,20 @@ const MAX_MESSAGE = 2000;
 interface Conversation {
   id: number | null;
   messages: AssistantMessageType[];
+  /** The school lets the assistant look up its data (phase 5). */
+  readsData: boolean;
 }
 
-const EMPTY: Conversation = { id: null, messages: [] };
+const EMPTY: Conversation = { id: null, messages: [], readsData: false };
+
+/** A fresh chat, keeping what the server said about reading data. */
+const fresh = (prev?: Conversation): Conversation => ({ ...EMPTY, readsData: prev?.readsData ?? false });
 
 /**
- * The help assistant (docs/ai-assistant-plan.md, phase 4): ✦ in the top bar
+ * The assistant (docs/ai-assistant-plan.md, phases 4–5): ✦ in the top bar
  * or Ctrl/⌘ J opens a side sheet — full screen on phones — that answers
- * "how do I…" questions with links to the user's own pages. It stays open
+ * "how do I…" questions, and questions about the school's data when the
+ * school allows it, with links to the user's own pages. It stays open
  * while the user follows the steps on the page behind it. Hidden when AI
  * isn't available at this school.
  */
@@ -69,9 +75,14 @@ function Assistant() {
   const { data: conversation = EMPTY, isLoading } = useQuery({
     queryKey,
     queryFn: () =>
-      apiFetch<{ conversation: AssistantConversationType | null }>("/api/assistant/conversation").then(
-        ({ conversation }): Conversation =>
-          conversation ? { id: conversation.id, messages: conversation.messages } : EMPTY
+      apiFetch<{ conversation: AssistantConversationType | null; reads_data: boolean }>(
+        "/api/assistant/conversation"
+      ).then(
+        ({ conversation, reads_data }): Conversation => ({
+          id: conversation?.id ?? null,
+          messages: conversation?.messages ?? [],
+          readsData: reads_data,
+        })
       ),
     enabled: open,
     staleTime: Infinity,
@@ -102,6 +113,7 @@ function Assistant() {
     },
     onSuccess: (data) => {
       queryClient.setQueryData<Conversation>(queryKey, (prev = EMPTY) => ({
+        ...prev,
         id: data.conversation_id,
         messages: [...prev.messages, ...data.messages],
       }));
@@ -120,7 +132,7 @@ function Assistant() {
   const clear = useMutation({
     mutationFn: () => apiFetch<void>("/api/assistant/conversations", { method: "DELETE" }),
     onSuccess: () => {
-      queryClient.setQueryData(queryKey, EMPTY);
+      queryClient.setQueryData<Conversation>(queryKey, fresh);
       toast.success(t("cleared"));
     },
     onError: (error) => toast.error(error instanceof ApiError ? error.message : tErrors("somethingWentWrong")),
@@ -169,6 +181,15 @@ function Assistant() {
     if (open) endRef.current?.scrollIntoView({ block: "end" });
   }, [open, count, pending]);
 
+  /** The nav page a deeper path sits under: /students/12 → Students. */
+  function sectionOf(href: string): NavItem | undefined {
+    let best: NavItem | undefined;
+    for (const [path, item] of pages) {
+      if (href.startsWith(`${path}/`) && (!best || path.length > best.href.length)) best = item;
+    }
+    return best;
+  }
+
   function follow(href: string) {
     router.push(href);
     // Full screen on phones: get out of the way. On wider screens it stays
@@ -177,7 +198,7 @@ function Assistant() {
   }
 
   const empty = count === 0 && !pending;
-  const starters = starterKeys(pathname, user?.roles ?? []);
+  const starters = starterKeys(pathname, user?.roles ?? [], conversation.readsData);
   const shortcut = isMac ? "⌘J" : "Ctrl J";
 
   return (
@@ -210,7 +231,7 @@ function Assistant() {
               title={t("newChat")}
               disabled={empty || send.isPending}
               onClick={() => {
-                queryClient.setQueryData(queryKey, EMPTY);
+                queryClient.setQueryData<Conversation>(queryKey, fresh);
                 inputRef.current?.focus();
               }}
             >
@@ -242,7 +263,9 @@ function Assistant() {
                   <div className="flex flex-col gap-4">
                     <div className="rounded-lg bg-muted/50 p-3 leading-relaxed">
                       <p>{t("intro", { name: user?.name.split(" ")[0] ?? "" })}</p>
-                      <p className="mt-2 text-xs text-muted-foreground">{t("note")}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {conversation.readsData ? t("noteData") : t("note")}
+                      </p>
                     </div>
                     {starters.length > 0 && (
                       <div className="flex flex-col gap-2">
@@ -274,15 +297,18 @@ function Assistant() {
                       </div>
                       {message.links.length > 0 && (
                         <div className="flex flex-wrap gap-2">
-                          {message.links.map((href) => {
-                            // Only pages still in this user's navigation.
-                            const page = pages.get(href);
+                          {message.links.map(({ href, label }) => {
+                            // A page in this user's navigation, by its current name; else a
+                            // page a lookup found (a student's) under one of their sections.
+                            const page = pages.get(href) ?? sectionOf(href);
                             if (!page) return null;
                             const Icon = page.icon;
+                            const name = pages.has(href) ? page.label : label;
+                            if (!name) return null;
                             return (
                               <Button key={href} variant="outline" size="sm" onClick={() => follow(href)}>
                                 <Icon className="size-4" />
-                                {t("open_link", { page: page.label })}
+                                <span className="max-w-56 truncate">{t("open_link", { page: name })}</span>
                                 <ArrowUpRight className="size-3.5 opacity-60 rtl:-scale-x-100" />
                               </Button>
                             );

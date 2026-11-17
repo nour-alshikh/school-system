@@ -1432,7 +1432,9 @@
     "schoolDaysLabel": "School days",
     "schoolDaysHint": "The days your school is open. Attendance is taken on these days.",
     "aiEnabledLabel": "AI features",
-    "aiEnabledHint": "Shows “Draft with AI” on forms. Only what someone types is sent to the AI provider. Turn off to hide it for everyone at this school."
+    "aiEnabledHint": "Shows “Draft with AI” on forms. Only what someone types is sent to the AI provider. Turn off to hide it for everyone at this school.",
+    "assistantDataLabel": "Let the assistant read school data",
+    "assistantDataHint": "The assistant can then answer questions like “who was absent today?” with what each person is allowed to see. The results of those lookups (names, attendance, marks, fees) are sent to the AI provider. Off by default."
   },
   "HomePage": {
     "navFeatures": "Features",
@@ -2179,6 +2181,7 @@
     "cleared": "Chat history deleted.",
     "intro": "Hi {name}! Ask me how to do something in the system, and I'll point you to the right page.",
     "note": "I explain how to use the system. I can't see your school's data or change anything. Chats are kept for 30 days.",
+    "noteData": "I can explain how to use the system and look up your school's data that you're allowed to see, like attendance, results or fees. I can't change anything. Chats are kept for 30 days.",
     "placeholder": "Ask how to do something…",
     "send": "Send",
     "thinking": "Thinking…",
@@ -2211,7 +2214,14 @@
       "changeLogo": "How do I change the school's logo?",
       "schoolDays": "How do I set the school days?",
       "newYear": "How do I start a new academic year?",
-      "addEvent": "How do I add an event to the calendar?"
+      "addEvent": "How do I add an event to the calendar?",
+      "absentToday": "Who was absent today?",
+      "whoOwes": "Who still owes fees?",
+      "absentMyClasses": "Who was absent in my classes today?",
+      "lastExam": "How did my students do on the last exam?",
+      "howAmIDoing": "How am I doing this month?",
+      "whatsNext": "What's coming up this week?",
+      "howIsMyChild": "How is my child doing?"
     },
     "setUpQuestion": "Help me set up my school. Where should I start?"
   },

@@ -61,7 +61,7 @@ class AssistantTest extends TestCase
             ->assertJsonPath('messages.0.role', 'user')
             ->assertJsonPath('messages.0.content', 'How do I take attendance?')
             ->assertJsonPath('messages.1.role', 'assistant')
-            ->assertJsonPath('messages.1.links', ['/attendance']);
+            ->assertJsonPath('messages.1.links', [['href' => '/attendance', 'label' => 'Take attendance']]);
 
         $conversation = AssistantConversation::sole();
         $this->assertSame($response->json('conversation_id'), $conversation->id);

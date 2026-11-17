@@ -36,6 +36,17 @@ class AiAccess
         };
     }
 
+    /**
+     * Whether the assistant may look up the school's data (phase 5): AI is
+     * available and an admin turned assistant_data on. Off by default, since
+     * the results of those lookups are sent to the AI provider.
+     */
+    public function readsData(?School $school): bool
+    {
+        return $this->available($school)
+            && DB::table('settings')->where('school_id', $school->id)->where('key', 'assistant_data')->value('value') === '1';
+    }
+
     /** The school's ai_enabled setting: on unless set to "0". Read directly, so it works outside the school's context too. */
     public static function enabledAt(School $school): bool
     {

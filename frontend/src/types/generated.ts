@@ -102,11 +102,15 @@ readonly id: number,
 readonly title: string,
 readonly messages: AssistantMessageType[],
 };
+export type AssistantLinkType = {
+readonly href: string,
+readonly label: string,
+};
 export type AssistantMessageType = {
 readonly id: number,
 readonly role: string,
 readonly content: string,
-readonly links: string[],
+readonly links: AssistantLinkType[],
 readonly created_at: string,
 };
 export type AttachmentType = {

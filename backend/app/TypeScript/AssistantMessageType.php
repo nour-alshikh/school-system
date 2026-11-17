@@ -15,9 +15,10 @@ final class AssistantMessageType
         public readonly string $role,
         public readonly string $content,
         /**
-         * Pages the answer points to: paths from the user's navigation.
+         * Pages the answer points to: from the user's navigation, or a
+         * lookup's result (a student's page).
          *
-         * @var string[]
+         * @var AssistantLinkType[]
          */
         public readonly array $links,
         public readonly string $created_at,
@@ -29,7 +30,11 @@ final class AssistantMessageType
             id: $message->id,
             role: $message->role,
             content: $message->content,
-            links: array_values($message->links ?? []),
+            // Phase 4 stored bare paths; the frontend names those from its nav.
+            links: array_map(
+                fn ($link) => is_array($link) ? new AssistantLinkType($link['href'], $link['label'] ?? '') : new AssistantLinkType($link, ''),
+                array_values($message->links ?? []),
+            ),
             created_at: $message->created_at->toJSON(),
         );
     }

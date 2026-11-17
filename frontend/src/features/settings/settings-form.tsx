@@ -47,6 +47,7 @@ function valuesFromSettings(settings: Setting[]): SettingsFormValues {
   return {
     ...Object.fromEntries(SETTING_TEXT_KEYS.map((key) => [key, byKey.get(key) ?? ""])),
     ai_enabled: byKey.get("ai_enabled") !== "0",
+    assistant_data: byKey.get("assistant_data") === "1",
   } as SettingsFormValues;
 }
 
@@ -98,6 +99,7 @@ export function SettingsForm({
               value: values[key] || null,
             })),
             { key: "ai_enabled", value: values.ai_enabled ? "1" : "0" },
+            { key: "assistant_data", value: values.assistant_data ? "1" : "0" },
           ],
         }),
       }),
@@ -105,6 +107,8 @@ export function SettingsForm({
       queryClient.setQueryData(["settings"], data.settings);
       // user.ai_available follows the ai_enabled setting.
       void queryClient.invalidateQueries({ queryKey: ["auth", "user"] });
+      // The assistant says whether it can read school data.
+      void queryClient.invalidateQueries({ queryKey: ["assistant-conversation"] });
       toast.success(t("saveSuccess"));
     },
     onError: (err) => {
@@ -178,6 +182,24 @@ export function SettingsForm({
                       {t("aiEnabledLabel")}
                     </Label>
                     <p className="text-xs text-muted-foreground">{t("aiEnabledHint")}</p>
+                    {/* Only meaningful while AI is on; off by default, since lookups send school data to the AI provider. */}
+                    <FormField
+                      control={form.control}
+                      name="assistant_data"
+                      render={({ field: dataField }) => (
+                        <div className="mt-2 flex flex-col gap-1 border-t pt-3">
+                          <Label className="flex items-center gap-2">
+                            <Checkbox
+                              checked={dataField.value && field.value}
+                              disabled={!field.value}
+                              onCheckedChange={(checked) => dataField.onChange(checked === true)}
+                            />
+                            {t("assistantDataLabel")}
+                          </Label>
+                          <p className="text-xs text-muted-foreground">{t("assistantDataHint")}</p>
+                        </div>
+                      )}
+                    />
                   </FormItem>
                 )}
               />

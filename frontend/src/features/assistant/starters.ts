@@ -23,6 +23,14 @@ const PAGE_STARTERS: [path: string, keys: string[]][] = [
   ["/admin/settings", ["changeLogo", "schoolDays"]],
 ];
 
+/** When the school lets the assistant read its data: questions about it come first. */
+const DATA_STARTERS: Record<string, string[]> = {
+  admin: ["absentToday", "whoOwes"],
+  teacher: ["absentMyClasses", "lastExam"],
+  student: ["howAmIDoing", "whatsNext"],
+  parent: ["howIsMyChild", "whatsNext"],
+};
+
 const ROLE_STARTERS: Record<string, string[]> = {
   admin: ["setUp", "addStudent", "takeAttendance", "addEvent"],
   teacher: ["takeAttendance", "createExam", "connectZoom"],
@@ -30,9 +38,10 @@ const ROLE_STARTERS: Record<string, string[]> = {
   parent: ["childAttendance", "changePassword"],
 };
 
-export function starterKeys(pathname: string, roles: string[], max = 3): string[] {
+export function starterKeys(pathname: string, roles: string[], readsData = false, max = 3): string[] {
   const page = PAGE_STARTERS.find(([path]) => pathname === path || pathname.startsWith(`${path}/`))?.[1] ?? [];
+  const data = readsData ? roles.flatMap((r) => DATA_STARTERS[r] ?? []).slice(0, 2) : [];
   const role = roles.flatMap((r) => ROLE_STARTERS[r] ?? []);
 
-  return [...new Set([...page, ...role])].slice(0, max);
+  return [...new Set([...data, ...page, ...role])].slice(0, max);
 }

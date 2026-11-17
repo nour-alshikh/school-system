@@ -1,6 +1,6 @@
 # AI Assistant Plan
 
-Status: **phases 1–4 done** (written 2026-11-17; decisions settled the same day). Related:
+Status: **phases 1–5 done** (written 2026-11-17; decisions settled the same day). Related:
 [self-service-schools-plan.md](./self-service-schools-plan.md) (signup and
 the setup checklist), [central-dashboard-plan.md](./central-dashboard-plan.md)
 (where "Draft with AI" started), [authorization.md](./authorization.md).
@@ -334,6 +334,39 @@ How tools work without native tool calling (the announcement pattern):
 
 Costs 2–3 calls per data answer and is less reliable than native tool
 calling on long multi-step questions; fine for the one-tool questions above.
+
+**Done (2026-11-17).** As built, where it differs from the sketch above:
+
+- Setting `assistant_data` ("1" = on; empty, the default for every school,
+  = off), under the AI switch in Settings → General, disabled while AI is
+  off. `AiAccess::readsData()`; `GET /api/assistant/conversation` returns
+  `reads_data` so the panel's note and starter questions follow it.
+- Tools in `config('ai.assistant_tools')`, `App\Services\Ai\Assistant\Tools\*`,
+  each with `allows()`, validation `rules()` and `run()` as the user via
+  `ToolContext` (roles, permissions, plan modules, a teacher's classrooms,
+  a parent's children, the student's own record — current school only):
+  `attendance_summary`, `low_attendance_students` (manage-attendance or
+  teacher, own classrooms), `fees_overview`, `overdue_students`
+  (manage-fees + fees), `exam_results` (manage-exams or teacher's own +
+  exams), `find_student` (manage-students), `upcoming` (everyone, scoped
+  per role), `my_summary` (student), `my_child_summary` (parent; a name
+  that isn't their child's falls back to their own). Classrooms matched
+  loosely by name ("4-A", "4a"), only among the user's.
+- Loop in `Assistant::ask()`: up to 2 lookups, then the model must answer
+  (max 3 calls; logged as `assistant` then `assistant.lookup`). A tool not
+  in the user's list or with invalid args costs no extra call: the reply's
+  own text, or "I couldn't look that up". Results are sent as a
+  `<tool-result>` block marked as data, cut to 8,000 characters.
+- Tools can add links (a student's page, an exam's results), so links are
+  now `{href, label}`; the panel shows a nav page by its own name, or a
+  deeper page (`/students/12`) under its nav section with the tool's label.
+  Phase 4's bare paths still render.
+- Each answer keeps its lookups (`assistant_messages.tools`: tool, args,
+  ok) for looking into bad answers.
+- Tests: `tests/Feature/AssistantDataTest.php` on the demo seed (off by
+  default, per-role tools, server-side refusals, lookup limit, results
+  checked against the records, parent isolation, every tool runs for every
+  role that has it).
 
 ### Phase 6 — Assistant v3: actions with confirmation (L)
 

@@ -24,6 +24,7 @@ return [
     'ai_cap_reached_user' => 'You’ve used today’s AI requests. Try again tomorrow.',
     'ai_cap_reached_school' => 'This school has used today’s AI requests. Try again tomorrow.',
     'assistant_failed' => 'The assistant couldn’t answer right now. Try again in a minute.',
+    'assistant_lookup_failed' => 'I couldn’t look that up. Try asking another way, or open the page for it.',
     'no_current_school' => 'Open a school first.',
     'blueprint_fallback' => 'We couldn’t read your description right now, so this is a standard structure. Change it below, or try describing it again later.',
     'blueprint_unchanged' => 'We couldn’t make that change right now, so your structure is as it was. Edit it below, or try again later.',

@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Ai\Assistant\Tools;
 use App\Services\Ai\Drafts\CalendarEventDrafter;
 use App\Services\Ai\Drafts\ExamQuestionsDrafter;
 use App\Services\Ai\Drafts\LibraryResourceDrafter;
@@ -35,6 +36,20 @@ return [
         'calendar_event' => CalendarEventDrafter::class,
         'meeting' => MeetingDrafter::class,
         'library_resource' => LibraryResourceDrafter::class,
+    ],
+
+    // The assistant's read-only lookups (phase 5), offered only when the
+    // school turned on assistant_data, and each only to whoever may use it.
+    'assistant_tools' => [
+        Tools\AttendanceSummary::class,
+        Tools\LowAttendanceStudents::class,
+        Tools\FeesOverview::class,
+        Tools\OverdueStudents::class,
+        Tools\ExamResults::class,
+        Tools\FindStudent::class,
+        Tools\Upcoming::class,
+        Tools\MySummary::class,
+        Tools\MyChildSummary::class,
     ],
 
 ];
