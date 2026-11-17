@@ -14,6 +14,9 @@ return [
     'caps' => [
         'user_daily' => env('AI_USER_DAILY_CAP', 50),
         'school_daily' => env('AI_SCHOOL_DAILY_CAP', 300),
+        // "Describe your school" on the landing page, across all visitors.
+        // Past it, visitors get the standard structure instead.
+        'blueprint_daily' => env('AI_BLUEPRINT_DAILY_CAP', 200),
     ],
 
     // Draft kinds served by POST /api/ai/draft/{kind}: kind => Drafter class.

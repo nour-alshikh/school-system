@@ -127,6 +127,21 @@ readonly name_ar: string,
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type BlueprintGradeType = {
+readonly name_en: string,
+readonly name_ar: string,
+readonly classrooms: string[],
+};
+export type BlueprintStageType = {
+readonly name_en: string,
+readonly name_ar: string,
+readonly grades: BlueprintGradeType[],
+};
+export type BlueprintSubjectType = {
+readonly name_en: string,
+readonly name_ar: string,
+readonly stages: number[],
+};
 export type CalendarEventType = {
 readonly id: number,
 readonly title: string,
@@ -450,6 +465,16 @@ readonly updated_at: string,
 export type RoleType = {
 readonly id: number,
 readonly name: string,
+};
+export type SchoolBlueprintType = {
+readonly school_name: string | null,
+readonly slug: string | null,
+readonly stages: BlueprintStageType[],
+readonly subjects: BlueprintSubjectType[],
+readonly academic_year: number,
+readonly school_days: number[] | null,
+readonly currency: string | null,
+readonly notes: string[],
 };
 export type SchoolMembershipType = {
 readonly id: number,

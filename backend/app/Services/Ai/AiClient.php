@@ -112,16 +112,26 @@ class AiClient
             throw new AiCapReached('user');
         }
 
-        if ($schoolCap !== null && $this->context->has() && AiUsage::todayCount('school_id', $this->context->id()) >= (int) $schoolCap) {
+        if ($schoolCap !== null && ($schoolId = $this->schoolId()) && AiUsage::todayCount('school_id', $schoolId) >= (int) $schoolCap) {
             throw new AiCapReached('school');
         }
+    }
+
+    /**
+     * The school a call counts against: the signed-in user's current one.
+     * A guest (the landing page) has a school context too — the default
+     * school ResolveSchool picks for public pages — which mustn't pay for it.
+     */
+    private function schoolId(): ?int
+    {
+        return auth()->check() && $this->context->has() ? $this->context->id() : null;
     }
 
     private function log(string $feature, int $started, bool $ok, ?string $error, array $reply): void
     {
         AiUsage::create([
             'user_id' => auth()->id(),
-            'school_id' => $this->context->has() ? $this->context->id() : null,
+            'school_id' => $this->schoolId(),
             'feature' => $feature,
             'model' => $reply['model'] ?? config('services.openrouter.model'),
             'prompt_tokens' => data_get($reply, 'usage.prompt_tokens'),

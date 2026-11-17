@@ -24,6 +24,8 @@ return [
     'ai_cap_reached_user' => 'You’ve used today’s AI drafts. Try again tomorrow.',
     'ai_cap_reached_school' => 'This school has used today’s AI drafts. Try again tomorrow.',
     'no_current_school' => 'Open a school first.',
+    'blueprint_fallback' => 'We couldn’t read your description right now, so this is a standard structure. Change it below, or try describing it again later.',
+    'blueprint_unchanged' => 'We couldn’t make that change right now, so your structure is as it was. Edit it below, or try again later.',
     'plan_student_limit' => 'Your plan allows :max students. Contact support to change plans.',
     'plan_storage_limit' => 'Your plan allows :max of files, and this would go over it. Remove some files or contact support to change plans.',
     'plan_feature_missing' => 'Not included in your plan.',

@@ -10,6 +10,8 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class CreateSchoolRequest extends FormRequest
 {
+    use ValidatesBlueprint;
+
     public function authorize(): bool
     {
         return true;
@@ -20,6 +22,7 @@ class CreateSchoolRequest extends FormRequest
         return [
             'school_name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', new SchoolSlug],
+            ...$this->blueprintRules(),
         ];
     }
 }

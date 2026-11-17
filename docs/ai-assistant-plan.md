@@ -1,6 +1,6 @@
 # AI Assistant Plan
 
-Status: **phase 1 done** (written 2026-11-17; decisions settled the same day). Related:
+Status: **phases 1–2 done** (written 2026-11-17; decisions settled the same day). Related:
 [self-service-schools-plan.md](./self-service-schools-plan.md) (signup and
 the setup checklist), [central-dashboard-plan.md](./central-dashboard-plan.md)
 (where "Draft with AI" started), [authorization.md](./authorization.md).
@@ -187,6 +187,32 @@ blueprint validated hard (max 4 stages, 15 grades, 6 classrooms per grade,
 
 Tests: blueprint validation and limits, `apply()` builds exactly the
 blueprint, signup with/without blueprint, throttle and fallback.
+
+**Done (2026-11-17).** As built, where it differs from the sketch above:
+
+- Shape uses the app's flat names: `stages: [{name_en, name_ar, grades:
+  [{name_en, name_ar, classrooms: ["A","B"]}]}]`, `subjects: [{name_en,
+  name_ar, stages: [stage index]}]`, `academic_year: 2026` (start year,
+  like `academic_years.year`), `school_days: [0..6] | null`, `currency`,
+  `school_name`, `slug`, `notes`. No `modules`: the plan decides those.
+- `AppServicesSchoolBlueprint` (rules, limits, `default()`, `apply()`);
+  `SchoolStructureTemplate::applyToEmptySchool()` now applies `default()`.
+- `SchoolBlueprintDrafter` cleans the reply leniently (cuts to limits, drops
+  items missing a language), then validates strictly.
+- `POST /api/school-blueprint` never fails the visitor: no key, the daily
+  cap (`AI_BLUEPRINT_DAILY_CAP`, 200) or a bad reply → the standard
+  structure (or the one being refined, unchanged) with `fallback: true`.
+  Throttle `school-blueprint`: 10/hour and 30/day per address. Honeypot.
+- Signup (`/school-signup`, `POST /schools`) takes an optional `blueprint`
+  and builds it in the same transaction; audit entry notes it.
+- Guests' calls aren't charged to the default school (`AiClient` only
+  attributes calls to a signed-in user's school).
+- Frontend: `features/school-blueprint/` (describe box with example chips,
+  tree editor, refine box, sessionStorage hand-off); hero box; `/create-school`
+  shows the panel beside the form, or an optional "Describe your school" box.
+- Per-address limits need the visitor's IP: the BFF now sends it with a
+  shared secret (`BFF_SHARED_SECRET` on both sides, `TrustBffClientIp`;
+  docs/authentication.md). Until it's set, every visitor shares one limit.
 
 ### Phase 3 — Draft with AI, wave 1 (L)
 

@@ -22,6 +22,9 @@ abstract class Drafter
 {
     protected float $temperature = 0.4;
 
+    /** Room for the reply; raise it for big shapes. */
+    protected int $maxTokens = 1500;
+
     public function __construct(protected readonly AiClient $client) {}
 
     /** The {kind} in the URL and "draft.{kind}" in ai_usage. */
@@ -64,6 +67,7 @@ abstract class Drafter
             $this->message($notes, $context),
             fn (array $data) => $this->shape($data),
             $this->temperature,
+            $this->maxTokens,
         );
     }
 

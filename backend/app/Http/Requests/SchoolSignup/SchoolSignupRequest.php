@@ -13,6 +13,8 @@ use Illuminate\Validation\Rules\Password;
  */
 class SchoolSignupRequest extends FormRequest
 {
+    use ValidatesBlueprint;
+
     public function authorize(): bool
     {
         return true;
@@ -40,6 +42,7 @@ class SchoolSignupRequest extends FormRequest
             'password' => ['required', 'confirmed', Password::defaults()],
             'school_name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', new SchoolSlug],
+            ...$this->blueprintRules(),
         ];
     }
 }

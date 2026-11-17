@@ -33,7 +33,7 @@ class SchoolSignupController extends Controller
     public function store(CreateSchoolRequest $request): JsonResponse
     {
         $user = $request->user();
-        $result = $this->signups->addSchool($user, $request->validated('school_name'), $request->validated('slug'));
+        $result = $this->signups->addSchool($user, $request->validated('school_name'), $request->validated('slug'), $request->validated('blueprint'));
 
         $current = $user->currentAccessToken();
         if ($current instanceof PersonalAccessToken) {

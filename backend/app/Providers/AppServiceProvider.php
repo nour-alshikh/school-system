@@ -96,6 +96,17 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by('ai:'.($request->user()?->id ?: $request->ip()));
         });
 
+        // "Describe your school" is public and costs a call each time: a
+        // few per hour from one address, refining included
+        // (docs/ai-assistant-plan.md, phase 2). A daily cap across everyone
+        // is in config ai.caps.blueprint_daily.
+        RateLimiter::for('school-blueprint', function (Request $request) {
+            return [
+                Limit::perHour(10)->by('blueprint-hour:'.$request->ip()),
+                Limit::perDay(30)->by('blueprint-day:'.$request->ip()),
+            ];
+        });
+
         // Admins bypass every Policy check (see app/Policies) without each
         // policy needing to special-case the admin role individually.
         Gate::before(function (User $user, string $ability) {

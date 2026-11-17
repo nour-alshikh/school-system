@@ -39,6 +39,7 @@ use App\Http\Controllers\Platform\SessionController as PlatformSessionController
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReligionController;
+use App\Http\Controllers\SchoolBlueprintController;
 use App\Http\Controllers\SchoolSignupController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\SettingController;
@@ -75,6 +76,9 @@ Route::middleware('throttle:two-factor')->post('/login/two-factor', [AuthControl
 // the form can show availability as the user types.
 Route::middleware('throttle:school-signup')->post('/school-signup', [SchoolSignupController::class, 'signUp']);
 Route::middleware('throttle:30,1')->get('/school-slugs/{slug}', [SchoolSignupController::class, 'slugAvailability']);
+// "Describe your school" (docs/ai-assistant-plan.md, phase 2): a sentence →
+// a structure to review before signing up. Public, so throttled hard.
+Route::middleware('throttle:school-blueprint')->post('/school-blueprint', [SchoolBlueprintController::class, 'store']);
 
 // Deliberately outside auth:sanctum — Zoom's redirect back here is a plain
 // top-level browser navigation from zoom.us, which Sanctum's cookie-based

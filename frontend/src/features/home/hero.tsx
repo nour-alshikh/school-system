@@ -3,7 +3,7 @@
 import { useRef, type ComponentType, type PointerEvent } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowRight, CircleCheck, ClipboardCheck, Languages, Wallet } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useFadeIn } from "@/hooks/use-fade-in";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { BrowserFrame, Screenshot } from "@/features/home/screenshot";
 import { BookDoodle, CapDoodle, PencilDoodle, RulerDoodle, Sparkle, Squiggle } from "@/features/home/doodles";
 import { prefersReducedMotion } from "@/lib/gsap";
+import { DescribeSchoolForm } from "@/features/school-blueprint/describe-school-form";
+import { saveBlueprint } from "@/features/school-blueprint/storage";
 
 /** A small floating card over the hero screenshot. Decorative: the screenshot carries the meaning. */
 function MiniCard({
@@ -52,6 +54,7 @@ function MiniCard({
 export function Hero() {
   const t = useTranslations("HomePage");
   const { user, isLoading } = useAuth();
+  const router = useRouter();
   const textRef = useFadeIn<HTMLDivElement>({ y: 20 });
   const visualRef = useFadeIn<HTMLDivElement>({ y: 32, delay: 0.15, duration: 0.7 });
   const tiltRef = useRef<HTMLDivElement>(null);
@@ -103,13 +106,23 @@ export function Hero() {
             <Squiggle draw delay="0.4s" className="mt-2 block h-3 w-3/5 text-brand-accent" />
           </h1>
           <p className="max-w-lg text-lg leading-relaxed text-muted-foreground">{t("heroSubtext")}</p>
+          {/* "Describe your school" (docs/ai-assistant-plan.md, phase 2): the
+              blueprint goes to /create-school for review before signing up. */}
+          <DescribeSchoolForm
+            className="max-w-lg"
+            onBuilt={(result, description) => {
+              saveBlueprint({ blueprint: result.blueprint, description });
+              router.push("/create-school?from=blueprint");
+            }}
+          />
           <div className="flex flex-wrap items-center gap-3">
-            <Button size="lg" className="px-5" nativeButton={false} render={<Link href={user ? "/dashboard" : "/create-school"} />}>
+            {/* The describe box is the main way in for guests; this is the plain form. */}
+            <Button size="lg" variant={user ? "default" : "outline"} className="px-5" nativeButton={false} render={<Link href={user ? "/dashboard" : "/create-school"} />}>
               {user ? t("ctaDashboard") : t("ctaPrimary")}
               <ArrowRight className="size-4 rtl:rotate-180" />
             </Button>
             {!isLoading && !user && (
-              <Button size="lg" variant="outline" className="px-5" nativeButton={false} render={<Link href="/login" />}>
+              <Button size="lg" variant="ghost" className="px-5" nativeButton={false} render={<Link href="/login" />}>
                 {t("ctaSecondary")}
               </Button>
             )}

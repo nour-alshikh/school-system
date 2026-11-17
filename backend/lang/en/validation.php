@@ -181,6 +181,9 @@ return [
     'school_status_reason' => 'Give a reason: the school\'s members see it when they try to sign in.',
     'school_currency' => 'Choose one of the listed currencies.',
     'school_days' => 'Choose each school day once, from Sunday to Saturday.',
+    'blueprint_too_many_grades' => 'A school can start with at most :max grades.',
+    'blueprint_unknown_stage' => 'This subject points to a stage that isn’t there.',
+    'blueprint_duplicate_classroom' => 'Each classroom in a grade needs a different name.',
 
     'school_slug' => [
         'invalid' => 'Use 3–63 lowercase letters, numbers and single dashes (e.g. green-valley).',

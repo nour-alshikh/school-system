@@ -9,6 +9,10 @@ import type {
   SchoolSignupPayload,
 } from "@/features/school-signup/schema";
 import type { User } from "@/types/auth";
+import type { BlueprintPayload } from "@/features/school-blueprint/payload";
+
+/** A new school may bring the structure from "Describe your school". */
+type WithBlueprint = { blueprint?: BlueprintPayload };
 
 /** Step one of the system admin login (see SystemLoginPage). */
 export interface TwoFactorChallenge {
@@ -49,9 +53,9 @@ interface AuthContextValue {
   /** Moves the session to another of the user's memberships (school + role). */
   switchSchool: (membershipId: number) => Promise<void>;
   /** A guest creates an account and a school, and is signed in as its admin. */
-  signUpSchool: (payload: SchoolSignupPayload) => Promise<void>;
+  signUpSchool: (payload: SchoolSignupPayload & WithBlueprint) => Promise<void>;
   /** The signed-in user creates a school; the session moves to it. */
-  createSchool: (payload: NewSchoolPayload) => Promise<void>;
+  createSchool: (payload: NewSchoolPayload & WithBlueprint) => Promise<void>;
   can: (permission: string) => boolean;
   hasRole: (role: string) => boolean;
   uploadAvatar: (file: File) => Promise<void>;
@@ -151,7 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Both answer like switch-school: the user as admin of the new school,
   // with the session cookie now bound to it (see the BFF route).
   const signUpSchoolMutation = useMutation({
-    mutationFn: (payload: SchoolSignupPayload) =>
+    mutationFn: (payload: SchoolSignupPayload & WithBlueprint) =>
       apiFetch<{ user: User }>("/api/school-signup", {
         method: "POST",
         body: JSON.stringify(payload),
@@ -163,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const createSchoolMutation = useMutation({
-    mutationFn: (payload: NewSchoolPayload) =>
+    mutationFn: (payload: NewSchoolPayload & WithBlueprint) =>
       apiFetch<{ user: User }>("/api/schools", {
         method: "POST",
         body: JSON.stringify(payload),
@@ -292,14 +296,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signUpSchool = useCallback(
-    async (payload: SchoolSignupPayload) => {
+    async (payload: SchoolSignupPayload & WithBlueprint) => {
       await signUpSchoolMutation.mutateAsync(payload);
     },
     [signUpSchoolMutation]
   );
 
   const createSchool = useCallback(
-    async (payload: NewSchoolPayload) => {
+    async (payload: NewSchoolPayload & WithBlueprint) => {
       await createSchoolMutation.mutateAsync(payload);
     },
     [createSchoolMutation]

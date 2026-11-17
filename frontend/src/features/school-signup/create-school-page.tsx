@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronDown, Loader2, Sparkles, XCircle } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { applyServerErrors } from "@/lib/form-errors";
@@ -28,6 +29,12 @@ import {
   type SchoolSignupPayload,
 } from "./schema";
 import { useSlugAvailability } from "./use-slug-availability";
+import { BlueprintPanel } from "@/features/school-blueprint/blueprint-panel";
+import { DescribeSchoolForm } from "@/features/school-blueprint/describe-school-form";
+import { toBlueprintPayload } from "@/features/school-blueprint/payload";
+import { clearBlueprint, loadBlueprint, saveBlueprint } from "@/features/school-blueprint/storage";
+import type { BuildBlueprintResult } from "@/features/school-blueprint/use-build-blueprint";
+import type { SchoolBlueprint } from "@/features/school-blueprint/types";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -43,6 +50,10 @@ const ACCOUNT_FIELDS = [
  * Self-service schools (docs/self-service-schools-plan.md). A guest fills
  * in their account and the school; a signed-in user only the school. Either
  * way they land on the dashboard as the new school's admin.
+ *
+ * With a blueprint from "Describe your school" (?from=blueprint, kept in
+ * sessionStorage — docs/ai-assistant-plan.md, phase 2), the structure it
+ * describes sits beside the form to edit, and is built with the school.
  */
 export function CreateSchoolPage() {
   const { user, isLoading } = useAuth();
@@ -66,6 +77,17 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
   const [redirecting, setRedirecting] = useState(false);
   // Until the user edits the slug themselves, it follows the school name.
   const [slugTouched, setSlugTouched] = useState(false);
+  // Only a blueprint this visit came with: an old one in storage doesn't leak in.
+  const fromBlueprint = useSearchParams().get("from") === "blueprint";
+  const [stored] = useState(() => (fromBlueprint ? loadBlueprint() : null));
+  const [blueprint, setBlueprint] = useState<SchoolBlueprint | null>(stored?.blueprint ?? null);
+  const [description, setDescription] = useState(stored?.description ?? "");
+  const [describeOpen, setDescribeOpen] = useState(false);
+
+  // Edits survive a reload of this tab.
+  useEffect(() => {
+    if (blueprint) saveBlueprint({ blueprint, description });
+  }, [blueprint, description]);
 
   const isGuest = mode === "guest";
 
@@ -84,8 +106,8 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
   const form = useForm<SchoolSignupPayload>({
     resolver,
     defaultValues: {
-      school_name: "",
-      slug: "",
+      school_name: stored?.blueprint.school_name ?? "",
+      slug: stored?.blueprint.slug ?? "",
       name: "",
       email: "",
       password: "",
@@ -100,16 +122,36 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
   const availability = useSlugAvailability(slug, slugWellFormed);
   const slugUnavailable = availability.result?.available === false;
 
+  // A first blueprint fills an empty school name (and its slug, unless typed).
+  function onBuilt(result: BuildBlueprintResult, text: string) {
+    setBlueprint(result.blueprint);
+    setDescription(text);
+    setDescribeOpen(false);
+    if (result.blueprint.school_name && !form.getValues("school_name")) {
+      form.setValue("school_name", result.blueprint.school_name);
+      if (!slugTouched) form.setValue("slug", result.blueprint.slug ?? slugify(result.blueprint.school_name));
+    }
+  }
+
+  function discardBlueprint() {
+    setBlueprint(null);
+    setDescription("");
+    clearBlueprint();
+  }
+
   async function onSubmit(values: SchoolSignupPayload) {
+    const withBlueprint = blueprint ? { blueprint: toBlueprintPayload(blueprint) } : {};
     try {
       if (isGuest) {
-        await signUpSchool(values);
+        await signUpSchool({ ...values, ...withBlueprint });
       } else {
         await createSchool({
           school_name: values.school_name,
           slug: values.slug,
+          ...withBlueprint,
         });
       }
+      clearBlueprint();
       setRedirecting(true);
       router.replace("/dashboard");
       router.refresh();
@@ -129,7 +171,13 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center p-6">
+    <main
+      className={
+        blueprint
+          ? "mx-auto grid w-full max-w-6xl flex-1 items-start gap-10 p-6 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]"
+          : "flex flex-1 items-center justify-center p-6"
+      }
+    >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -141,6 +189,27 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
               {isGuest ? t("subheading") : t("memberSubheading")}
             </p>
           </div>
+
+          {!blueprint && (
+            <div className="rounded-xl border border-dashed p-3">
+              <button
+                type="button"
+                aria-expanded={describeOpen}
+                onClick={() => setDescribeOpen((open) => !open)}
+                className="flex w-full items-center gap-2 text-start text-sm font-medium"
+              >
+                <Sparkles className="size-4 shrink-0 text-brand-accent-strong dark:text-brand-accent" />
+                <span className="flex-1">{t("describeToggle")}</span>
+                <ChevronDown className={`size-4 transition-transform ${describeOpen ? "rotate-180" : ""}`} />
+              </button>
+              {describeOpen && (
+                <div className="mt-3 flex flex-col gap-2">
+                  <p className="text-xs text-muted-foreground">{t("describeHint")}</p>
+                  <DescribeSchoolForm variant="compact" onBuilt={onBuilt} />
+                </div>
+              )}
+            </div>
+          )}
 
           <fieldset className="flex flex-col gap-4">
             <legend className="mb-3 text-sm font-medium">
@@ -208,19 +277,21 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
           </fieldset>
 
           {isGuest && (
-            <fieldset className="flex flex-col gap-4">
+            <fieldset className="relative flex flex-col gap-4">
               <legend className="mb-3 text-sm font-medium">
                 {t("accountSection")}
               </legend>
 
-              {/* Honeypot: off-screen and skipped by keyboard, screen
-                  readers and autofill, so only bots fill it in. */}
+              {/* Honeypot: invisible and skipped by keyboard, screen
+                  readers and autofill, so only bots fill it in. Clipped
+                  in place, not pushed off-screen: -left-9999px widened
+                  the page in RTL. */}
               <input
                 type="text"
                 tabIndex={-1}
                 autoComplete="off"
                 aria-hidden="true"
-                className="absolute -left-[9999px] size-px opacity-0"
+                className="pointer-events-none absolute top-0 start-0 size-px overflow-hidden opacity-0 [clip-path:inset(50%)]"
                 {...form.register("website")}
               />
 
@@ -294,6 +365,10 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
             {form.formState.isSubmitting ? t("submitting") : t("submit")}
           </Button>
 
+          {blueprint && (
+            <p className="text-xs text-muted-foreground">{t("blueprintWillBuild")}</p>
+          )}
+
           {isGuest && (
             <p className="text-center text-sm">
               {t("haveAccount")}{" "}
@@ -307,6 +382,16 @@ function CreateSchoolForm({ mode }: { mode: "guest" | "member" }) {
           )}
         </form>
       </Form>
+
+      {blueprint && (
+        <BlueprintPanel
+          blueprint={blueprint}
+          description={description}
+          onChange={setBlueprint}
+          onRefined={(result) => setBlueprint(result.blueprint)}
+          onDiscard={discardBlueprint}
+        />
+      )}
     </main>
   );
 }

@@ -2,13 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\AcademicYear;
 use App\Models\Classroom;
 use App\Models\Grade;
 use App\Models\Stage;
 use App\Models\Subject;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 /**
  * A typical school's structure: three stages, twelve grades, a classroom
@@ -63,26 +60,14 @@ class SchoolStructureTemplate
 
     /**
      * The whole structure for a school that has none yet: a current
-     * academic year, stages, grades, one classroom per grade, subjects.
-     * Refused once the school has stages, so it never merges into a
-     * structure the admin built by hand.
+     * academic year, stages, grades, one classroom per grade, subjects —
+     * the default blueprint (SchoolBlueprint::default()). Refused once the
+     * school has stages, so it never merges into a structure the admin
+     * built by hand.
      */
     public function applyToEmptySchool(): void
     {
-        if (Stage::exists()) {
-            throw ValidationException::withMessages(['structure' => __('api.structure_exists')]);
-        }
-
-        DB::transaction(function () {
-            if (! AcademicYear::where('is_current', true)->exists()) {
-                AcademicYear::firstOrCreate(['year' => now()->year], ['is_current' => true]);
-            }
-
-            $this->createStages();
-            $this->createGrades();
-            $this->createClassrooms(['A']);
-            $this->createSubjects();
-        });
+        app(SchoolBlueprint::class)->apply(SchoolBlueprint::default());
     }
 
     public function createStages(): void
