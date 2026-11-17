@@ -89,6 +89,13 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        // AI drafts (docs/ai-assistant-plan.md): free models allow few calls
+        // a minute, so one person can't use them all up. Daily caps are
+        // separate (config ai.caps, checked by AiClient).
+        RateLimiter::for('ai', function (Request $request) {
+            return Limit::perMinute(10)->by('ai:'.($request->user()?->id ?: $request->ip()));
+        });
+
         // Admins bypass every Policy check (see app/Policies) without each
         // policy needing to special-case the admin role individually.
         Gate::before(function (User $user, string $ability) {

@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Platform;
 
 use App\Enums\AnnouncementLevel;
 use App\Enums\MembershipRole;
+use App\Http\Controllers\Concerns\RespondsWithAiDraft;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\AuditLog;
-use App\Services\AnnouncementWriter;
+use App\Services\Ai\Drafts\AnnouncementDrafter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use RuntimeException;
 
 /**
  * The system admin writes, edits and ends announcements
@@ -19,6 +19,8 @@ use RuntimeException;
  */
 class AnnouncementController extends Controller
 {
+    use RespondsWithAiDraft;
+
     public function index(): JsonResponse
     {
         return response()->json([
@@ -51,20 +53,13 @@ class AnnouncementController extends Controller
     }
 
     /** An AI draft of the title and message in both languages, plus a level and audience, from rough notes. Nothing is saved. */
-    public function draft(Request $request, AnnouncementWriter $writer): JsonResponse
+    public function draft(Request $request, AnnouncementDrafter $drafter): JsonResponse
     {
         $data = $request->validate([
             'notes' => ['required', 'string', 'max:2000'],
         ]);
 
-        abort_unless($writer->isConfigured(), 503, __('api.ai_not_configured'));
-
-        try {
-            return response()->json(['draft' => $writer->draft($data['notes'])]);
-        } catch (RuntimeException $e) {
-            report($e);
-            abort(502, __('api.ai_draft_failed'));
-        }
+        return $this->aiDraft(fn () => $drafter->draft($data['notes']));
     }
 
     /** Takes it down now. */

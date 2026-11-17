@@ -41,7 +41,19 @@ export interface PlatformOverview {
   /** One line per currency: amounts in different currencies aren't added up. */
   collected_this_month: { currency: string | null; amount: string }[];
   schools: PlatformSchoolRow[];
+  /** Live, not part of the 10-minute cache. */
+  ai_usage: PlatformAiUsage;
   generated_at: string;
+}
+
+/** AI calls (SchoolMetrics::aiUsage): counts and tokens only, never content. */
+export interface PlatformAiUsage {
+  calls_today: number;
+  calls_30d: number;
+  failed_30d: number;
+  tokens_30d: number;
+  /** The 10 schools with the most calls in 30 days. */
+  by_school: { school_id: number; name: string | null; calls: number; failed: number; tokens: number }[];
 }
 
 export interface AuditLogEntry {

@@ -5,6 +5,7 @@ namespace App\TypeScript;
 use App\Models\PlatformSession;
 use App\Models\SchoolMembership;
 use App\Models\User;
+use App\Services\Ai\AiAccess;
 use App\Services\MembershipService;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -37,11 +38,16 @@ final class UserType
         public readonly ?ActingAsType $acting_as = null,
         /**
          * Modules the current school's plan includes (fees, exams, meetings,
-         * library); null with no current school.
+         * library, ai); null with no current school.
          *
          * @var string[]|null
          */
         public readonly ?array $plan_features = null,
+        /**
+         * Whether "Draft with AI" works at the current school: a key is set,
+         * the plan includes ai and the school hasn't turned it off (AiAccess).
+         */
+        public readonly bool $ai_available = false,
         /** Whether a system admin needs a two-factor code to open a school (config platform.two_factor). */
         public readonly bool $platform_two_factor = true,
     ) {}
@@ -65,6 +71,7 @@ final class UserType
                 ->all(),
             acting_as: $session ? ActingAsType::fromSession($session) : null,
             plan_features: ($current?->school ?? $session?->school)?->effectivePlan()->features,
+            ai_available: app(AiAccess::class)->available($current?->school ?? $session?->school),
             platform_two_factor: (bool) config('platform.two_factor'),
         );
     }

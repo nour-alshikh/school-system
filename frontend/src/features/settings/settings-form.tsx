@@ -6,7 +6,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
 import { applyServerErrors } from "@/lib/form-errors";
 import {
@@ -19,6 +20,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -41,9 +44,10 @@ import type { Setting } from "./types";
 function valuesFromSettings(settings: Setting[]): SettingsFormValues {
   const byKey = new Map(settings.map((s) => [s.key, s.value ?? ""]));
 
-  return Object.fromEntries(
-    SETTING_TEXT_KEYS.map((key) => [key, byKey.get(key) ?? ""])
-  ) as SettingsFormValues;
+  return {
+    ...Object.fromEntries(SETTING_TEXT_KEYS.map((key) => [key, byKey.get(key) ?? ""])),
+    ai_enabled: byKey.get("ai_enabled") !== "0",
+  } as SettingsFormValues;
 }
 
 export function SettingsForm({
@@ -66,6 +70,10 @@ export function SettingsForm({
     defaultValues: valuesFromSettings(settings),
   });
 
+  const { user } = useAuth();
+  // The plan decides whether AI exists at all; this setting only turns it off.
+  const planHasAi = !!user?.plan_features?.includes("ai");
+
   const locale = useLocale();
   // "EGP — Egyptian Pound" / "EGP — جنيه مصري", in the UI's language.
   const currencyNames = useMemo(
@@ -84,14 +92,19 @@ export function SettingsForm({
       apiFetch<{ settings: Setting[] }>("/api/settings", {
         method: "PUT",
         body: JSON.stringify({
-          settings: SETTING_TEXT_KEYS.map((key) => ({
-            key,
-            value: values[key] || null,
-          })),
+          settings: [
+            ...SETTING_TEXT_KEYS.map((key) => ({
+              key,
+              value: values[key] || null,
+            })),
+            { key: "ai_enabled", value: values.ai_enabled ? "1" : "0" },
+          ],
         }),
       }),
     onSuccess: (data) => {
       queryClient.setQueryData(["settings"], data.settings);
+      // user.ai_available follows the ai_enabled setting.
+      void queryClient.invalidateQueries({ queryKey: ["auth", "user"] });
       toast.success(t("saveSuccess"));
     },
     onError: (err) => {
@@ -148,6 +161,27 @@ export function SettingsForm({
                 </FormItem>
               )}
             />
+            {planHasAi && (
+              <FormField
+                control={form.control}
+                name="ai_enabled"
+                render={({ field }) => (
+                  <FormItem className="mt-2 rounded-lg border p-3">
+                    <Label className="flex items-center gap-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(checked === true)}
+                        />
+                      </FormControl>
+                      <Sparkles className="size-4 text-brand-accent-strong dark:text-brand-accent" />
+                      {t("aiEnabledLabel")}
+                    </Label>
+                    <p className="text-xs text-muted-foreground">{t("aiEnabledHint")}</p>
+                  </FormItem>
+                )}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="school-year" className="mt-4 flex flex-col gap-4">

@@ -40,6 +40,8 @@ class UpdateSettingsRequest extends FormRequest
                         || $validator->errors()->add('currency', __('validation.school_currency')),
                     'school_days' => $this->validSchoolDays($value)
                         || $validator->errors()->add('school_days', __('validation.school_days')),
+                    'ai_enabled' => in_array($value, ['0', '1'], true)
+                        || $validator->errors()->add('ai_enabled', __('validation.boolean', ['attribute' => 'ai_enabled'])),
                     default => null,
                 };
             }

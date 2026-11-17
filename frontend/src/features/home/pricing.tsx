@@ -19,6 +19,7 @@ const FEATURES = [
   { key: "fees", labelKey: "featureFees" },
   { key: "library", labelKey: "featureLibrary" },
   { key: "meetings", labelKey: "featureMeetings" },
+  { key: "ai", labelKey: "featureAi" },
 ] as const;
 
 const PLAN_NAMES: Record<string, string> = { basic: "planBasic", standard: "planStandard", unlimited: "planUnlimited" };

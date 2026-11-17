@@ -1421,7 +1421,9 @@
     "currencyPlaceholder": "Choose a currency",
     "currencyHint": "Fees and payments are shown in this currency.",
     "schoolDaysLabel": "School days",
-    "schoolDaysHint": "The days your school is open. Attendance is taken on these days."
+    "schoolDaysHint": "The days your school is open. Attendance is taken on these days.",
+    "aiEnabledLabel": "AI features",
+    "aiEnabledHint": "Shows “Draft with AI” on forms. Only what someone types is sent to the AI provider. Turn off to hide it for everyone at this school."
   },
   "HomePage": {
     "navFeatures": "Features",
@@ -1570,7 +1572,8 @@
     "footerProduct": "Product",
     "footerGetStarted": "Get started",
     "footerRegister": "Create an account",
-    "footerCopyright": "© {year} {brand}. All rights reserved."
+    "footerCopyright": "© {year} {brand}. All rights reserved.",
+    "featureAi": "AI drafts"
   },
   "ParentFeesPage": {
     "heading": "Fees",
@@ -1748,7 +1751,15 @@
       "noSchools": "No schools match.",
       "never": "Never",
       "currentStatuses": "Active and suspended",
-      "statusArchived": "Archived"
+      "statusArchived": "Archived",
+      "aiUsage": "AI usage",
+      "aiCallsToday": "Calls today",
+      "aiCalls30d": "Calls, 30 days",
+      "aiFailed30d": "Failed, 30 days",
+      "aiTokens30d": "Tokens, 30 days",
+      "aiTopSchools": "Schools using it most",
+      "aiSchoolRow": "{calls} calls · {failed} failed · {tokens} tokens",
+      "aiNone": "No AI calls in the last 30 days."
     },
     "detail": {
       "back": "All schools",
@@ -2024,7 +2035,8 @@
       "maxStorageMb": "Storage (MB)",
       "emptyMeansNoLimit": "Leave a limit empty for no limit.",
       "save": "Save",
-      "saved": "Plan saved."
+      "saved": "Plan saved.",
+      "feature_ai": "AI drafts"
     }
   },
   "PlatformSessionBanner": {
@@ -2134,5 +2146,19 @@
     "attendanceHistory": "Attendance history",
     "feesAndPayments": "Fees and payments",
     "library": "Library"
+  },
+  "AiDraft": {
+    "trigger": "Draft with AI",
+    "hint": "Write rough notes in any language. AI fills in the form; check it before saving.",
+    "placeholder": "Type what you need, in your own words…",
+    "draft": "Draft",
+    "drafting": "Drafting…",
+    "drafted": "Draft added. Review it before saving.",
+    "undo": "Undo AI draft",
+    "undone": "AI draft undone.",
+    "micStart": "Speak",
+    "micStop": "Stop",
+    "micBlocked": "Microphone access is blocked. Allow it in your browser to dictate.",
+    "micFailed": "Couldn't hear you. Try again or type your notes."
   }
 }

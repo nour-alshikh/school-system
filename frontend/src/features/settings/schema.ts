@@ -45,6 +45,9 @@ export function createSettingsSchema(t: Translate) {
 
     meta_title: optionalText(255),
     meta_description: optionalText(500),
+
+    // Stored as "1"/"0" (empty: on), sent separately from the text keys.
+    ai_enabled: z.boolean(),
   });
 }
 

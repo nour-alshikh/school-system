@@ -43,6 +43,8 @@ class SchoolProvisioner
         'meta_title' => SettingGroup::Seo,
         'meta_description' => SettingGroup::Seo,
         'og_image' => SettingGroup::Seo,
+        // "0" turns AI features off for the school; empty means on (AiAccess).
+        'ai_enabled' => SettingGroup::General,
         // Set when the admin hides the setup checklist (OnboardingController).
         'onboarding_dismissed_at' => SettingGroup::General,
     ];

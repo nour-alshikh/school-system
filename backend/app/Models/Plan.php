@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Plan extends Model
 {
     /** Modules a plan can include, and the only ones EnforcePlanFeatures knows. */
-    public const FEATURES = ['fees', 'exams', 'meetings', 'library'];
+    public const FEATURES = ['fees', 'exams', 'meetings', 'library', 'ai'];
 
     protected $fillable = ['key', 'name', 'max_students', 'max_storage_mb', 'features'];
 

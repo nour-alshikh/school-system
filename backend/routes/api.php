@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AcademicYearController;
+use App\Http\Controllers\AiDraftController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
@@ -137,6 +138,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/exports/{export}/download', [PlatformLifecycleController::class, 'download']);
     });
     Route::get('/user', [AuthController::class, 'user']);
+
+    // "Draft with AI" on a school's forms (docs/ai-assistant-plan.md, phase 1).
+    // Plan feature "ai" (EnforcePlanFeatures), the school's ai_enabled
+    // setting and the kind's own permission are checked in the controller.
+    Route::post('/ai/draft/{kind}', [AiDraftController::class, 'store'])->where('kind', '[a-z_]+')->middleware('throttle:ai');
 
     // Announcements from the system admin (docs/central-dashboard-plan.md, phase 8).
     Route::get('/announcements', [AnnouncementController::class, 'index']);

@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Concerns\RespondsWithAiDraft;
+use App\Services\Ai\AiAccess;
+use App\Services\Ai\Drafts;
+use App\Tenancy\TenantContext;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+
+/**
+ * "Draft with AI" on a school's forms (docs/ai-assistant-plan.md, phase 1).
+ * The kind decides the prompt, the shape and who may use it; the draft
+ * comes back for the form to fill in — nothing is saved.
+ */
+class AiDraftController extends Controller
+{
+    use RespondsWithAiDraft;
+
+    public function store(Request $request, string $kind, Drafts $drafts, AiAccess $access, TenantContext $context): JsonResponse
+    {
+        $drafter = $drafts->find($kind) ?? abort(404);
+
+        if ($refusal = $access->refusal($context->has() ? $context->school() : null)) {
+            abort($refusal[0], __($refusal[1]));
+        }
+
+        abort_unless($drafter->authorize($request->user()), 403);
+
+        $contextRules = collect($drafter->contextRules())->mapWithKeys(fn ($rules, $key) => ["context.{$key}" => $rules])->all();
+        $data = $request->validate([
+            'notes' => ['required', 'string', 'max:2000'],
+            'context' => ['nullable', 'array'],
+            ...$contextRules,
+        ]);
+
+        // Only the keys the kind validates reach its prompt.
+        $draftContext = Arr::only($data['context'] ?? [], array_keys($drafter->contextRules()));
+
+        return $this->aiDraft(fn () => $drafter->draft($data['notes'], $draftContext));
+    }
+}

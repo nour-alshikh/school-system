@@ -29,6 +29,7 @@ import { TableSkeletonRows } from "@/components/table-skeleton";
 import { formatBytes, timeAgo } from "./format";
 import { usePlatformPage } from "./use-platform-page";
 import { WarningBadges } from "./warning-badges";
+import { AiUsageCard } from "./ai-usage-card";
 import type { PlatformOverview, PlatformSchoolRow } from "./types";
 
 const QUERY_KEY = ["platform", "overview"];
@@ -111,6 +112,8 @@ export function PlatformOverviewPage() {
           )}
         </section>
       </div>
+
+      <AiUsageCard usage={data?.ai_usage} />
 
       <SchoolsTable rows={data?.schools} isLoading={isLoading} />
     </main>

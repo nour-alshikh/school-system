@@ -72,7 +72,45 @@ class SchoolMetrics
                 ->values()
                 ->all(),
             'schools' => $schools->values()->all(),
+            'ai_usage' => $this->aiUsage(),
             'generated_at' => Cache::get(self::CACHE_KEY.':at', now())->toJSON(),
+        ];
+    }
+
+    /**
+     * AI calls over the last 30 days (docs/ai-assistant-plan.md, rule 7):
+     * totals, today's count and the schools using it most. Live, not cached
+     * with the schools table: it's one small indexed query and cost is
+     * watched day to day. Calls outside a school (the system admin's own
+     * drafts) count in the totals with no school row.
+     */
+    public function aiUsage(): array
+    {
+        $since = now()->subDays(30);
+        $rows = DB::table('ai_usage')->where('created_at', '>=', $since);
+
+        $totals = (clone $rows)->selectRaw('count(*) as calls, sum(case when ok then 0 else 1 end) as failed, coalesce(sum(prompt_tokens), 0) + coalesce(sum(completion_tokens), 0) as tokens')->first();
+        $names = DB::table('schools')->pluck('name', 'id');
+
+        return [
+            'calls_30d' => (int) $totals->calls,
+            'failed_30d' => (int) $totals->failed,
+            'tokens_30d' => (int) $totals->tokens,
+            'calls_today' => DB::table('ai_usage')->where('created_at', '>=', now()->startOfDay())->count(),
+            'by_school' => (clone $rows)->whereNotNull('school_id')
+                ->selectRaw('school_id, count(*) as calls, sum(case when ok then 0 else 1 end) as failed, coalesce(sum(prompt_tokens), 0) + coalesce(sum(completion_tokens), 0) as tokens')
+                ->groupBy('school_id')
+                ->orderByDesc('calls')
+                ->limit(10)
+                ->get()
+                ->map(fn ($r) => [
+                    'school_id' => (int) $r->school_id,
+                    'name' => $names[$r->school_id] ?? null,
+                    'calls' => (int) $r->calls,
+                    'failed' => (int) $r->failed,
+                    'tokens' => (int) $r->tokens,
+                ])
+                ->all(),
         ];
     }
 
