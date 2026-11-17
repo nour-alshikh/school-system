@@ -110,7 +110,20 @@ AUTH_STATUS_COOKIE=auth_status    # not used by this deployment's frontend anymo
                                   # the BFF sets its own auth_status cookie instead
 SANCTUM_STATEFUL_DOMAINS=localhost:3000
 FRONTEND_URLS=https://school-system-neon.vercel.app
+BFF_SHARED_SECRET=…               # same value on Vercel (see below)
 ```
+
+### The visitor's IP address
+
+Laravel only ever sees the BFF connecting, so `$request->ip()` would be Vercel's
+address for everyone, and per-address throttles (signup, "Describe your school",
+login) would count all visitors together. The BFF sends the visitor's address
+(Vercel's `x-real-ip`) as `X-Client-IP`, together with `X-BFF-Secret`.
+`App\Http\Middleware\TrustBffClientIp` (first in the global stack) uses that
+address only when the secret matches `BFF_SHARED_SECRET`, then drops the secret
+header. Laravel's `TrustProxies` can't do this here: Vercel's outgoing addresses
+aren't fixed. Set the same long random value in both environments; with it unset
+on either side, nothing changes (every visitor shares one address, as before).
 
 ## Frontend (`frontend/`)
 

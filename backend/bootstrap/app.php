@@ -6,6 +6,7 @@ use App\Http\Middleware\EnforcePlanFeatures;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\ResolveSchool;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\TrustBffClientIp;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // First of all, so throttles and logs see the visitor's address, not the BFF's.
+        $middleware->prepend(TrustBffClientIp::class);
         $middleware->statefulApi();
         $middleware->throttleApi();
         // AuditPlatformSession records what a system admin does inside a school.

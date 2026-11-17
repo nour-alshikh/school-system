@@ -45,8 +45,15 @@ return [
         'redirect_uri' => env('ZOOM_REDIRECT_URI'),
     ],
 
-    // AI drafts of announcements (App\Services\AnnouncementWriter). No key:
-    // the "Draft with AI" button says it isn't set up.
+    // The Next.js BFF passes the visitor's address in X-Client-IP, proven by
+    // this shared secret (App\Http\Middleware\TrustBffClientIp). Same value
+    // as BFF_SHARED_SECRET in the frontend's environment. Empty: ignored.
+    'bff' => [
+        'secret' => env('BFF_SHARED_SECRET'),
+    ],
+
+    // AI features (docs/ai-assistant-plan.md, App\Services\Ai\AiClient). No
+    // key: AI buttons hide, and "Describe your school" uses the standard structure.
     'openrouter' => [
         'key' => env('OPENROUTER_API_KEY'),
         'model' => env('OPENROUTER_MODEL', 'nvidia/nemotron-3-ultra-550b-a55b:free'),

@@ -17,6 +17,22 @@ const TOKEN_COOKIE = "sanctum_token";
 const PLATFORM_TOKEN_COOKIE = "sanctum_platform_token";
 const AUTH_STATUS_COOKIE =
   process.env.NEXT_PUBLIC_AUTH_STATUS_COOKIE ?? "auth_status";
+// Proves to Laravel that X-Client-IP came from here (TrustBffClientIp), so
+// its per-address limits see each visitor instead of this server. Server
+// only: never NEXT_PUBLIC_. Unset: no address is passed on.
+const BFF_SHARED_SECRET = process.env.BFF_SHARED_SECRET;
+
+/**
+ * The visitor's address. Vercel sets x-real-ip and x-forwarded-for itself
+ * (overwriting what the browser sent), so they can be trusted there; the
+ * first x-forwarded-for entry is the client.
+ */
+function clientIp(request: NextRequest): string | null {
+  const ip =
+    request.headers.get("x-real-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0];
+  return ip?.trim() || null;
+}
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -43,6 +59,12 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
 
   const token = request.cookies.get(TOKEN_COOKIE)?.value;
   if (token) headers.set("Authorization", `Bearer ${token}`);
+
+  const ip = clientIp(request);
+  if (BFF_SHARED_SECRET && ip) {
+    headers.set("X-Client-IP", ip);
+    headers.set("X-BFF-Secret", BFF_SHARED_SECRET);
+  }
 
   // Set by the next-intl proxy from the active locale segment — forwarded so
   // Laravel returns validation/error messages in the same language.
