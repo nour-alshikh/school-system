@@ -121,10 +121,14 @@ export default async function RootLayout({
               <AuthProvider>
                 <PlatformSessionBanner />
                 <AnnouncementsBanner />
-                <SiteHeader />
+                {/* The sidebar runs the full height beside the top bar
+                    and the page, as in docs/design/admin-dashboard.jpg. */}
                 <div className="flex flex-1">
                   <SiteSidebar />
-                  <PageTransition>{children}</PageTransition>
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <SiteHeader />
+                    <PageTransition>{children}</PageTransition>
+                  </div>
                 </div>
                 <Toaster />
               </AuthProvider>

@@ -1,62 +1,22 @@
 "use client";
 
-import { useState, type ComponentType } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Award,
-  BookOpen,
-  Building2,
-  ShieldCheck,
-  Gauge,
-  Megaphone,
-  ScrollText,
-  CalendarRange,
-  CheckSquare,
-  ChevronDown,
-  ClipboardList,
-  DoorOpen,
-  DollarSign,
-  GraduationCap,
-  History,
-  Library,
-  LayoutDashboard,
-  Layers,
-  Link2,
-  List,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Plus,
-  Settings,
-  TrendingUp,
-  User as UserIcon,
-  UserCog,
-  UserPlus,
-  Users,
-} from "lucide-react";
-import { Link, usePathname } from "@/i18n/navigation";
+import { ChevronDown, GraduationCap, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
-import { isPlatformSession } from "@/lib/platform";
 import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { useNavSections, type NavItem } from "@/components/app-nav";
 
 const STORAGE_KEY = "sidebar-collapsed";
 
 // SiteSidebar never renders real DOM during SSR — it returns null until
 // useAuth() resolves (well after hydration) — so reading localStorage in
-// this lazy initializer can't cause a hydration mismatch, and avoids the
+// these lazy initializers can't cause a hydration mismatch, and avoids the
 // setState-in-effect this project's lint rule flags for the usual
 // "sync from localStorage in an effect" pattern.
-function readStoredCollapsed(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return localStorage.getItem(STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function readStoredGroupOpen(key: string, fallback: boolean): boolean {
+function readStored(key: string, fallback: boolean): boolean {
   if (typeof window === "undefined") return fallback;
   try {
     const value = localStorage.getItem(key);
@@ -66,489 +26,252 @@ function readStoredGroupOpen(key: string, fallback: boolean): boolean {
   }
 }
 
-// Groups an index page + its create page under one collapsible entry
-// (e.g. "Students" -> "All students" / "Add student") instead of two flat
-// top-level links. Collapses to a single link to `fallbackHref` when the
-// whole sidebar itself is icon-only, since there's no room to nest there.
-function SidebarGroup({
-  icon: Icon,
-  label,
-  collapsed,
-  storageKey,
-  fallbackHref,
-  children,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  collapsed: boolean;
-  storageKey: string;
-  fallbackHref: string;
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(() => readStoredGroupOpen(storageKey, false));
-
-  if (collapsed) {
-    return (
-      <SidebarLink
-        href={fallbackHref}
-        icon={Icon}
-        label={label}
-        collapsed={collapsed}
-      />
-    );
+function writeStored(key: string, value: boolean) {
+  try {
+    localStorage.setItem(key, value ? "1" : "0");
+  } catch {
+    // ignore
   }
-
-  function toggle() {
-    setOpen((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(storageKey, next ? "1" : "0");
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  }
-
-  return (
-    <div className="flex flex-col gap-1" data-animate="sidebar-link">
-      <button
-        type="button"
-        onClick={toggle}
-        aria-expanded={open}
-        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-primary/10"
-      >
-        <Icon className="size-4 shrink-0" />
-        <span className="flex-1 truncate text-start">{label}</span>
-        <ChevronDown
-          className={cn(
-            "size-4 shrink-0 text-muted-foreground transition-transform",
-            open && "rotate-180"
-          )}
-        />
-      </button>
-      {open && <div className="flex flex-col gap-1 ps-4">{children}</div>}
-    </div>
-  );
 }
 
-function SidebarLink({
-  href,
-  icon: Icon,
-  label,
-  collapsed,
-}: {
-  href: string;
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  collapsed: boolean;
-}) {
-  const pathname = usePathname();
-  const isActive = pathname === href;
+/** The school's mark and name, at the top of the sidebar and the drawer. */
+export function SidebarBrand({ collapsed = false }: { collapsed?: boolean }) {
+  const t = useTranslations("Nav");
+  const { user } = useAuth();
+  const schoolName = user?.acting_as?.school_name ?? user?.current_membership?.school_name;
 
   return (
     <Link
-      href={href}
-      title={collapsed ? label : undefined}
-      data-animate="sidebar-link"
-      className={cn(
-        "flex items-center gap-2 truncate rounded-md px-3 py-2 text-sm transition-colors",
-        collapsed && "justify-center px-2",
-        isActive
-          ? "bg-primary font-medium text-primary-foreground"
-          : "hover:bg-primary/10"
-      )}
+      href="/dashboard"
+      className={cn("flex min-w-0 items-center gap-2.5 rounded-lg", collapsed && "justify-center")}
+      title={collapsed ? t("brand") : undefined}
     >
-      <Icon className="size-4 shrink-0" />
-      {!collapsed && label}
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <GraduationCap className="size-4.5" />
+      </span>
+      {!collapsed && (
+        <span className="flex min-w-0 flex-col leading-tight">
+          <span className="truncate text-sm font-semibold">{t("brand")}</span>
+          {schoolName && <span className="truncate text-xs text-muted-foreground">{schoolName}</span>}
+        </span>
+      )}
     </Link>
   );
 }
 
+const linkBase =
+  "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring";
+const linkIdle = "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
+// Teal tint plus a bar on the inline-start edge (flips for Arabic).
+const linkActive =
+  "bg-primary/10 font-medium text-primary dark:bg-sidebar-accent dark:text-sidebar-foreground before:absolute before:inset-y-1.5 before:start-0 before:w-[3px] before:rounded-full before:bg-primary dark:before:bg-sidebar-primary";
+
+function SidebarLink({
+  item,
+  active,
+  collapsed,
+  onNavigate,
+}: {
+  item: NavItem;
+  active: boolean;
+  collapsed: boolean;
+  onNavigate?: () => void;
+}) {
+  const Icon = item.icon;
+
+  return (
+    <Link
+      href={item.href}
+      title={collapsed ? item.label : undefined}
+      aria-label={collapsed ? item.label : undefined}
+      aria-current={active ? "page" : undefined}
+      data-animate="sidebar-link"
+      onClick={onNavigate}
+      className={cn(linkBase, collapsed && "justify-center px-0", active ? linkActive : linkIdle)}
+    >
+      <Icon className="size-4 shrink-0" />
+      {!collapsed && <span className="truncate">{item.label}</span>}
+    </Link>
+  );
+}
+
+// An index page with its create/history pages, collapsible. Opens by
+// itself when the current page is inside it. Icon-only, it's a single link
+// to the index page, since there's no room to nest.
+function SidebarGroup({
+  item,
+  activeHref,
+  collapsed,
+  onNavigate,
+}: {
+  item: NavItem;
+  activeHref: string | null;
+  collapsed: boolean;
+  onNavigate?: () => void;
+}) {
+  const children = item.children ?? [];
+  const containsActive = children.some((child) => child.href === activeHref);
+  const [open, setOpen] = useState(() => readStored(item.storageKey ?? "", false));
+  const Icon = item.icon;
+
+  if (collapsed) {
+    return <SidebarLink item={item} active={containsActive} collapsed onNavigate={onNavigate} />;
+  }
+
+  const expanded = open || containsActive;
+
+  function toggle() {
+    const next = !expanded;
+    setOpen(next);
+    if (item.storageKey) writeStored(item.storageKey, next);
+  }
+
+  return (
+    <div className="flex flex-col gap-0.5" data-animate="sidebar-link">
+      <button
+        type="button"
+        onClick={toggle}
+        aria-expanded={expanded}
+        className={cn(linkBase, "w-full", containsActive ? "font-medium text-sidebar-foreground" : linkIdle)}
+      >
+        <Icon className={cn("size-4 shrink-0", containsActive && "text-primary dark:text-sidebar-primary")} />
+        <span className="flex-1 truncate text-start">{item.label}</span>
+        <ChevronDown
+          className={cn("size-4 shrink-0 text-muted-foreground transition-transform", expanded && "rotate-180")}
+        />
+      </button>
+      {expanded && (
+        <div className="ms-5 flex flex-col gap-0.5 border-s border-sidebar-border ps-2">
+          {children.map((child) => (
+            <SidebarLink
+              key={child.href}
+              item={child}
+              active={child.href === activeHref}
+              collapsed={false}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The grouped links. Used by the desktop sidebar and the mobile drawer. */
+export function SidebarNav({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
+  const t = useTranslations("Nav");
+  const { sections, activeHref } = useNavSections();
+
+  return (
+    <nav aria-label={t("mainNavigation")} className="flex flex-col gap-4">
+      {sections.map((section, index) => (
+        <div key={section.key} className="flex flex-col gap-0.5">
+          {collapsed ? (
+            index > 0 && <div className="mx-2 mb-2 h-px bg-sidebar-border" aria-hidden />
+          ) : (
+            <h2 className="px-3 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+              {section.label}
+            </h2>
+          )}
+          {section.items.map((item) =>
+            item.children ? (
+              <SidebarGroup
+                key={item.href}
+                item={item}
+                activeHref={activeHref}
+                collapsed={collapsed}
+                onNavigate={onNavigate}
+              />
+            ) : (
+              <SidebarLink
+                key={item.href}
+                item={item}
+                active={item.href === activeHref}
+                collapsed={collapsed}
+                onNavigate={onNavigate}
+              />
+            )
+          )}
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+export function useLogout() {
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  return async () => {
+    await logout();
+    router.push("/login");
+    router.refresh();
+  };
+}
+
 export function SiteSidebar() {
   const t = useTranslations("Nav");
-  const { user, isLoading, can, hasRole } = useAuth();
-  // Modules outside the school's plan are hidden (the API refuses them too).
-  // No plan info (no current school) hides nothing.
-  const hasFeature = (feature: string) => !user?.plan_features || user.plan_features.includes(feature);
+  const { user, isLoading } = useAuth();
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(readStoredCollapsed);
+  const handleLogout = useLogout();
+  const [collapsed, setCollapsed] = useState(() => readStored(STORAGE_KEY, false));
   const ref = useStaggerIn<HTMLElement>({ selector: "[data-animate='sidebar-link']" });
 
   function toggle() {
     setCollapsed((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
-      } catch {
-        // ignore
-      }
-      return next;
+      writeStored(STORAGE_KEY, !prev);
+      return !prev;
     });
   }
 
-  // Same guest/loading gate as SiteHeader's user menu — no sidebar until
-  // there's someone logged in to show nav for. The landing page is a
-  // full-width marketing page even for logged-in users, so it never gets
-  // a sidebar either.
+  // No sidebar until there's someone logged in to show nav for. The landing
+  // page is a full-width marketing page even for logged-in users.
   if (isLoading || !user || pathname === "/") return null;
 
+  const footerButton = cn(linkBase, linkIdle, "w-full", collapsed && "justify-center px-0");
+
   return (
-    <nav
+    <aside
       ref={ref}
       className={cn(
-        "hidden shrink-0 flex-col gap-1 border-e p-2 transition-[width] duration-150 print:hidden md:flex",
-        "border-primary/15 bg-primary/[0.05] dark:border-sidebar-border dark:bg-sidebar dark:text-sidebar-foreground",
-        collapsed ? "w-12 items-center" : "w-64 p-4"
+        "sticky top-0 hidden h-svh shrink-0 flex-col border-e border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-150 print:hidden md:flex",
+        collapsed ? "w-16" : "w-64"
       )}
     >
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={toggle}
-        aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
-        className="mb-2 self-end"
-      >
-        {collapsed ? (
-          <PanelLeftOpen className="size-4" />
-        ) : (
-          <PanelLeftClose className="size-4" />
-        )}
-      </Button>
+      <div className={cn("flex h-14 shrink-0 items-center border-b border-sidebar-border", collapsed ? "justify-center px-2" : "px-4")}>
+        <SidebarBrand collapsed={collapsed} />
+      </div>
 
-      <SidebarLink
-        href="/dashboard"
-        icon={LayoutDashboard}
-        label={t("dashboard")}
-        collapsed={collapsed}
-      />
+      <div className={cn("flex-1 overflow-y-auto py-4", collapsed ? "px-2" : "px-3")}>
+        <SidebarNav collapsed={collapsed} />
+      </div>
 
-      {hasRole("parent") && (
-        <>
-          <SidebarLink
-            href="/parent"
-            icon={UserIcon}
-            label={t("myInfo")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/parent-attendance"
-            icon={CheckSquare}
-            label={t("myAttendance")}
-            collapsed={collapsed}
-          />
-          {hasFeature("fees") && (
-            <SidebarLink
-              href="/parent-fees"
-              icon={DollarSign}
-              label={t("myFees")}
-              collapsed={collapsed}
-            />
-          )}
-          {hasFeature("library") && (
-            <SidebarLink
-              href="/parent-library"
-              icon={Library}
-              label={t("library")}
-              collapsed={collapsed}
-            />
-          )}
-        </>
-      )}
-
-      {hasRole("student") && (
-        <SidebarGroup
-          icon={UserIcon}
-          label={t("myPortal")}
-          collapsed={collapsed}
-          storageKey="sidebar-student-group-open"
-          fallbackHref="/my-exams"
+      <div className={cn("flex shrink-0 flex-col gap-0.5 border-t border-sidebar-border py-3", collapsed ? "px-2" : "px-3")}>
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={collapsed ? t("expandSidebar") : t("collapseSidebar")}
+          title={collapsed ? t("expandSidebar") : undefined}
+          className={footerButton}
         >
-          {hasFeature("exams") && (
-            <SidebarLink
-              href="/my-exams"
-              icon={ClipboardList}
-              label={t("myExams")}
-              collapsed={false}
-            />
+          {collapsed ? (
+            <PanelLeftOpen className="size-4 shrink-0 rtl:-scale-x-100" />
+          ) : (
+            <PanelLeftClose className="size-4 shrink-0 rtl:-scale-x-100" />
           )}
-          <SidebarLink
-            href="/my-attendance"
-            icon={CheckSquare}
-            label={t("myAttendance")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/my-subjects"
-            icon={BookOpen}
-            label={t("mySubjects")}
-            collapsed={false}
-          />
-          {hasFeature("fees") && (
-            <SidebarLink
-              href="/my-fees"
-              icon={DollarSign}
-              label={t("myFees")}
-              collapsed={false}
-            />
-          )}
-          {hasFeature("library") && (
-            <SidebarLink
-              href="/my-library"
-              icon={Library}
-              label={t("library")}
-              collapsed={false}
-            />
-          )}
-        </SidebarGroup>
-      )}
-
-      {/* The academic structure is admin territory — same gate as its API
-          routes (manage-academics or manage-students), so parents/students
-          never see a link to a page their requests would 403 on. */}
-      {(can("manage-academics") || can("manage-students")) && (
-        <>
-          <SidebarLink
-            href="/stages"
-            icon={GraduationCap}
-            label={t("stages")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/grades"
-            icon={Layers}
-            label={t("grades")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/classrooms"
-            icon={DoorOpen}
-            label={t("classrooms")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/academic-years"
-            icon={CalendarRange}
-            label={t("academicYears")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/subjects"
-            icon={BookOpen}
-            label={t("subjects")}
-            collapsed={collapsed}
-          />
-        </>
-      )}
-
-      {can("manage-students") && (
-        <SidebarGroup
-          icon={UserPlus}
-          label={t("students")}
-          collapsed={collapsed}
-          storageKey="sidebar-students-group-open"
-          fallbackHref="/students"
+          {!collapsed && <span className="truncate">{t("collapseSidebar")}</span>}
+        </button>
+        <button
+          type="button"
+          onClick={handleLogout}
+          aria-label={collapsed ? t("logout") : undefined}
+          title={collapsed ? t("logout") : undefined}
+          className={footerButton}
         >
-          <SidebarLink
-            href="/students"
-            icon={List}
-            label={t("allStudents")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/students/new"
-            icon={Plus}
-            label={t("addStudent")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/promotions"
-            icon={TrendingUp}
-            label={t("promoteStudents")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/promotions/history"
-            icon={History}
-            label={t("promotionHistory")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/graduations"
-            icon={Award}
-            label={t("graduateStudents")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/graduations/history"
-            icon={History}
-            label={t("graduationHistory")}
-            collapsed={false}
-          />
-        </SidebarGroup>
-      )}
-
-      {can("manage-teachers") && (
-        <SidebarGroup
-          icon={UserCog}
-          label={t("teachers")}
-          collapsed={collapsed}
-          storageKey="sidebar-teachers-group-open"
-          fallbackHref="/teachers"
-        >
-          <SidebarLink
-            href="/teachers"
-            icon={List}
-            label={t("allTeachers")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/teacher-subjects"
-            icon={Link2}
-            label={t("teacherSubjects")}
-            collapsed={false}
-          />
-        </SidebarGroup>
-      )}
-
-      {can("manage-fees") && hasFeature("fees") && (
-        <SidebarLink
-          href="/fees"
-          icon={DollarSign}
-          label={t("fees")}
-          collapsed={collapsed}
-        />
-      )}
-
-      {hasRole("teacher") && (
-        <SidebarLink
-          href="/my-classrooms"
-          icon={DoorOpen}
-          label={t("myClassrooms")}
-          collapsed={collapsed}
-        />
-      )}
-
-      {(can("manage-attendance") || hasRole("teacher")) && (
-        <SidebarGroup
-          icon={CheckSquare}
-          label={t("attendance")}
-          collapsed={collapsed}
-          storageKey="sidebar-attendance-group-open"
-          fallbackHref="/attendance"
-        >
-          <SidebarLink
-            href="/attendance"
-            icon={CheckSquare}
-            label={t("takeAttendance")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/attendance/history"
-            icon={History}
-            label={t("attendanceHistory")}
-            collapsed={false}
-          />
-        </SidebarGroup>
-      )}
-
-      {(can("manage-exams") || hasRole("teacher")) && hasFeature("exams") && (
-        <SidebarGroup
-          icon={ClipboardList}
-          label={t("exams")}
-          collapsed={collapsed}
-          storageKey="sidebar-exams-group-open"
-          fallbackHref="/exams"
-        >
-          <SidebarLink
-            href="/exams"
-            icon={List}
-            label={t("allExams")}
-            collapsed={false}
-          />
-          <SidebarLink
-            href="/exams/new"
-            icon={Plus}
-            label={t("createExam")}
-            collapsed={false}
-          />
-        </SidebarGroup>
-      )}
-
-      {(can("manage-academics") || hasRole("teacher")) && hasFeature("library") && (
-        <SidebarLink
-          href="/library"
-          icon={Library}
-          label={t("library")}
-          collapsed={collapsed}
-        />
-      )}
-
-      {can("manage-users") && (
-        <SidebarLink
-          href="/admin/users"
-          icon={Users}
-          label={t("manageUsers")}
-          collapsed={collapsed}
-        />
-      )}
-
-      {can("manage-settings") && (
-        <SidebarLink
-          href="/admin/settings"
-          icon={Settings}
-          label={t("settings")}
-          collapsed={collapsed}
-        />
-      )}
-
-      {hasRole("admin") && (
-        <SidebarLink
-          href="/admin/system-admin-activity"
-          icon={ShieldCheck}
-          label={t("systemAdminActivity")}
-          collapsed={collapsed}
-        />
-      )}
-
-      {/* A system admin's platform session (signed in through the system
-          admin login, so no school): not a school role, so not a
-          can()/hasRole() check. A school token can't reach platform pages. */}
-      {isPlatformSession(user) && (
-        <>
-          <SidebarLink
-            href="/platform"
-            icon={Gauge}
-            label={t("platformOverview")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/platform/schools"
-            icon={Building2}
-            label={t("platformSchools")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/platform/plans"
-            icon={Layers}
-            label={t("platformPlans")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/platform/announcements"
-            icon={Megaphone}
-            label={t("platformAnnouncements")}
-            collapsed={collapsed}
-          />
-          <SidebarLink
-            href="/platform/audit"
-            icon={ScrollText}
-            label={t("platformAudit")}
-            collapsed={collapsed}
-          />
-        </>
-      )}
-    </nav>
+          <LogOut className="size-4 shrink-0 rtl:-scale-x-100" />
+          {!collapsed && <span className="truncate">{t("logout")}</span>}
+        </button>
+      </div>
+    </aside>
   );
 }

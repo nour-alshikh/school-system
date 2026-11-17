@@ -76,20 +76,49 @@ Done. `frontend/src/features/admin-dashboard/`:
 
 Follow-ups:
 
-- [ ] Admins lost the avatar uploader (the old centered "Welcome" block was
-      hidden for them) — add "Change avatar" to the avatar menu in step 2.
+- [x] Admins lost the avatar uploader — "Change avatar" is in the avatar
+      menu now (step 2).
 - [ ] ~25 existing `<Button render={<Link />}>` elsewhere log a Base UI
       warning; add `nativeButton={false}` to them (done for the dashboard).
 - [ ] Teachers KPI shows a number only — no teacher history to trend yet.
 
-## Step 2 — App shell
+## Step 2 — App shell ✅
 
-Files: `frontend/src/components/site-sidebar.tsx`, `site-header.tsx`.
+Done. `frontend/src/components/`:
 
-- [ ] Sidebar grouped into sections (Overview, Academics, People, Finance,
-      Communication), teal active indicator, collapsible icon-only mode.
-- [ ] Top bar: search with ⌘K hint, academic year selector, notifications, avatar menu
-      (including "Change avatar" — see step 1 follow-ups).
+- `app-nav.ts` — one nav model (`useNavSections`) shared by the sidebar,
+  the mobile drawer and search. Sections: Overview, My portal (parent /
+  student / teacher self-service), Academics, People, Finance,
+  Communication, Administration, Platform; empty ones are hidden. Each
+  link keeps its old permission / plan-feature gate. The most specific
+  matching link is active (`/students/12` → All students). Meetings and
+  My meetings are new in the nav (the pages existed but had no link).
+- `site-sidebar.tsx` — full-height sticky sidebar beside the top bar
+  (layout changed in `app/[locale]/layout.tsx`), brand + school name on
+  top, section headings, teal tint + inline-start bar on the active link
+  (flips in Arabic), groups open by themselves on their pages, icon-only
+  mode with dividers, collapse and log out at the bottom.
+- `site-header.tsx` — top bar: mobile menu (drawer below `md`), search,
+  academic year, notifications, theme, language, avatar menu with
+  "Change avatar" (dialog with `AvatarUploader`). Guests and the landing
+  page keep the simple bar until step 3.
+- `command-menu.tsx` — ⌘K / Ctrl K: pages from the nav, plus students by
+  name or email for `manage-students`. Arrow keys + Enter.
+- `academic-year-menu.tsx` — shows the current year and lists the others,
+  with "Manage academic years". It does not switch years: `is_current` is
+  school-wide, not a per-user view filter. Hidden for roles that can't
+  read `/api/academic-years`.
+- `notifications-menu.tsx` — the bell lists the system admin's
+  announcements (`hooks/use-announcements.ts`), dismissible ones with ×.
+  `AnnouncementsBanner` now shows only critical ones (they can't be
+  dismissed); info and warning moved to the bell.
+
+Follow-ups:
+
+- [ ] A real per-user notifications feed (overdue fees, new exams, …) —
+      the bell only has announcements today.
+- [ ] Non-admin dashboards still show the old centered avatar uploader;
+      drop it when they're redesigned in step 4.
 
 ## Step 3 — Landing page
 
