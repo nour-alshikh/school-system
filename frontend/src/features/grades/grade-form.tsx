@@ -174,6 +174,7 @@ export function GradeForm({
                 <FormLabel>{t("nameEnLabel")}</FormLabel>
                 <LocaleTabs
                   value={activeLocale}
+                  translate={{ en: "name_en", ar: "name_ar", what: "grade name" }}
                   onChange={setActiveLocale}
                   errors={{
                     en: !!form.formState.errors.name_en,
@@ -198,6 +199,7 @@ export function GradeForm({
                 <FormLabel>{t("nameArLabel")}</FormLabel>
                 <LocaleTabs
                   value={activeLocale}
+                  translate={{ en: "name_en", ar: "name_ar", what: "grade name" }}
                   onChange={setActiveLocale}
                   errors={{
                     en: !!form.formState.errors.name_en,

@@ -34,7 +34,13 @@ export interface UseAiDraftOptions<TValues extends FieldValues, TDraft> {
   toValues: (draft: TDraft) => Partial<TValues>;
 }
 
-export type AiDraftController = ReturnType<typeof useAiDraft>;
+/** What AiDraftButton needs from useAiDraft, whatever the form's values. */
+export interface AiDraftController {
+  draft: (notes: string) => Promise<unknown>;
+  isPending: boolean;
+  canUndo: boolean;
+  undo: () => void;
+}
 
 /**
  * Runs an AI draft and fills a react-hook-form form with it — nothing is

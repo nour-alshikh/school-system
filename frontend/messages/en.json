@@ -1063,7 +1063,9 @@
     "cancel": "Cancel",
     "updateSuccess": "Exam updated.",
     "createSuccess": "Exam created.",
-    "loadError": "Couldn't load the exam."
+    "loadError": "Couldn't load the exam.",
+    "aiHint": "Ask for questions, or paste a lesson. They're added after your questions; check every answer before publishing.",
+    "aiPlaceholder": "e.g. 10 multiple-choice questions on fractions, medium difficulty"
   },
   "ExamResultsPage": {
     "heading": "Exam results",
@@ -1249,7 +1251,9 @@
     "saveChanges": "Save changes",
     "cancel": "Cancel",
     "createdToast": "Event added.",
-    "updatedToast": "Event updated."
+    "updatedToast": "Event updated.",
+    "aiHint": "Write what's happening and when. AI fills in the title, description and date.",
+    "aiPlaceholder": "e.g. sports day next Thursday for primary, parents welcome"
   },
   "TakeExamPage": {
     "questionNumber": "Question {number}",
@@ -1302,7 +1306,9 @@
     "startTimeLabel": "Start time",
     "durationLabel": "Duration (minutes)",
     "createMeeting": "Schedule meeting",
-    "createSuccess": "Meeting scheduled."
+    "createSuccess": "Meeting scheduled.",
+    "aiHint": "Say what the lesson is for. AI writes the title and an agenda; you choose the classrooms.",
+    "aiPlaceholder": "e.g. revision for the maths exam, grade 9, Sunday 10am, 45 minutes"
   },
   "StudentMeetingsPage": {
     "heading": "My meetings",
@@ -1338,7 +1344,8 @@
     "confirmDeleteTitle": "Delete this resource?",
     "confirmDeleteDescription": "\"{title}\" will be removed for every student and parent who can see it. This can't be undone.",
     "deleteSuccess": "Resource deleted.",
-    "deleteError": "Couldn't delete the resource."
+    "deleteError": "Couldn't delete the resource.",
+    "cancel": "Cancel"
   },
   "LibraryResourceForm": {
     "titleLabel": "Title",
@@ -1359,7 +1366,9 @@
     "saveChanges": "Save changes",
     "cancel": "Cancel",
     "createdToast": "Resource added.",
-    "updatedToast": "Resource updated."
+    "updatedToast": "Resource updated.",
+    "aiHint": "Add a title first, then a few words about it. AI writes the description and suggests a grade or subjects.",
+    "aiPlaceholder": "e.g. printable worksheets for practising fractions"
   },
   "StudentLibraryPage": {
     "heading": "Library",
@@ -2007,15 +2016,8 @@
       "endsAt": "Ends",
       "endsAtHint": "Empty: until you end it.",
       "save": "Save",
-      "aiHeading": "Draft with AI",
       "aiHint": "Write rough notes in any language. AI writes the title and message in English and Arabic, and picks the level and audience. Check them before saving.",
-      "aiNotesPlaceholder": "e.g. system down tonight 10-11pm for maintenance",
-      "aiDraft": "Draft",
-      "aiDrafted": "Draft added. Review it before saving.",
-      "micStart": "Speak",
-      "micStop": "Stop",
-      "micBlocked": "Microphone access is blocked. Allow it in your browser to dictate.",
-      "micFailed": "Couldn't hear you. Try again or type your notes."
+      "aiNotesPlaceholder": "e.g. system down tonight 10-11pm for maintenance"
     },
     "plans": {
       "heading": "Plans",
@@ -2162,7 +2164,10 @@
     "micStart": "Speak",
     "micStop": "Stop",
     "micBlocked": "Microphone access is blocked. Allow it in your browser to dictate.",
-    "micFailed": "Couldn't hear you. Try again or type your notes."
+    "micFailed": "Couldn't hear you. Try again or type your notes.",
+    "translate": "Translate",
+    "translateFromEn": "Translate from English with AI",
+    "translateFromAr": "Translate from Arabic with AI"
   },
   "DescribeSchool": {
     "label": "Describe your school",

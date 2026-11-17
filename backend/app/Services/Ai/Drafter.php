@@ -46,6 +46,24 @@ abstract class Drafter
         return true;
     }
 
+    /** The plan feature the form belongs to (exams, meetings, library), when it has one. */
+    public function planFeature(): ?string
+    {
+        return null;
+    }
+
+    /** Today, for prompts that turn "next Thursday" into a date. */
+    protected function today(): string
+    {
+        return now()->format('l, Y-m-d');
+    }
+
+    /** "Write in the language of the notes" — most single-language fields follow the user. */
+    protected function sameLanguage(): string
+    {
+        return 'Write in the same language as the notes (Modern Standard Arabic if they are in Arabic).';
+    }
+
     /** Validation rules for the request's optional "context" (e.g. the exam's subject). */
     public function contextRules(): array
     {

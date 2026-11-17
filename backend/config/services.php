@@ -57,6 +57,8 @@ return [
     'openrouter' => [
         'key' => env('OPENROUTER_API_KEY'),
         'model' => env('OPENROUTER_MODEL', 'nvidia/nemotron-3-ultra-550b-a55b:free'),
+        // Any OpenAI-compatible chat completions API; changed for local testing.
+        'url' => env('OPENROUTER_URL', 'https://openrouter.ai/api/v1'),
     ],
 
 ];

@@ -37,6 +37,11 @@ import {
 import type { LibraryResource } from "./types";
 import type { Grade } from "@/features/grades/types";
 import type { Subject } from "@/features/subjects/types";
+import { AiDraftButton } from "@/components/ai/ai-draft-button";
+import { useAiDraft } from "@/hooks/use-ai-draft";
+
+/** POST /api/ai/draft/library_resource (LibraryResourceDrafter). */
+type LibraryResourceDraft = { description: string; grade_id: number | null; subject_ids: number[] };
 
 function valuesFromResource(
   resource: LibraryResource
@@ -113,6 +118,25 @@ export function LibraryResourceForm({
     enabled: !!gradeId,
   });
 
+  // The AI picks from what this form offers: the grades this user may post
+  // to (before one is chosen), or the chosen grade's subjects.
+  const title = form.watch("title");
+  const ai = useAiDraft<LibraryResourceFormValues, LibraryResourceDraft>({
+    form,
+    kind: "library_resource",
+    context: {
+      title,
+      ...(gradeId
+        ? { subject_options: subjects.map((s) => s.id) }
+        : { grade_options: grades.map((g) => g.id) }),
+    },
+    toValues: (d) => ({
+      description: d.description,
+      ...(d.grade_id && !gradeId ? { grade_id: String(d.grade_id), subject_ids: [] } : {}),
+      ...(d.subject_ids.length ? { subject_ids: d.subject_ids.map(String) } : {}),
+    }),
+  });
+
   const mutation = useMutation({
     mutationFn: async (values: LibraryResourceFormValues) => {
       if (!resource) {
@@ -180,6 +204,8 @@ export function LibraryResourceForm({
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         className="flex flex-col gap-4"
       >
+        <AiDraftButton ai={ai} className="justify-end" hint={t("aiHint")} placeholder={t("aiPlaceholder")} />
+
         <FormField
           control={form.control}
           name="title"
@@ -201,7 +227,7 @@ export function LibraryResourceForm({
             <FormItem>
               <FormLabel>{t("descriptionLabel")}</FormLabel>
               <FormControl>
-                <Textarea {...field} rows={3} />
+                <Textarea {...field} rows={3} className={ai.highlight("description")} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -197,6 +197,7 @@ export function FeeForm({
                 <FormLabel>{t("nameEnLabel")}</FormLabel>
                 <LocaleTabs
                   value={activeLocale}
+                  translate={{ en: "name_en", ar: "name_ar", what: "school fee name" }}
                   onChange={setActiveLocale}
                   errors={{
                     en: !!form.formState.errors.name_en,
@@ -221,6 +222,7 @@ export function FeeForm({
                 <FormLabel>{t("nameArLabel")}</FormLabel>
                 <LocaleTabs
                   value={activeLocale}
+                  translate={{ en: "name_en", ar: "name_ar", what: "school fee name" }}
                   onChange={setActiveLocale}
                   errors={{
                     en: !!form.formState.errors.name_en,

@@ -170,6 +170,7 @@ export function SubjectForm({
                 <FormLabel>{t("nameEnLabel")}</FormLabel>
                 <LocaleTabs
                   value={activeLocale}
+                  translate={{ en: "name_en", ar: "name_ar", what: "school subject name" }}
                   onChange={setActiveLocale}
                   errors={{
                     en: !!form.formState.errors.name_en,
@@ -194,6 +195,7 @@ export function SubjectForm({
                 <FormLabel>{t("nameArLabel")}</FormLabel>
                 <LocaleTabs
                   value={activeLocale}
+                  translate={{ en: "name_en", ar: "name_ar", what: "school subject name" }}
                   onChange={setActiveLocale}
                   errors={{
                     en: !!form.formState.errors.name_en,

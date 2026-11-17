@@ -22,6 +22,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createCalendarEventSchema, type CalendarEventFormValues } from "./schema";
 import type { CalendarEvent } from "./types";
+import { AiDraftButton } from "@/components/ai/ai-draft-button";
+import { useAiDraft } from "@/hooks/use-ai-draft";
+import { cn } from "@/lib/utils";
+
+/** POST /api/ai/draft/calendar_event (CalendarEventDrafter). */
+type CalendarEventDraft = { title: string; description: string; date: string | null };
 
 function valuesFromEvent(event: CalendarEvent): CalendarEventFormValues {
   return {
@@ -54,6 +60,14 @@ export function CalendarEventForm({
     defaultValues: event
       ? valuesFromEvent(event)
       : { title: "", description: "", date },
+  });
+
+  // A date only when the notes named one ("next Thursday"); otherwise the
+  // day picked on the calendar stays.
+  const ai = useAiDraft<CalendarEventFormValues, CalendarEventDraft>({
+    form,
+    kind: "calendar_event",
+    toValues: (d) => ({ title: d.title, description: d.description, ...(d.date ? { date: d.date } : {}) }),
   });
 
   const mutation = useMutation({
@@ -90,6 +104,8 @@ export function CalendarEventForm({
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         className="flex flex-col gap-4"
       >
+        <AiDraftButton ai={ai} className="justify-end" hint={t("aiHint")} placeholder={t("aiPlaceholder")} />
+
         <FormField
           control={form.control}
           name="title"
@@ -97,7 +113,7 @@ export function CalendarEventForm({
             <FormItem>
               <FormLabel>{t("titleLabel")}</FormLabel>
               <FormControl>
-                <Input {...field} className="h-10" />
+                <Input {...field} className={cn("h-10", ai.highlight("title"))} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -111,7 +127,7 @@ export function CalendarEventForm({
             <FormItem>
               <FormLabel>{t("dateLabel")}</FormLabel>
               <FormControl>
-                <Input {...field} type="date" className="h-10" />
+                <Input {...field} type="date" className={cn("h-10", ai.highlight("date"))} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -125,7 +141,7 @@ export function CalendarEventForm({
             <FormItem>
               <FormLabel>{t("descriptionLabel")}</FormLabel>
               <FormControl>
-                <Textarea {...field} rows={3} />
+                <Textarea {...field} rows={3} className={ai.highlight("description")} />
               </FormControl>
               <FormMessage />
             </FormItem>

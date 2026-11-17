@@ -40,6 +40,16 @@ import {
   type ExamFormValues,
 } from "./schema";
 import type { Exam, ExamTeachingAssignment } from "./types";
+import { AiDraftButton } from "@/components/ai/ai-draft-button";
+import { useAiDraft } from "@/hooks/use-ai-draft";
+import { cn } from "@/lib/utils";
+
+/** POST /api/ai/draft/exam_questions (ExamQuestionsDrafter). */
+type ExamQuestionsDraft = {
+  title: string | null;
+  instructions: string | null;
+  questions: { text: string; options: string[]; correct: number; marks: number }[];
+};
 
 type SubjectOption = { id: number; name_en: string; name_ar: string };
 type GradeOption = { id: number; name_en: string; name_ar: string };
@@ -270,6 +280,36 @@ export function ExamForm({
   const classroomId = form.watch("classroom_id");
   const subjectId = form.watch("subject_id");
 
+  // Draft with AI: new questions go after the ones already written (an
+  // untouched blank question is dropped); title and instructions only fill
+  // in when empty. The exam's subject and grade go along as context.
+  const ai = useAiDraft<ExamFormValues, ExamQuestionsDraft>({
+    form,
+    kind: "exam_questions",
+    context: {
+      ...(subjectId ? { subject_id: Number(subjectId) } : {}),
+      ...(gradeId ? { grade_id: Number(gradeId) } : {}),
+    },
+    toValues: (draft) => {
+      const kept = form
+        .getValues("questions")
+        .filter((q) => q.text.trim() || q.options.some((o) => o.text.trim()));
+      const added = draft.questions.map((q) => ({
+        text: q.text,
+        marks: String(q.marks),
+        options: q.options.map((text) => ({ text })),
+        correctIndex: q.correct,
+      }));
+      return {
+        questions: [...kept, ...added],
+        ...(!form.getValues("title").trim() && draft.title ? { title: draft.title } : {}),
+        ...(!form.getValues("instructions")?.trim() && draft.instructions
+          ? { instructions: draft.instructions }
+          : {}),
+      };
+    },
+  });
+
   const { data: subjects = [] } = useQuery({
     queryKey: ["subjects"],
     queryFn: () =>
@@ -363,7 +403,7 @@ export function ExamForm({
             <FormItem>
               <FormLabel>{t("titleLabel")}</FormLabel>
               <FormControl>
-                <Input {...field} className="h-10" />
+                <Input {...field} className={cn("h-10", ai.highlight("title"))} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -548,7 +588,7 @@ export function ExamForm({
             <FormItem>
               <FormLabel>{t("instructionsLabel")}</FormLabel>
               <FormControl>
-                <Textarea {...field} rows={3} />
+                <Textarea {...field} rows={3} className={ai.highlight("instructions")} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -634,15 +674,18 @@ export function ExamForm({
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{t("questionsHeading")}</h3>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => appendQuestion(defaultExamQuestion)}
-            >
-              <Plus className="size-4" />
-              {t("addQuestion")}
-            </Button>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <AiDraftButton ai={ai} hint={t("aiHint")} placeholder={t("aiPlaceholder")} />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => appendQuestion(defaultExamQuestion)}
+              >
+                <Plus className="size-4" />
+                {t("addQuestion")}
+              </Button>
+            </div>
           </div>
 
           {questionFields.map((field, index) => (

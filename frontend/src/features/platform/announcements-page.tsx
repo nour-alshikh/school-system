@@ -7,9 +7,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Megaphone, Mic, MicOff, Plus, Sparkles } from "lucide-react";
-import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
+import { Megaphone, Plus } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api";
+import { AiDraftButton } from "@/components/ai/ai-draft-button";
+import { useAiDraft } from "@/hooks/use-ai-draft";
+
+/** POST /api/platform/announcements/draft (AnnouncementDrafter). */
+type AnnouncementDraft = {
+  title: { en: string; ar: string };
+  body: { en: string; ar: string };
+  level: "info" | "warning" | "critical";
+  audience: ("admin" | "teacher" | "parent" | "student")[];
+};
 import { applyServerErrors } from "@/lib/form-errors";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -183,7 +192,6 @@ function AnnouncementDialog({
   const t = useTranslations("Platform.announcements");
   const tRoles = useTranslations("LoginChooserPage");
   const tErrors = useTranslations("Errors");
-  const locale = useLocale();
 
   const { data: overview } = useQuery({
     queryKey: ["platform", "overview"],
@@ -206,33 +214,20 @@ function AnnouncementDialog({
     },
   });
 
-  // AI draft from rough notes: fills the text fields, level and audience, saves nothing.
-  const [notes, setNotes] = useState("");
-  // Dictated phrases are appended to the notes, in the UI's language.
-  const speech = useSpeechRecognition({
-    lang: locale === "ar" ? "ar-SA" : "en-US",
-    onText: (text) => setNotes((n) => (n.trim() ? `${n.trimEnd()} ${text}` : text).slice(0, 2000)),
-    onError: (error) => toast.error(error === "not-allowed" || error === "service-not-allowed" ? t("micBlocked") : t("micFailed")),
-  });
-  const draft = useMutation({
-    mutationFn: () =>
-      apiFetch<{
-        draft: { title: { en: string; ar: string }; body: { en: string; ar: string }; level: Values["level"]; audience: Values["audience"] };
-      }>("/api/platform/announcements/draft", {
-        method: "POST",
-        body: JSON.stringify({ notes }),
-      }).then((d) => d.draft),
-    onSuccess: (d) => {
-      const opts = { shouldDirty: true, shouldValidate: true };
-      form.setValue("title_en", d.title.en, opts);
-      form.setValue("title_ar", d.title.ar, opts);
-      form.setValue("body_en", d.body.en, opts);
-      form.setValue("body_ar", d.body.ar, opts);
-      form.setValue("level", d.level, opts);
-      form.setValue("audience", d.audience, opts);
-      toast.success(t("aiDrafted"));
-    },
-    onError: (err) => toast.error(err instanceof ApiError ? err.message : tErrors("somethingWentWrong")),
+  // AI draft from rough notes (the shared "Draft with AI" button, on the
+  // system admin's own route): fills the text fields, level and audience, saves nothing.
+  const ai = useAiDraft<Values, AnnouncementDraft>({
+    form,
+    kind: "announcement",
+    endpoint: "/api/platform/announcements/draft",
+    toValues: (d) => ({
+      title_en: d.title.en,
+      title_ar: d.title.ar,
+      body_en: d.body.en,
+      body_ar: d.body.ar,
+      level: d.level,
+      audience: d.audience,
+    }),
   });
 
   async function onSubmit(v: Values) {
@@ -267,7 +262,7 @@ function AnnouncementDialog({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <FormControl><Input dir={dir} {...field} /></FormControl>
+          <FormControl><Input dir={dir} className={ai.highlight(name)} {...field} /></FormControl>
           <FormMessage />
         </FormItem>
       )}
@@ -280,7 +275,7 @@ function AnnouncementDialog({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <FormControl><Textarea rows={3} dir={dir} {...field} /></FormControl>
+          <FormControl><Textarea rows={3} dir={dir} className={ai.highlight(name)} {...field} /></FormControl>
           <FormMessage />
         </FormItem>
       )}
@@ -295,51 +290,8 @@ function AnnouncementDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2 rounded-lg border border-dashed p-3">
-              <Label htmlFor="ai-notes" className="flex items-center gap-2">
-                <Sparkles className="size-4" />
-                {t("aiHeading")}
-              </Label>
-              <Textarea
-                id="ai-notes"
-                rows={2}
-                maxLength={2000}
-                placeholder={t("aiNotesPlaceholder")}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs text-muted-foreground">{t("aiHint")}</p>
-                <div className="flex items-center gap-2">
-                  {speech.supported && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={speech.listening ? "destructive" : "outline"}
-                      aria-pressed={speech.listening}
-                      disabled={draft.isPending}
-                      onClick={speech.listening ? speech.stop : speech.start}
-                    >
-                      {speech.listening ? <MicOff className="size-4" /> : <Mic className="size-4" />}
-                      {speech.listening ? t("micStop") : t("micStart")}
-                    </Button>
-                  )}
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    disabled={!notes.trim() || draft.isPending}
-                    onClick={() => {
-                      speech.stop();
-                      draft.mutate();
-                    }}
-                  >
-                    {draft.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-                    {t("aiDraft")}
-                  </Button>
-                </div>
-              </div>
-            </div>
+            {/* The system admin has no school, so no ai_available: the endpoint says if AI isn't set up. */}
+            <AiDraftButton ai={ai} available className="justify-end" hint={t("aiHint")} placeholder={t("aiNotesPlaceholder")} />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {text("title_en", t("titleEn"), "ltr")}
               {text("title_ar", t("titleAr"), "rtl")}

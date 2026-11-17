@@ -29,6 +29,10 @@ class AiDraftController extends Controller
 
         abort_unless($drafter->authorize($request->user()), 403);
 
+        // A form whose module the plan leaves out can't be drafted for either.
+        $feature = $drafter->planFeature();
+        abort_if($feature && ! $context->school()->effectivePlan()->includes($feature), 403, __('api.plan_feature_missing'));
+
         $contextRules = collect($drafter->contextRules())->mapWithKeys(fn ($rules, $key) => ["context.{$key}" => $rules])->all();
         $data = $request->validate([
             'notes' => ['required', 'string', 'max:2000'],

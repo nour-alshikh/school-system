@@ -20,8 +20,6 @@ use RuntimeException;
  */
 class AiClient
 {
-    private const URL = 'https://openrouter.ai/api/v1/chat/completions';
-
     public function __construct(private readonly TenantContext $context) {}
 
     /** A key is set and AI isn't switched off (config ai.enabled). */
@@ -52,7 +50,7 @@ class AiClient
             $response = Http::withToken(config('services.openrouter.key'))
                 ->withHeaders(['X-Title' => config('app.name')])
                 ->timeout(60)
-                ->post(self::URL, [
+                ->post(rtrim(config('services.openrouter.url'), '/').'/chat/completions', [
                     'model' => config('services.openrouter.model'),
                     'messages' => [
                         ['role' => 'system', 'content' => $system],

@@ -123,6 +123,7 @@ export function StageForm({
                 <FormLabel>{t("nameEnLabel")}</FormLabel>
                 <LocaleTabs
                   value={activeLocale}
+                  translate={{ en: "name_en", ar: "name_ar", what: "stage name" }}
                   onChange={setActiveLocale}
                   errors={{
                     en: !!form.formState.errors.name_en,
@@ -147,6 +148,7 @@ export function StageForm({
                 <FormLabel>{t("nameArLabel")}</FormLabel>
                 <LocaleTabs
                   value={activeLocale}
+                  translate={{ en: "name_en", ar: "name_ar", what: "stage name" }}
                   onChange={setActiveLocale}
                   errors={{
                     en: !!form.formState.errors.name_en,

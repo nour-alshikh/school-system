@@ -1,6 +1,6 @@
 # AI Assistant Plan
 
-Status: **phases 1–2 done** (written 2026-11-17; decisions settled the same day). Related:
+Status: **phases 1–3 done** (written 2026-11-17; decisions settled the same day). Related:
 [self-service-schools-plan.md](./self-service-schools-plan.md) (signup and
 the setup checklist), [central-dashboard-plan.md](./central-dashboard-plan.md)
 (where "Draft with AI" started), [authorization.md](./authorization.md).
@@ -227,6 +227,22 @@ Ordered by value.
 | **Meeting** (online lesson) | "Revision for the maths exam, grade 9" | Title, description / agenda | S |
 | **Library resource** | Title (+ optional notes) | Description, suggested grades/subjects | S |
 | **Platform announcements** | — | Moved onto the shared button (exists) | S |
+
+**Done (2026-11-17).** As built:
+
+- Kinds in `config/ai.php` → `App\Services\Ai\Drafts\*`: `exam_questions`
+  (≤20 MCQs, 2–6 options, one correct; appended after written questions, a
+  blank one dropped; title/instructions only if empty), `translate`
+  (`{text}`, context `from` + `what`), `calendar_event` (date only if real
+  and within a year), `meeting` (agenda; start time/length only if given and
+  valid), `library_resource` (description; grade or subjects picked only
+  from the ids the form offers). Each checks the form's permission and, via
+  `Drafter::planFeature()`, its plan module.
+- Translate lives in `LocaleTabs` (`translate` prop → `AiTranslateButton`):
+  stages, grades, subjects, fees. Not student names.
+- Meetings still need Zoom connected before the form opens at all.
+- `OPENROUTER_URL` (default OpenRouter) lets a local fake stand in for the
+  provider when checking the UI.
 
 ### Phase 4 — Assistant v1: help (L)
 

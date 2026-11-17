@@ -26,6 +26,17 @@ import {
   type MeetingFormValues,
 } from "./schema";
 import type { Meeting, MeetingClassroom } from "./types";
+import { AiDraftButton } from "@/components/ai/ai-draft-button";
+import { useAiDraft } from "@/hooks/use-ai-draft";
+import { cn } from "@/lib/utils";
+
+/** POST /api/ai/draft/meeting (MeetingDrafter). */
+type MeetingDraft = {
+  title: string;
+  description: string;
+  start_time: string | null;
+  duration_minutes: number | null;
+};
 
 // ISO datetime -> the value <input type="datetime-local"> expects — see the
 // matching helper in exams/exam-form.tsx.
@@ -53,6 +64,18 @@ export function MeetingForm({
   const form = useForm<MeetingFormValues>({
     resolver: zodResolver(schema),
     defaultValues: defaultMeetingValues,
+  });
+
+  // Start time and length only when the notes gave them; classrooms stay the user's pick.
+  const ai = useAiDraft<MeetingFormValues, MeetingDraft>({
+    form,
+    kind: "meeting",
+    toValues: (d) => ({
+      title: d.title,
+      description: d.description,
+      ...(d.start_time ? { start_time: d.start_time } : {}),
+      ...(d.duration_minutes ? { duration_minutes: String(d.duration_minutes) } : {}),
+    }),
   });
 
   // Admin gets every classroom, a teacher only the ones they hold a subject
@@ -94,6 +117,8 @@ export function MeetingForm({
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         className="flex flex-col gap-6"
       >
+        <AiDraftButton ai={ai} className="justify-end" hint={t("aiHint")} placeholder={t("aiPlaceholder")} />
+
         <FormField
           control={form.control}
           name="title"
@@ -101,7 +126,7 @@ export function MeetingForm({
             <FormItem>
               <FormLabel>{t("titleLabel")}</FormLabel>
               <FormControl>
-                <Input {...field} className="h-10" />
+                <Input {...field} className={cn("h-10", ai.highlight("title"))} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -115,7 +140,7 @@ export function MeetingForm({
             <FormItem>
               <FormLabel>{t("descriptionLabel")}</FormLabel>
               <FormControl>
-                <Textarea {...field} rows={3} />
+                <Textarea {...field} rows={5} className={ai.highlight("description")} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -150,7 +175,7 @@ export function MeetingForm({
               <FormItem>
                 <FormLabel>{t("startTimeLabel")}</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" className="h-10" {...field} />
+                  <Input type="datetime-local" className={cn("h-10", ai.highlight("start_time"))} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -164,7 +189,7 @@ export function MeetingForm({
               <FormItem className="w-40">
                 <FormLabel>{t("durationLabel")}</FormLabel>
                 <FormControl>
-                  <Input type="number" min={1} className="h-10" {...field} />
+                  <Input type="number" min={1} className={cn("h-10", ai.highlight("duration_minutes"))} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
