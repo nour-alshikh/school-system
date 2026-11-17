@@ -97,6 +97,12 @@ readonly email: string,
 readonly roles: RoleType[],
 };
 export type AnnouncementLevel = 'info' | 'warning' | 'critical';
+export type AssistantActionType = {
+readonly name: 'create_event' | 'schedule_meeting' | 'draft_exam' | 'mark_attendance',
+readonly fields: Record<string, unknown>,
+readonly warnings: string[],
+readonly status: 'proposed' | 'done' | 'dismissed',
+};
 export type AssistantConversationType = {
 readonly id: number,
 readonly title: string,
@@ -111,6 +117,7 @@ readonly id: number,
 readonly role: string,
 readonly content: string,
 readonly links: AssistantLinkType[],
+readonly action: AssistantActionType | null,
 readonly created_at: string,
 };
 export type AttachmentType = {

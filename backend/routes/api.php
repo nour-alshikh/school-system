@@ -154,6 +154,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/assistant/conversation', [AssistantController::class, 'show']);
     Route::post('/assistant/messages', [AssistantController::class, 'store'])->middleware('throttle:assistant');
     Route::delete('/assistant/conversations', [AssistantController::class, 'destroy']);
+    // A proposal's card was confirmed (after its own endpoint succeeded) or dismissed.
+    Route::patch('/assistant/messages/{message}/action', [AssistantController::class, 'actionStatus'])->whereNumber('message');
 
     // Announcements from the system admin (docs/central-dashboard-plan.md, phase 8).
     Route::get('/announcements', [AnnouncementController::class, 'index']);

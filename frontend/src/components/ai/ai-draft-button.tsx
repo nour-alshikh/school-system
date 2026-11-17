@@ -27,6 +27,8 @@ export function AiDraftButton({
   hint,
   available,
   className,
+  initialNotes,
+  defaultOpen,
 }: {
   ai: AiDraftController;
   /** Example notes for this form. */
@@ -35,13 +37,17 @@ export function AiDraftButton({
   hint?: string;
   available?: boolean;
   className?: string;
+  /** Notes to start with, e.g. a request handed over by the assistant. */
+  initialNotes?: string;
+  /** Opens the popover on mount (with initialNotes, ready to draft). */
+  defaultOpen?: boolean;
 }) {
   const t = useTranslations("AiDraft");
   const tErrors = useTranslations("Errors");
   const locale = useLocale();
   const aiAvailable = useAiAvailable();
-  const [open, setOpen] = useState(false);
-  const [notes, setNotes] = useState("");
+  const [open, setOpen] = useState(defaultOpen ?? false);
+  const [notes, setNotes] = useState(initialNotes?.slice(0, MAX_NOTES) ?? "");
 
   // Dictated phrases are appended to the notes, in the UI's language.
   const speech = useSpeechRecognition({

@@ -21,6 +21,8 @@ final class AssistantMessageType
          * @var AssistantLinkType[]
          */
         public readonly array $links,
+        /** What the answer proposes doing, for its confirm card (phase 6). */
+        public readonly ?AssistantActionType $action,
         public readonly string $created_at,
     ) {}
 
@@ -35,6 +37,7 @@ final class AssistantMessageType
                 fn ($link) => is_array($link) ? new AssistantLinkType($link['href'], $link['label'] ?? '') : new AssistantLinkType($link, ''),
                 array_values($message->links ?? []),
             ),
+            action: $message->action ? AssistantActionType::fromArray($message->action) : null,
             created_at: $message->created_at->toJSON(),
         );
     }

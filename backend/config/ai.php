@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Ai\Assistant\Actions;
 use App\Services\Ai\Assistant\Tools;
 use App\Services\Ai\Drafts\CalendarEventDrafter;
 use App\Services\Ai\Drafts\ExamQuestionsDrafter;
@@ -50,6 +51,16 @@ return [
         Tools\Upcoming::class,
         Tools\MySummary::class,
         Tools\MyChildSummary::class,
+    ],
+
+    // What the assistant can propose doing (phase 6): a confirm card in the
+    // chat, then the normal endpoint or page. Never deleting, payments,
+    // roles, or anything in the central dashboard.
+    'assistant_actions' => [
+        Actions\CreateEvent::class,
+        Actions\ScheduleMeeting::class,
+        Actions\DraftExam::class,
+        Actions\MarkAttendance::class,
     ],
 
 ];

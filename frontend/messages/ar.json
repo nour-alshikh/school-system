@@ -972,7 +972,8 @@
     "statusExcused": "معذور",
     "loadError": "تعذر تحميل الفصول.",
     "rosterLoadError": "تعذر تحميل قائمة الطلاب.",
-    "notSchoolDay": "هذا اليوم ليس من أيام الدراسة في مدرستك. لا يزال بإمكانك تسجيل الحضور، مثلًا ليوم تعويضي."
+    "notSchoolDay": "هذا اليوم ليس من أيام الدراسة في مدرستك. لا يزال بإمكانك تسجيل الحضور، مثلًا ليوم تعويضي.",
+    "filledByAssistant": "ملأ المساعد هذه الصفحة. راجع كل طالب ثم احفظ."
   },
   "AttendanceHistoryPage": {
     "heading": "سجل الحضور",
@@ -2223,7 +2224,38 @@
       "whatsNext": "ما الذي سيحدث هذا الأسبوع؟",
       "howIsMyChild": "كيف حال طفلي في المدرسة؟"
     },
-    "setUpQuestion": "ساعدني في إعداد مدرستي. من أين أبدأ؟"
+    "setUpQuestion": "ساعدني في إعداد مدرستي. من أين أبدأ؟",
+    "actions": {
+      "title_create_event": "فعالية جديدة في التقويم",
+      "title_schedule_meeting": "درس مباشر جديد",
+      "title_draft_exam": "اختبار جديد",
+      "title_mark_attendance": "حضور للمراجعة",
+      "title": "العنوان",
+      "date": "التاريخ",
+      "description": "الوصف",
+      "classrooms": "الفصول",
+      "start": "يبدأ",
+      "minutes": "الدقائق",
+      "request": "ما المطلوب صياغته",
+      "examHint": "تُفتح صفحة إنشاء الاختبار وهذا الطلب في «صياغة بالذكاء الاصطناعي». اختر المادة والفصل، ثم اصنع المسودة وراجع الأسئلة واحفظ.",
+      "everyoneElse": "{count, plural, =0 {لا أحد غيرهم في الفصل.} one {الباقون (طالب واحد): {status}} two {الباقون (طالبان): {status}} few {الباقون (# طلاب): {status}} other {الباقون (# طالبًا): {status}}}",
+      "confirm_create_event": "أضف إلى التقويم",
+      "confirm_schedule_meeting": "جدوِل على زووم",
+      "confirm_draft_exam": "افتح صفحة الاختبار",
+      "confirm_mark_attendance": "راجع واحفظ",
+      "dismiss": "تجاهل",
+      "done": "تم",
+      "dismissed": "تم التجاهل",
+      "saved": "تم الحفظ.",
+      "warnings": {
+        "past_date": "هذا التاريخ قد مضى.",
+        "zoom_not_connected": "لم يُربط حساب زووم بعد، لذا ستفشل الجدولة حتى يربطه المدير.",
+        "classroom_not_found": "لم أجد فصلًا باسم «{name}».",
+        "classroom_ambiguous": "«{name}» يطابق أكثر من فصل؛ تم استبعاده.",
+        "student_not_found": "لم أجد «{name}» في هذا الفصل.",
+        "student_ambiguous": "«{name}» يطابق أكثر من طالب؛ تم استبعاده."
+      }
+    }
   },
   "DescribeSchool": {
     "label": "صف مدرستك",

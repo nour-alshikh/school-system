@@ -1,6 +1,6 @@
 # AI Assistant Plan
 
-Status: **phases 1–5 done** (written 2026-11-17; decisions settled the same day). Related:
+Status: **phases 1–6 done** (phase 6 without "set up structure") (written 2026-11-17; decisions settled the same day). Related:
 [self-service-schools-plan.md](./self-service-schools-plan.md) (signup and
 the setup checklist), [central-dashboard-plan.md](./central-dashboard-plan.md)
 (where "Draft with AI" started), [authorization.md](./authorization.md).
@@ -384,6 +384,46 @@ normal API endpoint as the user. Start with low-risk ones:
 
 Never: deleting, payments, changing roles/permissions, anything in the
 central dashboard.
+
+**Done (2026-11-17), except "set up structure".** As built:
+
+- Actions in `config('ai.assistant_actions')`, `App\Services\Ai\Assistant\Actions\*`,
+  each with `allows()` (the same permission/role/plan module as doing it
+  by hand), validation `rules()` and `prepare()`, which resolves names to
+  ids among what the user may use and returns the card's fields plus
+  warning codes, or an error (no card):
+  - `create_event` (manage-calendar): title, date, description. Confirm →
+    `POST /api/calendar-events`.
+  - `schedule_meeting` (manage-meetings or teacher's own classrooms +
+    meetings): classrooms matched by name, start must be in the future,
+    warns when Zoom isn't connected. Confirm → `POST /api/meetings`.
+  - `draft_exam` (manage-exams or teacher + exams): a request and optional
+    title. Confirm opens `/exams/new` with the title filled and the request
+    in an open "Draft with AI" box.
+  - `mark_attendance` (manage-attendance or teacher's own classrooms): the
+    classroom, a past or today's date, a default status and named
+    exceptions, matched on the server against the classroom's active
+    students (the roster never goes to the AI provider). Confirm opens
+    `/attendance?classroom=…&date=…&from=assistant` with those marks
+    filled in and a notice to check and save.
+- Offered whenever AI is available (not tied to `assistant_data`: no
+  school data goes out). The model replies `{"reply", "action", "fields"}`;
+  an action not in the user's list, bad fields or an error → no card, and
+  the reply says it couldn't be prepared.
+- The proposal is saved on the message (`assistant_messages.action`:
+  name, fields, warnings, status) so the card comes back with the chat;
+  `PATCH /api/assistant/messages/{id}/action` marks it done or dismissed
+  (owner only), so it isn't offered twice.
+- Frontend: `features/assistant/action-card.tsx` (editable title, date,
+  start, length; per-student status for attendance; warnings),
+  `handoff.ts` (sessionStorage, read once), `AiDraftButton` takes
+  `initialNotes` / `defaultOpen`.
+- Tests: `tests/Feature/AssistantActionsTest.php`.
+- **Not done: "set up structure from a description".** `SchoolBlueprint::apply()`
+  only builds into an empty school; adding to an existing one ("add a
+  secondary stage with 3 classes per grade") needs a merge (skip or rename
+  what exists) and its own confirm endpoint under manage-academics. Left
+  for a follow-up.
 
 ### Phase 7 — Draft with AI, wave 2 (M)
 

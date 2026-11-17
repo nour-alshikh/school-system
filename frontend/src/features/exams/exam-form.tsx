@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useFieldArray, useForm, type Control } from "react-hook-form";
@@ -42,6 +42,7 @@ import {
 import type { Exam, ExamTeachingAssignment } from "./types";
 import { AiDraftButton } from "@/components/ai/ai-draft-button";
 import { useAiDraft } from "@/hooks/use-ai-draft";
+import { examHandoff } from "@/features/assistant/handoff";
 import { cn } from "@/lib/utils";
 
 /** POST /api/ai/draft/exam_questions (ExamQuestionsDrafter). */
@@ -270,10 +271,20 @@ export function ExamForm({
 
   const [wholeGrade, setWholeGrade] = useState(isAdmin && !exam?.classroom_id);
 
+  // A new exam the assistant was asked for (phase 6): its title, and the
+  // request waiting in "Draft with AI" once the subject and class are picked.
+  // This form only renders on the client, after auth.
+  const [handoff] = useState(() => (exam ? null : examHandoff.peek()));
+  useEffect(() => {
+    if (handoff) examHandoff.forget();
+  }, [handoff]);
+
   const schema = createExamSchema(tValidation);
   const form = useForm<ExamFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: exam ? valuesFromExam(exam) : defaultExamValues,
+    defaultValues: exam
+      ? valuesFromExam(exam)
+      : { ...defaultExamValues, ...(handoff?.title ? { title: handoff.title } : {}) },
   });
 
   const gradeId = form.watch("grade_id");
@@ -675,7 +686,13 @@ export function ExamForm({
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium">{t("questionsHeading")}</h3>
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <AiDraftButton ai={ai} hint={t("aiHint")} placeholder={t("aiPlaceholder")} />
+              <AiDraftButton
+                ai={ai}
+                hint={t("aiHint")}
+                placeholder={t("aiPlaceholder")}
+                initialNotes={handoff?.request}
+                defaultOpen={!!handoff}
+              />
               <Button
                 type="button"
                 variant="outline"

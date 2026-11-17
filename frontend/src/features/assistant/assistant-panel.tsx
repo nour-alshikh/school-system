@@ -15,6 +15,7 @@ import { flattenSections, useNavSections, type NavItem } from "@/components/app-
 import { useIsMac } from "@/components/command-menu";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { AssistantActionCard } from "./action-card";
 import { AssistantText } from "./assistant-text";
 import { OPEN_ASSISTANT_EVENT, type OpenAssistantDetail } from "./open-assistant";
 import { starterKeys } from "./starters";
@@ -136,6 +137,20 @@ function Assistant() {
       toast.success(t("cleared"));
     },
     onError: (error) => toast.error(error instanceof ApiError ? error.message : tErrors("somethingWentWrong")),
+  });
+
+  // A proposal confirmed or dismissed: shown as such at once, then saved so
+  // the card isn't offered again. Losing that save only means the card
+  // could come back after a reload.
+  const actionStatus = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: "done" | "dismissed" }) =>
+      apiFetch(`/api/assistant/messages/${id}/action`, { method: "PATCH", body: JSON.stringify({ status }) }),
+    onMutate: ({ id, status }) => {
+      queryClient.setQueryData<Conversation>(queryKey, (prev = EMPTY) => ({
+        ...prev,
+        messages: prev.messages.map((m) => (m.id === id && m.action ? { ...m, action: { ...m.action, status } } : m)),
+      }));
+    },
   });
 
   function ask(question: string) {
@@ -314,6 +329,13 @@ function Assistant() {
                             );
                           })}
                         </div>
+                      )}
+                      {message.action && (
+                        <AssistantActionCard
+                          action={message.action}
+                          onStatus={(status) => actionStatus.mutate({ id: message.id, status })}
+                          onNavigate={follow}
+                        />
                       )}
                     </div>
                   )

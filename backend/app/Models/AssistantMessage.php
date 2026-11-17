@@ -10,9 +10,9 @@ class AssistantMessage extends Model
 {
     public const UPDATED_AT = null;
 
-    protected $fillable = ['conversation_id', 'role', 'content', 'links', 'tools'];
+    protected $fillable = ['conversation_id', 'role', 'content', 'links', 'tools', 'action'];
 
-    protected $casts = ['links' => 'array', 'tools' => 'array'];
+    protected $casts = ['links' => 'array', 'tools' => 'array', 'action' => 'array'];
 
     public function conversation(): BelongsTo
     {

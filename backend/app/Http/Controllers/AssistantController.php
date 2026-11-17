@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\RespondsWithAiDraft;
 use App\Models\AssistantConversation;
+use App\Models\AssistantMessage;
 use App\Services\Ai\AiAccess;
 use App\Services\Ai\Assistant\Assistant;
 use App\Tenancy\TenantContext;
@@ -80,6 +81,25 @@ class AssistantController extends Controller
             'conversation_id' => $result['conversation']->id,
             'messages' => array_map(AssistantMessageType::fromModel(...), $result['messages']),
         ]);
+    }
+
+    /**
+     * Marks a proposed action done or dismissed, so its card isn't offered
+     * again. Saves nothing else: confirming went through the action's own
+     * endpoint or page.
+     */
+    public function actionStatus(Request $request, int $message): JsonResponse
+    {
+        $data = $request->validate(['status' => ['required', 'in:done,dismissed']]);
+
+        $found = AssistantMessage::whereKey($message)
+            ->whereNotNull('action')
+            ->whereHas('conversation', fn ($q) => $q->ownedBy($request->user()))
+            ->firstOrFail();
+
+        $found->update(['action' => [...$found->action, 'status' => $data['status']]]);
+
+        return response()->json(['message' => AssistantMessageType::fromModel($found)]);
     }
 
     /** "Clear history": every conversation this user has at this school. */

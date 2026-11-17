@@ -45,6 +45,7 @@ import {
   type AttendanceFormValues,
 } from "./schema";
 import type { AttendanceRosterEntry, AttendanceStatus } from "./types";
+import { attendanceHandoff } from "@/features/assistant/handoff";
 import type { Classroom } from "@/features/classrooms/types";
 
 function today(): string {
@@ -65,7 +66,9 @@ export function AttendancePage() {
   const searchParams = useSearchParams();
   // ?classroom= preselects one, e.g. from the admin dashboard's "not marked yet" list.
   const [classroomId, setClassroomId] = useState<string>(() => searchParams.get("classroom") ?? "");
-  const [date, setDate] = useState<string>(today());
+  // ?date= too, and ?from=assistant when the assistant filled it in (phase 6).
+  const [date, setDate] = useState<string>(() => searchParams.get("date") ?? today());
+  const fromAssistant = searchParams.get("from") === "assistant";
   const schoolDays = useSchoolDays();
 
   useEffect(() => {
@@ -135,12 +138,21 @@ export function AttendancePage() {
   // Every student defaults to "present" unless a record already exists for
   // this date — most days most students show up, so flipping the
   // exceptions is faster than marking everyone by hand.
+  //
+  // Marks the assistant prepared for this classroom and day win for the
+  // students it named; everyone else gets its default unless already marked.
+  // Read once, then forgotten: nothing is saved until Save.
   useEffect(() => {
     if (!roster) return;
+    const handoff = fromAssistant ? attendanceHandoff.peek() : null;
+    const prepared =
+      handoff && String(handoff.classroom_id) === effectiveClassroomId && handoff.date === date ? handoff : null;
+    if (prepared) attendanceHandoff.forget();
+
     replace(
       roster.map((entry) => ({
         student_id: entry.student_id,
-        status: entry.status ?? "present",
+        status: prepared?.marks[entry.student_id] ?? entry.status ?? prepared?.default_status ?? "present",
         notes: entry.notes ?? "",
       }))
     );
@@ -232,6 +244,12 @@ export function AttendancePage() {
             aria-label={t("dateLabel")}
           />
         </div>
+
+        {fromAssistant && (
+          <p className="rounded-md border border-brand-accent/40 bg-brand-accent/5 px-3 py-2 text-sm">
+            {t("filledByAssistant")}
+          </p>
+        )}
 
         {/* A notice, not a block: make-up days and trips happen. */}
         {!isSchoolDay(date, schoolDays) && (

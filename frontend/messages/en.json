@@ -972,7 +972,8 @@
     "statusExcused": "Excused",
     "loadError": "Couldn't load classrooms.",
     "rosterLoadError": "Couldn't load the student list.",
-    "notSchoolDay": "This isn't one of your school days. You can still take attendance, for example for a make-up day."
+    "notSchoolDay": "This isn't one of your school days. You can still take attendance, for example for a make-up day.",
+    "filledByAssistant": "The assistant filled this in. Check each student, then save."
   },
   "AttendanceHistoryPage": {
     "heading": "Attendance history",
@@ -2223,7 +2224,38 @@
       "whatsNext": "What's coming up this week?",
       "howIsMyChild": "How is my child doing?"
     },
-    "setUpQuestion": "Help me set up my school. Where should I start?"
+    "setUpQuestion": "Help me set up my school. Where should I start?",
+    "actions": {
+      "title_create_event": "New calendar event",
+      "title_schedule_meeting": "New online lesson",
+      "title_draft_exam": "New exam",
+      "title_mark_attendance": "Attendance to review",
+      "title": "Title",
+      "date": "Date",
+      "description": "Description",
+      "classrooms": "Classrooms",
+      "start": "Starts",
+      "minutes": "Minutes",
+      "request": "What to draft",
+      "examHint": "The exam builder opens with this in “Draft with AI”. Pick the subject and class, draft, check the questions, then save.",
+      "everyoneElse": "{count, plural, =0 {No one else in the classroom.} one {Everyone else (# student): {status}} other {Everyone else (# students): {status}}}",
+      "confirm_create_event": "Add to calendar",
+      "confirm_schedule_meeting": "Schedule on Zoom",
+      "confirm_draft_exam": "Open the exam builder",
+      "confirm_mark_attendance": "Review and save",
+      "dismiss": "Dismiss",
+      "done": "done",
+      "dismissed": "dismissed",
+      "saved": "Saved.",
+      "warnings": {
+        "past_date": "This date has already passed.",
+        "zoom_not_connected": "No Zoom account is connected yet, so scheduling will fail until an admin connects one.",
+        "classroom_not_found": "Couldn't find a classroom called “{name}”.",
+        "classroom_ambiguous": "“{name}” matches more than one classroom; left out.",
+        "student_not_found": "Couldn't find “{name}” in this classroom.",
+        "student_ambiguous": "“{name}” matches more than one student; left out."
+      }
+    }
   },
   "DescribeSchool": {
     "label": "Describe your school",
