@@ -2,182 +2,256 @@
 
 import { useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useMoney } from "@/hooks/use-money";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { BookOpen, CheckSquare, ClipboardList, FileText, Link2, Timer, Trophy, Wallet } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { useAuth } from "@/contexts/auth-context";
 import { apiFetch, ApiError } from "@/lib/api";
+import { useMoney } from "@/hooks/use-money";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar } from "@/features/calendar/calendar";
-import type { AttendanceStatus, StudentDashboard } from "./types";
-
-const attendanceBadgeClass: Record<AttendanceStatus, string> = {
-  present: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  absent: "bg-red-500/10 text-red-600 dark:text-red-400",
-  late: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  excused: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-};
-
-function Card({
-  heading,
-  href,
-  linkLabel,
-  children,
-}: {
-  heading: string;
-  href: string;
-  linkLabel: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="flex flex-col gap-4 rounded-lg border p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">{heading}</h3>
-        <Button variant="outline" size="sm" render={<Link href={href} />}>
-          {linkLabel}
-        </Button>
-      </div>
-      {children}
-    </section>
-  );
-}
+import { EmptyState, Panel } from "@/features/admin-dashboard/charts";
+import { KpiCard } from "@/features/admin-dashboard/kpi-card";
+import { timeAgo } from "@/features/platform/format";
+import {
+  AgendaPanel,
+  attendanceRateOf,
+  average,
+  chartDay,
+  DashboardHeader,
+  formatNumber,
+  formatPercent,
+  ScoreChart,
+} from "@/features/role-dashboard/shared";
+import type { StudentDashboard } from "./types";
 
 export function StudentDashboardPage() {
-  const t = useTranslations("StudentDashboardPage");
+  const t = useTranslations("RoleDashboards");
   const locale = useLocale();
+  const { user } = useAuth();
+  const hasFeature = (feature: string) => !user?.plan_features || user.plan_features.includes(feature);
+  const showExams = hasFeature("exams");
+  const showFees = hasFeature("fees");
+  const showLibrary = hasFeature("library");
 
-  const {
-    data: dashboard,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: d, error } = useQuery({
     queryKey: ["student-dashboard"],
-    queryFn: () =>
-      apiFetch<{ dashboard: StudentDashboard }>("/api/student/dashboard").then(
-        (d) => d.dashboard
-      ),
+    queryFn: () => apiFetch<{ dashboard: StudentDashboard }>("/api/student/dashboard").then((r) => r.dashboard),
   });
+  const money = useMoney(d?.currency);
 
   useEffect(() => {
     if (!error) return;
     toast.error(error instanceof ApiError ? error.message : t("loadError"));
   }, [error, t]);
 
-  const attendanceStatusLabels: Record<AttendanceStatus, string> = {
-    present: t("attendancePresent"),
-    absent: t("attendanceAbsent"),
-    late: t("attendanceLate"),
-    excused: t("attendanceExcused"),
-  };
+  const firstName = (user?.name ?? "").split(" ")[0];
+  const name = (en: string, ar: string) => (locale === "ar" ? ar : en);
 
-  const money = useMoney(dashboard?.currency);
+  const header = (
+    <DashboardHeader
+      title={t("hi", { name: firstName })}
+      badges={
+        d && (
+          <Badge variant="secondary">
+            {name(d.student.grade.name_en, d.student.grade.name_ar)} · {d.student.classroom.name}
+          </Badge>
+        )
+      }
+      actions={
+        showExams && (
+          <Button size="sm" nativeButton={false} render={<Link href="/my-exams" />}>
+            <ClipboardList className="size-4" />
+            {t("myExams")}
+          </Button>
+        )
+      }
+    />
+  );
 
-  if (isLoading || !dashboard) {
+  if (!d) {
     return (
-      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
-        <div className="h-24 animate-pulse rounded-lg border bg-muted/30" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-32 animate-pulse rounded-lg border bg-muted/30" />
-          ))}
+      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 md:p-6">
+        {header}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
+        </div>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+          <Skeleton className="h-80 rounded-xl lg:col-span-5" />
+          <Skeleton className="h-80 rounded-xl lg:col-span-7" />
         </div>
       </main>
     );
   }
 
-  const {
-    student,
-    attendance_summary,
-    latest_attendance,
-    subjects_count,
-    fees_summary,
-    exams_total,
-    exams_pending_count,
-    next_exam,
-  } = dashboard;
+  const rate = attendanceRateOf(d.attendance_summary);
+  const scoreAverage = average(d.score_trend.map((s) => s.percent));
+  const outstanding = Number(d.fees_summary.total_outstanding);
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 p-6">
-      <section className="flex flex-col gap-4 rounded-lg border p-4">
-        <h3 className="text-sm font-semibold">{t("profileHeading")}</h3>
-        <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-          <div>
-            <p className="text-muted-foreground">{t("gradeLabel")}</p>
-            <p className="font-medium">
-              {locale === "ar" ? student.grade.name_ar : student.grade.name_en}
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">{t("classroomLabel")}</p>
-            <p className="font-medium">{student.classroom.name}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">{t("academicYearLabel")}</p>
-            <p className="font-medium">
-              {locale === "ar"
-                ? student.academic_year.name_ar
-                : student.academic_year.name_en}
-            </p>
-          </div>
-        </div>
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 p-4 md:p-6">
+      {header}
+
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          icon={CheckSquare}
+          title={t("kpiAttendance")}
+          value={rate === null ? "—" : formatPercent(rate, locale, 0)}
+          href="/my-attendance"
+          subtext={t("daysPresent", {
+            present: formatNumber(d.attendance_summary.present + d.attendance_summary.late, locale),
+            total: formatNumber(d.attendance_summary.total, locale),
+          })}
+        />
+        {showExams && (
+          <KpiCard
+            icon={ClipboardList}
+            title={t("kpiExamsToTake")}
+            value={formatNumber(d.upcoming_exams.length, locale)}
+            href="/my-exams"
+            subtext={d.next_exam ? t("nextCloses", { when: timeAgo(d.next_exam.closes_at, locale) ?? "" }) : t("nothingDue")}
+          />
+        )}
+        {showExams && (
+          <KpiCard
+            icon={Trophy}
+            title={t("kpiAverageScore")}
+            value={scoreAverage === null ? "—" : formatPercent(scoreAverage, locale, 0)}
+            spark={d.score_trend.map((s) => s.percent)}
+            subtext={t("lastExams", { count: d.score_trend.length })}
+          />
+        )}
+        {showFees ? (
+          <KpiCard
+            icon={Wallet}
+            title={t("kpiFeesOutstanding")}
+            value={money(d.fees_summary.total_outstanding)}
+            href="/my-fees"
+            subtext={outstanding > 0 ? t("ofTotalDue", { total: money(d.fees_summary.total_due) }) : t("allPaid")}
+          />
+        ) : (
+          <KpiCard icon={BookOpen} title={t("kpiSubjectsTitle")} value={formatNumber(d.subjects_count, locale)} href="/my-subjects" />
+        )}
       </section>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card heading={t("attendanceHeading")} href="/my-attendance" linkLabel={t("viewHistory")}>
-          <div className="flex flex-wrap gap-2">
-            {(["present", "absent", "late", "excused"] as const).map((status) => (
-              <span
-                key={status}
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${attendanceBadgeClass[status]}`}
-              >
-                {attendanceStatusLabels[status]}: {attendance_summary[status]}
-              </span>
-            ))}
-          </div>
-          {latest_attendance ? (
-            <p className="text-sm text-muted-foreground">
-              {t("latestAttendanceLabel")}: {latest_attendance.date} —{" "}
-              {attendanceStatusLabels[latest_attendance.status]}
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">{t("noAttendance")}</p>
-          )}
-        </Card>
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <AgendaPanel
+          className="lg:col-span-5"
+          title={t("yourWeek")}
+          items={d.agenda}
+          hrefFor={(i) => (i.kind === "meeting" ? "/my-meetings" : i.kind === "exam" ? `/my-exams/${i.id}` : undefined)}
+        />
 
-        <Card heading={t("subjectsHeading")} href="/my-subjects" linkLabel={t("viewSubjects")}>
-          <p className="text-2xl font-bold">{subjects_count}</p>
-          <p className="text-sm text-muted-foreground">{t("subjectsCountLabel")}</p>
-        </Card>
+        {showExams && (
+          <Panel
+            className="lg:col-span-7"
+            title={t("upcomingExams")}
+            action={
+              <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/my-exams" />}>
+                {t("viewAll")}
+              </Button>
+            }
+          >
+            {d.upcoming_exams.length === 0 ? (
+              <EmptyState>{t("upcomingExamsEmpty")}</EmptyState>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {d.upcoming_exams.map((exam) => {
+                  const open = new Date(exam.opens_at) <= new Date();
+                  const started = exam.attempt_status === "in_progress";
+                  return (
+                    <li key={exam.id} className="flex flex-wrap items-center gap-3 rounded-lg border p-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-accent/15 text-amber-700 dark:text-amber-300">
+                        <Timer className="size-4" />
+                      </span>
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-sm font-medium">{exam.title}</span>
+                        <span className="truncate text-xs text-muted-foreground">
+                          {name(exam.subject_name_en, exam.subject_name_ar)} ·{" "}
+                          {open
+                            ? t("closes", { when: timeAgo(exam.closes_at, locale) ?? "" })
+                            : t("opens", { when: timeAgo(exam.opens_at, locale) ?? "" })}
+                        </span>
+                      </div>
+                      {open ? (
+                        <Button size="sm" variant={started ? "outline" : "default"} nativeButton={false} render={<Link href={`/my-exams/${exam.id}`} />}>
+                          {started ? t("continueExam") : t("startExam")}
+                        </Button>
+                      ) : (
+                        <Badge variant="secondary">{t("notOpenYet")}</Badge>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Panel>
+        )}
 
-        <Card heading={t("feesHeading")} href="/my-fees" linkLabel={t("viewFees")}>
-          <p className="text-sm text-muted-foreground">
-            {t("totalOutstandingLabel")}:{" "}
-            <span className="font-medium text-foreground">
-              {money(fees_summary.total_outstanding)}
-            </span>
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {t("totalDueLabel")}: {money(fees_summary.total_due)}
-          </p>
-        </Card>
+        {showExams && (
+          <Panel className="lg:col-span-7" title={t("yourScores")} description={t("yourScoresDesc")}>
+            {d.score_trend.length === 0 ? (
+              <EmptyState>{t("noScores")}</EmptyState>
+            ) : (
+              <ScoreChart
+                variant="area"
+                points={d.score_trend.map((s) => ({
+                  key: `${s.exam_id}`,
+                  label: chartDay(s.submitted_at, locale),
+                  value: s.percent,
+                  title: s.title,
+                  rows: [
+                    { label: name(s.subject_name_en, s.subject_name_ar), value: formatPercent(s.percent, locale, 0) },
+                    { label: t("marks"), value: t("ofTotal", { value: formatNumber(s.score, locale), total: formatNumber(s.total_marks, locale) }) },
+                  ],
+                }))}
+              />
+            )}
+          </Panel>
+        )}
 
-        <Card heading={t("examsHeading")} href="/my-exams" linkLabel={t("viewExams")}>
-          <p className="text-2xl font-bold">
-            {exams_pending_count}/{exams_total}
-          </p>
-          <p className="text-sm text-muted-foreground">{t("examsPendingLabel")}</p>
-          {next_exam ? (
-            <p className="text-sm text-muted-foreground">
-              {t("nextExamLabel")}: {next_exam.title} (
-              {locale === "ar" ? next_exam.subject_name_ar : next_exam.subject_name_en})
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">{t("noNextExam")}</p>
-          )}
-        </Card>
+        {showLibrary && (
+          <Panel
+            className="lg:col-span-5"
+            title={t("newInLibrary")}
+            description={t("forYourGrade")}
+            action={
+              <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/my-library" />}>
+                {t("viewAll")}
+              </Button>
+            }
+          >
+            {d.library_resources.length === 0 ? (
+              <EmptyState>{t("libraryEmpty")}</EmptyState>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {d.library_resources.map((r) => (
+                  <li key={r.id}>
+                    <Link href="/my-library" className="flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary dark:text-teal-300">
+                        {r.type === "link" ? <Link2 className="size-4" /> : <FileText className="size-4" />}
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-sm font-medium">{r.title}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {r.type === "link" ? t("kindLink") : t("kindFile")} · {timeAgo(r.created_at, locale)}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+        )}
+      </section>
+
+      <div id="calendar" className="scroll-mt-20">
+        <Calendar />
       </div>
-
-      <Calendar />
     </main>
   );
 }

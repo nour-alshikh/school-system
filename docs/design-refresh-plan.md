@@ -1,6 +1,6 @@
 # Design refresh plan
 
-Status: **in progress** (started November 2026).
+Status: **steps 1–4 done** (November 2026); follow-ups below each step.
 
 Make the landing page more modern and the dashboards richer, on a new
 brand: deep teal + amber.
@@ -117,8 +117,8 @@ Follow-ups:
 
 - [ ] A real per-user notifications feed (overdue fees, new exams, …) —
       the bell only has announcements today.
-- [ ] Non-admin dashboards still show the old centered avatar uploader;
-      drop it when they're redesigned in step 4.
+- [x] Non-admin dashboards still showed the old centered avatar uploader —
+      removed in step 4.
 
 ## Step 3 — Landing page ✅
 
@@ -158,19 +158,67 @@ Done. `frontend/src/features/home/`:
 
 Follow-ups:
 
-- [ ] Re-run `npm run screenshots:landing` after step 4 — the teacher,
-      parent and student shots show the old dashboards.
+- [x] Re-run `npm run screenshots:landing` after step 4 — done with step 4.
 - [ ] Set `SCHOOLS_CONTACT_EMAIL` in production.
 
-## Step 4 — Teacher, parent and student dashboards
+## Step 4 — Teacher, parent and student dashboards ✅
 
-Each needs backend data first (same pattern as `AdminDashboardType`), then UI
-in the admin dashboard's style.
+Done. Some planned widgets had no data behind them, so (decided with the
+owner) they're built from what exists and the missing modules are
+follow-ups:
 
-- [ ] **Teacher** (`TeacherDashboardType`): today's classes with "Take
-      attendance", exams to grade, class performance chart, announcements.
-- [ ] **Parent**: child switcher, attendance ring, latest grades, fees due
-      card, upcoming meetings, announcements.
-- [ ] **Student** (`StudentDashboardType`): today's schedule, upcoming exams
-      with countdown, grade trend chart, borrowed books with due dates,
-      announcements.
+| Planned | Built from |
+|---|---|
+| Today's classes / today's schedule (no timetable) | The teacher's classrooms with today's attendance; for students, an agenda of online lessons (with times), exams closing and calendar events |
+| Exams to grade (exams are auto-marked) | Open exams with submitted-of-eligible progress |
+| Borrowed books (no lending) | Newest library resources for the student's grade |
+| Announcements (only platform ones, already in the bell) | "Coming up" from the school calendar |
+| Upcoming meetings for parents (no parent–teacher meetings) | The child's school calendar and exams still to take |
+
+Backend (tested in `RoleDashboardsTest` against the demo seed):
+
+- Shared types: `DashboardAgendaItemType` (meeting / exam / event, with
+  `events()` and `sorted()` helpers), `DashboardExamScoreType`,
+  `DashboardLibraryItemType`.
+- `TeacherDashboardType` adds `is_school_day`, `classrooms`
+  (`TeacherDashboardClassroomType`: subjects, students, today's
+  attendance; ones with students first, then unmarked), `open_exams`,
+  `exam_results` (`TeacherDashboardExamResultType`: class average per
+  closed exam) and `agenda`.
+- `StudentDashboardType` adds `upcoming_exams`, `score_trend`, `agenda`
+  and `library_resources`.
+- `ParentChildType` (from `/api/parent/children`, built in each child's
+  school) adds `latest_scores` and `agenda`, so switching child needs no
+  extra fetch.
+- Demo seed: four earlier weekly quizzes per grade, scored a little better
+  each week. Also fixed `ExamDemoSeeder` stopping early:
+  `Collection::each` stops when the callback returns false, and
+  `fake()->boolean(85) && …` did that for the first skipped student.
+
+Frontend:
+
+- `features/role-dashboard/shared.tsx` — header, `AgendaPanel` (grouped
+  by Today / Tomorrow / weekday), `RateRing`, `ScoreChart` (area or bars),
+  reusing the admin dashboard's `Panel`, `EmptyState` and `KpiCard`.
+- Teacher: KPIs, today's classes (6 shown, Take attendance links to
+  `/attendance?classroom=ID`), open exams with progress, class
+  performance bars, coming up, full calendar.
+- Student: KPIs (attendance, exams to take, average score with
+  sparkline, fees), your week, upcoming exams with countdown and
+  Start / Continue, score trend, new in the library, full calendar.
+- Parent: child switcher (remembered per browser), attendance ring, fees
+  due card, latest results, coming up, links into the per-child pages,
+  full calendar.
+- The old centered avatar + "Welcome" block on `/dashboard` is gone (the
+  avatar is in the avatar menu since step 2). Copy in
+  `messages/{en,ar}.json` → `RoleDashboards`, which replaces
+  `TeacherDashboardPage`, `StudentDashboardPage`, `ParentDashboardPage`
+  and `DashboardPage`.
+
+Follow-ups (new modules, if wanted):
+
+- [ ] Timetable (periods per classroom / subject / teacher) — would give
+      real "today's classes" times and a student schedule.
+- [ ] Library lending with due dates.
+- [ ] School-level announcements (admin → teachers / parents / students).
+- [ ] A per-user notifications feed (also a step 2 follow-up).

@@ -149,6 +149,32 @@ readonly subject_teachers: ClassroomSubjectTeacherType[],
 readonly created_at: string,
 readonly updated_at: string,
 };
+export type DashboardAgendaItemType = {
+readonly kind: 'meeting' | 'exam' | 'event',
+readonly id: number,
+readonly title: string,
+readonly starts_at: string,
+readonly all_day: boolean,
+readonly duration_minutes: number | null,
+readonly subject_name_en: string | null,
+readonly subject_name_ar: string | null,
+};
+export type DashboardExamScoreType = {
+readonly exam_id: number,
+readonly title: string,
+readonly subject_name_en: string,
+readonly subject_name_ar: string,
+readonly score: number,
+readonly total_marks: number,
+readonly percent: number,
+readonly submitted_at: string,
+};
+export type DashboardLibraryItemType = {
+readonly id: number,
+readonly title: string,
+readonly type: LibraryResourceKind,
+readonly created_at: string,
+};
 export type ExamAttemptStatus = 'in_progress' | 'submitted';
 export type ExamDetailType = {
 readonly id: number,
@@ -353,6 +379,8 @@ readonly school_name: string,
 readonly attendance: StudentAttendanceSummaryType,
 readonly fees: StudentFeesSummaryType,
 readonly currency: string | null,
+readonly latest_scores: DashboardExamScoreType[],
+readonly agenda: DashboardAgendaItemType[],
 };
 export type PlatformSchoolType = {
 readonly id: number,
@@ -471,6 +499,10 @@ readonly currency: string | null,
 readonly exams_total: number,
 readonly exams_pending_count: number,
 readonly next_exam: StudentExamListEntryType | null,
+readonly upcoming_exams: StudentExamListEntryType[],
+readonly score_trend: DashboardExamScoreType[],
+readonly agenda: DashboardAgendaItemType[],
+readonly library_resources: DashboardLibraryItemType[],
 };
 export type StudentExamAttemptType = {
 readonly attempt_id: number,
@@ -570,6 +602,28 @@ readonly grade_name_ar: string,
 readonly student_count: number,
 readonly attendance_marked_today: boolean,
 };
+export type TeacherDashboardClassroomType = {
+readonly id: number,
+readonly name: string,
+readonly grade_name_en: string,
+readonly grade_name_ar: string,
+readonly subjects_en: string[],
+readonly subjects_ar: string[],
+readonly students_count: number,
+readonly marked_today: boolean,
+readonly present_today: number,
+readonly absent_today: number,
+};
+export type TeacherDashboardExamResultType = {
+readonly id: number,
+readonly title: string,
+readonly subject_name_en: string,
+readonly subject_name_ar: string,
+readonly closes_at: string,
+readonly submitted_count: number,
+readonly eligible_count: number,
+readonly average_percent: number | null,
+};
 export type TeacherDashboardType = {
 readonly teacher: TeacherType,
 readonly classrooms_count: number,
@@ -578,6 +632,11 @@ readonly students_total: number,
 readonly attendance_marked_count: number,
 readonly exams_total: number,
 readonly latest_exam: TeacherExamSummaryType | null,
+readonly is_school_day: boolean,
+readonly classrooms: TeacherDashboardClassroomType[],
+readonly open_exams: TeacherExamSummaryType[],
+readonly exam_results: TeacherDashboardExamResultType[],
+readonly agenda: DashboardAgendaItemType[],
 };
 export type TeacherExamSummaryType = {
 readonly id: number,

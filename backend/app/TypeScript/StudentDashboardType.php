@@ -7,19 +7,31 @@ use App\Enums\ExamStatus;
 use App\Models\Attendance;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
+use App\Models\LibraryResource;
+use App\Models\Meeting;
 use App\Models\Setting;
 use App\Models\Student;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
- * The dashboard's landing summary — latest/aggregate figures only. Full
- * history and listings live behind their own endpoints/pages (see
- * StudentPortal\AttendanceController, SubjectController, FeeController) so
- * this stays a fast, small fetch.
+ * The dashboard's landing summary — latest/aggregate figures, the next few
+ * exams, a score trend, what's coming up and the newest library resources.
+ * There's no timetable or book lending in the app, so "today's schedule" is
+ * the agenda (online lessons, exams closing, calendar events) and the
+ * library list is what's new for the grade (docs/design-refresh-plan.md,
+ * step 4). Full history and listings live behind their own endpoints/pages
+ * (see StudentPortal\AttendanceController, SubjectController,
+ * FeeController) so this stays a fast, small fetch.
  */
 #[TypeScript]
 final class StudentDashboardType
 {
+    /** Submitted attempts in score_trend, newest kept. */
+    public const TREND = 10;
+
+    /** Days ahead in agenda. */
+    public const AGENDA_DAYS = 7;
+
     public function __construct(
         public readonly StudentType $student,
         public readonly StudentAttendanceSummaryType $attendance_summary,
@@ -30,6 +42,14 @@ final class StudentDashboardType
         public readonly int $exams_total,
         public readonly int $exams_pending_count,
         public readonly ?StudentExamListEntryType $next_exam,
+        /** @var StudentExamListEntryType[] Not submitted and not closed, closing soonest first. */
+        public readonly array $upcoming_exams,
+        /** @var DashboardExamScoreType[] Oldest first. */
+        public readonly array $score_trend,
+        /** @var DashboardAgendaItemType[] */
+        public readonly array $agenda,
+        /** @var DashboardLibraryItemType[] */
+        public readonly array $library_resources,
     ) {}
 
     public static function build(Student $student): self
@@ -65,6 +85,29 @@ final class StudentDashboardType
             ->sortBy('closes_at');
 
         $nextExam = $pendingExams->first();
+        $openExams = $pendingExams->filter(fn (Exam $exam) => $exam->closes_at->isFuture())->values();
+
+        $scores = ExamAttempt::with(['exam.subject', 'exam.questions'])
+            ->where('student_id', $student->id)
+            ->where('status', ExamAttemptStatus::Submitted)
+            ->whereNotNull('submitted_at')
+            ->orderByDesc('submitted_at')
+            ->take(self::TREND)
+            ->get()
+            ->reverse()
+            ->map(fn (ExamAttempt $attempt) => DashboardExamScoreType::fromAttempt($attempt))
+            ->values()
+            ->all();
+
+        $meetings = Meeting::where('academic_year_id', $student->academic_year_id)
+            ->whereHas('classrooms', fn ($q) => $q->where('classroom_id', $student->classroom_id))
+            ->whereBetween('start_time', [now()->startOfDay(), today()->addDays(self::AGENDA_DAYS)->endOfDay()])
+            ->get()
+            ->map(fn (Meeting $m) => DashboardAgendaItemType::forMeeting($m));
+
+        $closing = $openExams
+            ->filter(fn (Exam $exam) => $exam->opens_at->isPast() && $exam->closes_at->lte(today()->addDays(self::AGENDA_DAYS)->endOfDay()))
+            ->map(fn (Exam $exam) => DashboardAgendaItemType::forExam($exam));
 
         return new self(
             student: StudentType::fromModel($student),
@@ -78,6 +121,17 @@ final class StudentDashboardType
             exams_total: $exams->count(),
             exams_pending_count: $pendingExams->count(),
             next_exam: $nextExam ? StudentExamListEntryType::build($nextExam, $attemptsByExam->get($nextExam->id)) : null,
+            upcoming_exams: $openExams->take(5)
+                ->map(fn (Exam $exam) => StudentExamListEntryType::build($exam, $attemptsByExam->get($exam->id)))
+                ->all(),
+            score_trend: $scores,
+            agenda: DashboardAgendaItemType::sorted($meetings->concat($closing)->concat(DashboardAgendaItemType::events(self::AGENDA_DAYS)), 8),
+            library_resources: LibraryResource::where('grade_id', $student->grade_id)
+                ->latest('id')
+                ->take(3)
+                ->get()
+                ->map(fn (LibraryResource $r) => DashboardLibraryItemType::fromModel($r))
+                ->all(),
         );
     }
 }

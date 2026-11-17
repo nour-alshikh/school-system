@@ -18,7 +18,9 @@ use Illuminate\Support\Collection;
 /**
  * Three exams per school, one per state a teacher and student can see: a
  * closed quiz with scored attempts, an exam open right now with some
- * attempts in progress, and a draft for next week.
+ * attempts in progress, and a draft for next week. Plus four earlier weekly
+ * quizzes per grade, scored a little better each week, so the dashboards'
+ * score trends have a shape.
  */
 class ExamDemoSeeder
 {
@@ -80,10 +82,37 @@ class ExamDemoSeeder
             $students = Student::where('grade_id', $grade->id)->where('status', StudentStatus::Active)->orderBy('id')->get();
 
             match ($plan['attempts']) {
-                'scored' => $students->each(fn (Student $s) => fake()->boolean(85) && $this->attempt($exam, $s, $questions, submitted: true)),
+                'scored' => $students->filter(fn () => fake()->boolean(85))->each(fn (Student $s) => $this->attempt($exam, $s, $questions, submitted: true)),
                 'mixed' => $students->take(6)->each(fn (Student $s, int $n) => $this->attempt($exam, $s, $questions, submitted: $n % 2 === 0)),
                 default => null,
             };
+        }
+
+        foreach ($grades as $grade) {
+            foreach ([6, 5, 4, 3] as $n => $weeksAgo) {
+                $subject = $this->subjectFor($grade, $n % 2 === 0 ? 'Mathematics' : 'Science');
+                $closes = now()->subWeeks($weeksAgo);
+
+                $exam = Exam::create([
+                    'title' => 'Weekly quiz '.($n + 1).' — '.$grade->getTranslation('name', 'en'),
+                    'type' => 'quiz',
+                    'subject_id' => $subject->id,
+                    'grade_id' => $grade->id,
+                    'classroom_id' => null,
+                    'academic_year_id' => $year->id,
+                    'created_by' => $this->teacherUserId($grade, $subject) ?? $admin->id,
+                    'instructions' => 'Choose one answer for each question.',
+                    'duration_minutes' => 15,
+                    'opens_at' => $closes->copy()->subDays(2)->setTime(8, 0),
+                    'closes_at' => $closes->copy()->setTime(20, 0),
+                    'status' => 'published',
+                ]);
+
+                $questions = $this->questions($exam, $subject);
+                Student::where('grade_id', $grade->id)->where('status', StudentStatus::Active)->orderBy('id')->get()
+                    ->filter(fn () => fake()->boolean(90))
+                    ->each(fn (Student $s) => $this->attempt($exam, $s, $questions, submitted: true, accuracy: 58 + $n * 8));
+            }
         }
     }
 
@@ -142,8 +171,8 @@ class ExamDemoSeeder
         })->all();
     }
 
-    /** Answers each question (right about 75% of the time); scored if submitted. */
-    private function attempt(Exam $exam, Student $student, Collection $questions, bool $submitted): bool
+    /** Answers each question (right $accuracy% of the time); scored if submitted. */
+    private function attempt(Exam $exam, Student $student, Collection $questions, bool $submitted, int $accuracy = 75): bool
     {
         $started = $exam->opens_at->copy()->addHours(fake()->numberBetween(1, 30));
         if ($started->isFuture()) {
@@ -160,7 +189,7 @@ class ExamDemoSeeder
 
         $score = 0;
         foreach ($questions as $q) {
-            $right = fake()->boolean(75);
+            $right = fake()->boolean($accuracy);
             $marks = $right ? $q['question']->marks : 0;
             $score += $marks;
 
