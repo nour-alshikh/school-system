@@ -184,6 +184,7 @@ return [
     'blueprint_too_many_grades' => 'A school can start with at most :max grades.',
     'blueprint_unknown_stage' => 'This subject points to a stage that isn’t there.',
     'blueprint_duplicate_classroom' => 'Each classroom in a grade needs a different name.',
+    'structure_additions_empty' => 'There’s nothing to add.',
 
     'school_slug' => [
         'invalid' => 'Use 3–63 lowercase letters, numbers and single dashes (e.g. green-valley).',

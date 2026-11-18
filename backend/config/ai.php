@@ -67,6 +67,8 @@ return [
         Actions\ScheduleMeeting::class,
         Actions\DraftExam::class,
         Actions\MarkAttendance::class,
+        // Adds to the structure; its preparation is a second AI call.
+        Actions\SetUpStructure::class,
     ],
 
 ];

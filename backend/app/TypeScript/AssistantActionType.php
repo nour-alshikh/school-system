@@ -14,7 +14,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 final class AssistantActionType
 {
     public function __construct(
-        #[LiteralTypeScriptType("'create_event' | 'schedule_meeting' | 'draft_exam' | 'mark_attendance'")]
+        #[LiteralTypeScriptType("'create_event' | 'schedule_meeting' | 'draft_exam' | 'mark_attendance' | 'set_up_structure'")]
         public readonly string $name,
         #[LiteralTypeScriptType('Record<string, unknown>')]
         public readonly array $fields,

@@ -1,6 +1,6 @@
 # AI Assistant Plan
 
-Status: **all phases done** except phase 6's "set up structure" and phase 7's fee reminder (written 2026-11-17; decisions settled the same day). Related:
+Status: **all phases done** except phase 7's fee reminder (written 2026-11-17; decisions settled the same day). Related:
 [self-service-schools-plan.md](./self-service-schools-plan.md) (signup and
 the setup checklist), [central-dashboard-plan.md](./central-dashboard-plan.md)
 (where "Draft with AI" started), [authorization.md](./authorization.md).
@@ -385,7 +385,7 @@ normal API endpoint as the user. Start with low-risk ones:
 Never: deleting, payments, changing roles/permissions, anything in the
 central dashboard.
 
-**Done (2026-11-17), except "set up structure".** As built:
+**Done (2026-11-17; "set up structure" 2026-11-18).** As built:
 
 - Actions in `config('ai.assistant_actions')`, `App\Services\Ai\Assistant\Actions\*`,
   each with `allows()` (the same permission/role/plan module as doing it
@@ -419,11 +419,27 @@ central dashboard.
   `handoff.ts` (sessionStorage, read once), `AiDraftButton` takes
   `initialNotes` / `defaultOpen`.
 - Tests: `tests/Feature/AssistantActionsTest.php`.
-- **Not done: "set up structure from a description".** `SchoolBlueprint::apply()`
-  only builds into an empty school; adding to an existing one ("add a
-  secondary stage with 3 classes per grade") needs a merge (skip or rename
-  what exists) and its own confirm endpoint under manage-academics. Left
-  for a follow-up.
+- **"Set up structure from a description" (added 2026-11-18).**
+  `set_up_structure` (manage-academics) takes the request in the person's
+  words; preparing it makes a second AI call (`StructureAdditionsDrafter`,
+  logged as `draft.structure_additions`) with the current structure's
+  names (stages › grades › classrooms, subjects; no people), which
+  replies with only what to add, cleaned up and validated like a
+  blueprint. `App\Services\StructureAdditions` merges it by **skipping**
+  what exists (stages, grades and subjects matched by English or Arabic
+  name, classrooms by "{grade} - {section}"); it never renames, moves or
+  removes. A subject that exists gains the new stages it's listed under.
+  The card previews only what's new (new badges, classrooms per grade,
+  subjects; warning `structure_existing_skipped`); nothing new → no card.
+  Confirm → `POST /api/structure/additions` (manage-academics), which
+  matches again at save time, so confirming twice adds nothing more.
+  Renaming was left out on purpose: names are changed on each page.
+  No academic year is created (unlike a new school's blueprint).
+  Tests: `tests/Feature/AssistantStructureTest.php`.
+- Fixed with it: `SchoolBlueprint::after()` without a prefix read
+  `data_get($data, '')` (null), so `SchoolBlueprint::validate()` skipped
+  its cross-field checks (grade total, duplicate sections, subject stage
+  indexes). It now reads the whole data.
 
 ### Phase 7 — Draft with AI, wave 2 (M)
 

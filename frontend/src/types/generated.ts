@@ -98,7 +98,7 @@ readonly roles: RoleType[],
 };
 export type AnnouncementLevel = 'info' | 'warning' | 'critical';
 export type AssistantActionType = {
-readonly name: 'create_event' | 'schedule_meeting' | 'draft_exam' | 'mark_attendance',
+readonly name: 'create_event' | 'schedule_meeting' | 'draft_exam' | 'mark_attendance' | 'set_up_structure',
 readonly fields: Record<string, unknown>,
 readonly warnings: string[],
 readonly status: 'proposed' | 'done' | 'dismissed',

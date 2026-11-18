@@ -107,8 +107,12 @@ class SchoolBlueprintDrafter extends Drafter
         return $blueprint;
     }
 
-    /** Up to the stage and total-grade limits; a stage or grade without both names is dropped. */
-    private function stages(mixed $rows): array
+    /**
+     * Up to the stage and total-grade limits; a stage or grade without both
+     * names is dropped, and so is a stage left with no grades unless
+     * $keepEmpty (StructureAdditionsDrafter names existing stages that way).
+     */
+    protected function stages(mixed $rows, bool $keepEmpty = false): array
     {
         $stages = [];
         $gradesLeft = SchoolBlueprint::MAX_GRADES;
@@ -134,7 +138,7 @@ class SchoolBlueprintDrafter extends Drafter
                 }
             }
 
-            if ($grades !== []) {
+            if ($grades !== [] || $keepEmpty) {
                 $seen[mb_strtolower($names['name_en'])] = true;
                 $stages[] = [...$names, 'grades' => $grades];
             }
@@ -144,7 +148,7 @@ class SchoolBlueprintDrafter extends Drafter
     }
 
     /** Distinct, trimmed section names; one ("A") when none are usable. */
-    private function sections(mixed $values): array
+    protected function sections(mixed $values): array
     {
         $sections = [];
         foreach (is_array($values) ? $values : [] as $value) {
@@ -158,7 +162,7 @@ class SchoolBlueprintDrafter extends Drafter
     }
 
     /** Subjects with both names and at least one existing stage; duplicates by English name dropped. */
-    private function subjects(mixed $rows, int $stageCount): array
+    protected function subjects(mixed $rows, int $stageCount): array
     {
         $subjects = [];
         $seen = [];
@@ -183,7 +187,7 @@ class SchoolBlueprintDrafter extends Drafter
     }
 
     /** name_en/name_ar (or {name: {en, ar}}), trimmed and cut; null unless both are there. */
-    private function names(mixed $row): ?array
+    protected function names(mixed $row): ?array
     {
         if (! is_array($row)) {
             return null;

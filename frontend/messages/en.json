@@ -2255,8 +2255,17 @@
         "classroom_not_found": "Couldn't find a classroom called “{name}”.",
         "classroom_ambiguous": "“{name}” matches more than one classroom; left out.",
         "student_not_found": "Couldn't find “{name}” in this classroom.",
-        "student_ambiguous": "“{name}” matches more than one student; left out."
-      }
+        "student_ambiguous": "“{name}” matches more than one student; left out.",
+        "structure_existing_skipped": "Some of it already exists and is left as it is."
+      },
+      "title_set_up_structure": "Add to the school's structure",
+      "confirm_set_up_structure": "Add to structure",
+      "structureSummary": "New: {stages, plural, =0 {} one {# stage, } other {# stages, }}{grades, plural, one {# grade} other {# grades}}, {classrooms, plural, one {# classroom} other {# classrooms}}, {subjects, plural, one {# subject change} other {# subject changes}}.",
+      "structureClassrooms": "adds {names}",
+      "structureSubjects": "Subjects",
+      "structureAlsoIn": "also taught in {stages}",
+      "structureNew": "new",
+      "structureHint": "Only adds what's missing. Nothing is renamed or removed; change names afterwards on each page."
     }
   },
   "DescribeSchool": {

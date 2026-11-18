@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AlertTriangle, CalendarPlus, Check, CheckSquare, ClipboardList, Loader2, Video, X } from "lucide-react";
+import { AlertTriangle, CalendarPlus, Check, CheckSquare, ClipboardList, Layers, Loader2, Video, X } from "lucide-react";
 import { apiFetch, ApiError } from "@/lib/api";
 import type { AssistantActionType } from "@/types/generated";
 import type { AttendanceStatus } from "@/features/attendance/types";
@@ -22,6 +22,7 @@ const ICONS = {
   schedule_meeting: Video,
   draft_exam: ClipboardList,
   mark_attendance: CheckSquare,
+  set_up_structure: Layers,
 } as const;
 
 interface EventFields {
@@ -51,6 +52,22 @@ interface AttendanceFields {
   default_status: AttendanceStatus;
   students: number;
   exceptions: { student_id: number; name: string; status: AttendanceStatus }[];
+}
+
+interface NamePair {
+  name_en: string;
+  name_ar: string;
+}
+
+/** SetUpStructure's card: the additions to send back, and the preview of what's new (StructureAdditions::plan). */
+interface StructureFields {
+  request: string;
+  additions: Record<string, unknown>;
+  preview: {
+    stages: (NamePair & { id: number | null; grades: (NamePair & { id: number | null; classrooms: string[] })[] })[];
+    subjects: (NamePair & { id: number | null; stages: NamePair[] })[];
+    counts: { stages: number; grades: number; classrooms: number; subjects: number; subject_stages: number };
+  };
 }
 
 /**
@@ -103,6 +120,9 @@ export function AssistantActionCard({
       {action.name === "mark_attendance" && (
         <AttendanceForm fields={action.fields as unknown as AttendanceFields} onStatus={onStatus} onNavigate={onNavigate} />
       )}
+      {action.name === "set_up_structure" && (
+        <StructureForm fields={action.fields as unknown as StructureFields} onStatus={onStatus} />
+      )}
     </div>
   );
 }
@@ -115,7 +135,7 @@ function Warnings({ codes }: { codes: string[] }) {
       {codes.map((code) => {
         const [key, ...rest] = code.split(":");
         const name = rest.join(":");
-        const known = ["past_date", "zoom_not_connected", "classroom_not_found", "classroom_ambiguous", "student_not_found", "student_ambiguous"];
+        const known = ["past_date", "zoom_not_connected", "classroom_not_found", "classroom_ambiguous", "student_not_found", "student_ambiguous", "structure_existing_skipped"];
         if (!known.includes(key)) return null;
         return (
           <li key={code} className="flex items-start gap-1.5">
@@ -165,7 +185,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function useSave(onStatus: (status: Status) => void, invalidate: string) {
+function useSave(onStatus: (status: Status) => void, invalidate: string | string[]) {
   const t = useTranslations("Assistant.actions");
   const tErrors = useTranslations("Errors");
   const queryClient = useQueryClient();
@@ -174,7 +194,9 @@ function useSave(onStatus: (status: Status) => void, invalidate: string) {
     mutationFn: ({ url, body }: { url: string; body: unknown }) =>
       apiFetch(url, { method: "POST", body: JSON.stringify(body) }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [invalidate] });
+      for (const key of Array.isArray(invalidate) ? invalidate : [invalidate]) {
+        void queryClient.invalidateQueries({ queryKey: [key] });
+      }
       toast.success(t("saved"));
       onStatus("done");
     },
@@ -353,5 +375,85 @@ function AttendanceForm({
         onDismiss={() => onStatus("dismissed")}
       />
     </>
+  );
+}
+
+function StructureForm({ fields, onStatus }: { fields: StructureFields; onStatus: (s: Status) => void }) {
+  const t = useTranslations("Assistant.actions");
+  const locale = useLocale();
+  const save = useSave(onStatus, ["stages", "grades", "classrooms", "subjects", "admin-onboarding"]);
+  const name = (item: NamePair) => (locale === "ar" ? item.name_ar : item.name_en);
+  const { stages, subjects, counts } = fields.preview;
+
+  return (
+    <>
+      <p className="text-xs text-muted-foreground">
+        {t("structureSummary", {
+          stages: counts.stages,
+          grades: counts.grades,
+          classrooms: counts.classrooms,
+          subjects: counts.subjects + counts.subject_stages,
+        })}
+      </p>
+      <ul className="flex flex-col gap-2 text-sm">
+        {stages.map((stage) => (
+          <li key={`${stage.id ?? "new"}-${stage.name_en}`} className="flex flex-col gap-1">
+            <span className="flex items-center gap-1.5 font-medium">
+              {name(stage)}
+              <New show={stage.id === null} />
+            </span>
+            <ul className="flex flex-col gap-0.5 border-s ps-3">
+              {stage.grades.map((grade) => (
+                <li key={`${grade.id ?? "new"}-${grade.name_en}`} className="text-xs">
+                  <span className="inline-flex items-center gap-1.5 text-foreground">
+                    {name(grade)}
+                    <New show={grade.id === null} />
+                  </span>
+                  {grade.classrooms.length > 0 && (
+                    <span className="text-muted-foreground" dir="auto">
+                      {" "}
+                      · {t("structureClassrooms", { names: grade.classrooms.join(locale === "ar" ? "، " : ", ") })}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+      {subjects.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <p className="text-xs font-medium text-muted-foreground">{t("structureSubjects")}</p>
+          <ul className="flex flex-col gap-0.5 text-xs">
+            {subjects.map((subject) => (
+              <li key={subject.name_en} className="flex flex-wrap items-center gap-1.5">
+                <span className="text-foreground">{name(subject)}</span>
+                <New show={subject.id === null} />
+                {subject.id !== null && (
+                  <span className="text-muted-foreground">{t("structureAlsoIn", { stages: subject.stages.map(name).join(locale === "ar" ? "، " : ", ") })}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground">{t("structureHint")}</p>
+      <Actions
+        confirmLabel={t("confirm_set_up_structure")}
+        pending={save.isPending}
+        onConfirm={() => save.mutate({ url: "/api/structure/additions", body: { additions: fields.additions } })}
+        onDismiss={() => onStatus("dismissed")}
+      />
+    </>
+  );
+}
+
+function New({ show }: { show: boolean }) {
+  const t = useTranslations("Assistant.actions");
+  if (!show) return null;
+  return (
+    <span className="rounded bg-brand-accent/15 px-1 py-px text-[10px] font-medium uppercase tracking-wide text-brand-accent-strong dark:text-brand-accent">
+      {t("structureNew")}
+    </span>
   );
 }

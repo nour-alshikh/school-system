@@ -46,6 +46,7 @@ use App\Http\Controllers\SchoolBlueprintController;
 use App\Http\Controllers\SchoolSignupController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StageController;
+use App\Http\Controllers\StructureAdditionController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentPortal\AttendanceController as StudentAttendanceController;
 use App\Http\Controllers\StudentPortal\DashboardController as StudentDashboardController;
@@ -212,6 +213,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/subjects/bulk-delete', [SubjectController::class, 'bulkDestroy']);
         Route::put('/subjects/{subject}', [SubjectController::class, 'update']);
         Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy']);
+
+        // The assistant's "set up structure" card (docs/ai-assistant-plan.md,
+        // phase 6): adds what doesn't exist yet, skips the rest.
+        Route::post('/structure/additions', [StructureAdditionController::class, 'store']);
     });
 
     // Fees are their own admin territory, separate from the academic

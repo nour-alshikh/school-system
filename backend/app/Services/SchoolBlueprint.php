@@ -86,7 +86,8 @@ class SchoolBlueprint
     public static function after(string $prefix = ''): callable
     {
         return function (Validator $validator) use ($prefix) {
-            $data = data_get($validator->getData(), rtrim($prefix, '.'));
+            // No prefix: the whole data (data_get with '' would return null).
+            $data = $prefix === '' ? $validator->getData() : data_get($validator->getData(), rtrim($prefix, '.'));
             $stages = is_array($data['stages'] ?? null) ? $data['stages'] : [];
 
             $grades = array_sum(array_map(fn ($s) => is_array($s['grades'] ?? null) ? count($s['grades']) : 0, $stages));

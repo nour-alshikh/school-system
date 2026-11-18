@@ -2255,8 +2255,17 @@
         "classroom_not_found": "لم أجد فصلًا باسم «{name}».",
         "classroom_ambiguous": "«{name}» يطابق أكثر من فصل؛ تم استبعاده.",
         "student_not_found": "لم أجد «{name}» في هذا الفصل.",
-        "student_ambiguous": "«{name}» يطابق أكثر من طالب؛ تم استبعاده."
-      }
+        "student_ambiguous": "«{name}» يطابق أكثر من طالب؛ تم استبعاده.",
+        "structure_existing_skipped": "بعضها موجود بالفعل وسيبقى كما هو."
+      },
+      "title_set_up_structure": "إضافة إلى هيكل المدرسة",
+      "confirm_set_up_structure": "أضف إلى الهيكل",
+      "structureSummary": "الجديد: {stages, plural, =0 {} one {مرحلة واحدة، } two {مرحلتان، } few {# مراحل، } many {# مرحلة، } other {# مرحلة، }}{grades, plural, =0 {لا صفوف} one {صف واحد} two {صفان} few {# صفوف} many {# صفًا} other {# صف}}، {classrooms, plural, =0 {لا فصول} one {فصل واحد} two {فصلان} few {# فصول} many {# فصلًا} other {# فصل}}، {subjects, plural, =0 {لا تغييرات في المواد} one {تغيير واحد في المواد} two {تغييران في المواد} few {# تغييرات في المواد} many {# تغييرًا في المواد} other {# تغيير في المواد}}.",
+      "structureClassrooms": "يضيف {names}",
+      "structureSubjects": "المواد",
+      "structureAlsoIn": "تُدرَّس أيضًا في {stages}",
+      "structureNew": "جديد",
+      "structureHint": "يضيف الناقص فقط. لا يُعاد تسمية أي شيء ولا يُحذف؛ غيّر الأسماء لاحقًا من كل صفحة."
     }
   },
   "DescribeSchool": {

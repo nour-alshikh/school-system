@@ -162,6 +162,7 @@ return [
     'blueprint_too_many_grades' => 'يمكن أن تبدأ المدرسة بـ :max صفًا على الأكثر.',
     'blueprint_unknown_stage' => 'هذه المادة مرتبطة بمرحلة غير موجودة.',
     'blueprint_duplicate_classroom' => 'يجب أن يكون لكل فصل في الصف اسم مختلف.',
+    'structure_additions_empty' => 'لا يوجد ما يُضاف.',
 
     'school_slug' => [
         'invalid' => 'استخدم من 3 إلى 63 حرفًا إنجليزيًا صغيرًا أو رقمًا مع شرطات مفردة (مثل green-valley).',
