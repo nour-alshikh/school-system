@@ -11,6 +11,7 @@ import { Brand, LandingNavbar, SECTIONS } from "@/features/home/landing-navbar";
 import { Hero } from "@/features/home/hero";
 import { CountUp } from "@/features/home/count-up";
 import { FeatureBento } from "@/features/home/feature-bento";
+import { AiShowcase } from "@/features/home/ai-showcase";
 import { RolePortals } from "@/features/home/role-portals";
 import { Pricing } from "@/features/home/pricing";
 import { Faq } from "@/features/home/faq";
@@ -191,6 +192,7 @@ export function HomePage() {
         <Hero />
         <Stats />
         <FeatureBento />
+        <AiShowcase />
         <RolePortals />
         <HowItWorks />
         <Pricing />

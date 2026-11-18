@@ -2,7 +2,7 @@
 
 import { useRef, type ComponentType, type PointerEvent } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowRight, CircleCheck, ClipboardCheck, Languages, Wallet } from "lucide-react";
+import { ArrowRight, CircleCheck, ClipboardCheck, Languages, Sparkles, Wallet } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useFadeIn } from "@/hooks/use-fade-in";
@@ -96,10 +96,21 @@ export function Hero() {
 
       <div className="mx-auto grid w-full max-w-6xl gap-14 px-6 pt-16 pb-20 lg:grid-cols-12 lg:items-center lg:gap-8 lg:pt-24 lg:pb-28">
         <div ref={textRef} className="flex flex-col items-start gap-6 lg:col-span-5">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-accent/15 px-3 py-1 text-xs font-semibold text-amber-800 ring-1 ring-brand-accent/40 dark:text-amber-300">
-            <Languages className="size-3.5" />
-            {t("heroBadge")}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-accent/15 px-3 py-1 text-xs font-semibold text-amber-800 ring-1 ring-brand-accent/40 dark:text-amber-300">
+              <Languages className="size-3.5" />
+              {t("heroBadge")}
+            </span>
+            {/* Points at the "AI built in" section with its two demos. */}
+            <a
+              href="#ai"
+              className="group inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary ring-1 ring-primary/30 transition-colors hover:bg-primary/15 dark:text-teal-300"
+            >
+              <Sparkles className="size-3.5 motion-safe:animate-[landing-twinkle_2.6s_ease-in-out_infinite]" />
+              {t("heroAiBadge")}
+              <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />
+            </a>
+          </div>
           <h1 className="relative text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem] lg:leading-[1.08]">
             {t("heroHeadline")}
             <Sparkle className="absolute -top-3 -end-2 size-6 text-brand-accent motion-safe:animate-[landing-twinkle_2.6s_ease-in-out_infinite] sm:-end-6" />

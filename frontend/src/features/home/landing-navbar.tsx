@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 
 export const SECTIONS = [
   { id: "features", key: "navFeatures" },
+  { id: "ai", key: "navAi" },
   { id: "portals", key: "navPortals" },
   { id: "pricing", key: "navPricing" },
   { id: "faq", key: "navFaq" },

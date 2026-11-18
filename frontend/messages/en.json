@@ -1587,7 +1587,11 @@
     "footerGetStarted": "Get started",
     "footerRegister": "Create an account",
     "footerCopyright": "© {year} {brand}. All rights reserved.",
-    "featureAi": "AI drafts"
+    "featureAi": "AI drafts",
+    "navAi": "AI",
+    "heroAiBadge": "AI drafts & assistant built in",
+    "faqQ7": "What does the AI see, and can it change anything?",
+    "faqA7": "Drafts only see what you type into them, and nothing is saved until you press Save yourself. The assistant explains how to do things for everyone; it only looks up your school's records (attendance, fees, results) after an admin turns that on, and only what each person is already allowed to see. Anything it prepares, like an event or new classrooms, waits for you to confirm."
   },
   "ParentFeesPage": {
     "heading": "Fees",
@@ -2350,5 +2354,104 @@
     "paymentsValue": "{count, plural, one {# payment} other {# payments}} · {total}",
     "newStudents": "New students",
     "examsNext": "Exams in the next 7 days"
+  },
+  "AiShowcase": {
+    "eyebrow": "AI built in",
+    "heading": "Write less. Ask anything.",
+    "subtext": "Type a rough note and get the form filled in, in English and Arabic. Or ask the assistant how to do something, who was absent, or to set something up for you. Try both below.",
+    "demoBadge": "Demo",
+    "draftTitle": "Draft with AI",
+    "draftSubtitle": "On exams, events, meetings, the library and more",
+    "draftPick": "Pick an example",
+    "draftNotesLabel": "Your notes",
+    "draftTranslateLabel": "Fill the other language",
+    "draftButton": "Draft",
+    "draftTranslateButton": "Translate",
+    "draftDrafting": "Drafting…",
+    "draftUndo": "Undo AI draft",
+    "draftFooter": "The draft fills the form. You check it and press Save; nothing is saved by the AI.",
+    "draft": {
+      "event": {
+        "tab": "Calendar event",
+        "notes": "Sports day next Thursday for primary, parents welcome",
+        "titleLabel": "Title",
+        "title": "Primary Sports Day",
+        "dateLabel": "Date",
+        "audienceLabel": "For",
+        "audience": "Primary · parents invited",
+        "descriptionLabel": "Description",
+        "description": "A morning of races and team games for all primary classes. Parents are warmly invited to cheer from the stands. Please send your child in sports clothes with a water bottle."
+      },
+      "exam": {
+        "tab": "Exam questions",
+        "notes": "5 MCQs on fractions for Grade 4, medium",
+        "placeholder": "Question",
+        "q1": "Which fraction is equal to 2/4?",
+        "q1o1": "1/4",
+        "q1o2": "1/2",
+        "q1o3": "3/4",
+        "q1o4": "2/2",
+        "q2": "What is 1/3 + 1/3?",
+        "q2o1": "1/6",
+        "q2o2": "2/6",
+        "q2o3": "2/3",
+        "q2o4": "1/9",
+        "more": "+ 3 more questions, each with the correct answer and marks."
+      },
+      "translate": {
+        "tab": "Translate",
+        "notes": "The Arabic tab is empty. Fill it from the English.",
+        "enLabel": "Subject description (English)",
+        "en": "Hands-on science: simple experiments that build curiosity and careful observation.",
+        "arLabel": "الوصف (العربية)",
+        "ar": "علوم تطبيقية: تجارب بسيطة تنمّي حب الاستطلاع ودقة الملاحظة."
+      }
+    },
+    "chatTitle": "The assistant",
+    "chatSubtitle": "In every page's top bar, for every role",
+    "chatPanelTitle": "Assistant",
+    "chatEmpty": "Pick a question below, or type your own.",
+    "chatThinking": "Thinking",
+    "chatPlaceholder": "Ask how to do something…",
+    "chatSend": "Send",
+    "chatFooter": "In your school it answers from the help pages and, if your admin allows it, your own records, and only what each person may see.",
+    "chat": {
+      "help": {
+        "question": "How do I take attendance?",
+        "keywords": "how,attendance,take,mark,where",
+        "reply": "Open Attendance, pick the class and today's date, then tap each student's status. Everyone starts as present, so you only change the few who aren't. Press Save when you're done.",
+        "link": "Open Attendance"
+      },
+      "data": {
+        "question": "Who was absent today in 4-A?",
+        "keywords": "who,absent,today,missing,late",
+        "reply": "Two students in 4-A were absent today:",
+        "student1": "Omar Khaled",
+        "status1": "Absent",
+        "student2": "Lina Hassan",
+        "status2": "Absent",
+        "source": "From today's attendance for 4-A"
+      },
+      "action": {
+        "question": "Add sports day next Thursday",
+        "keywords": "add,create,schedule,event,set up,new",
+        "reply": "I've prepared it below. Check it, then confirm.",
+        "cardTitle": "New calendar event",
+        "cardEvent": "Sports Day",
+        "cardDate": "next Thursday",
+        "confirm": "Add to calendar",
+        "dismiss": "Dismiss",
+        "done": "Added to the calendar"
+      },
+      "other": {
+        "reply": "In your own school I'd answer that from the help pages and your school's data. Create your school to try it for real; it only takes a minute."
+      }
+    },
+    "promiseConfirmTitle": "You confirm everything",
+    "promiseConfirmBody": "Drafts fill forms and actions show a card. Nothing is saved until you press the button.",
+    "promiseDataTitle": "Your data, your call",
+    "promiseDataBody": "The assistant reads school records only after an admin turns it on, and only what each person may see.",
+    "promiseLanguagesTitle": "Arabic and English",
+    "promiseLanguagesBody": "Bilingual fields are drafted in both, with Arabic written naturally rather than word for word."
   }
 }
