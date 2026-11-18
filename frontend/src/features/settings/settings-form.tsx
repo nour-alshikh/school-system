@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -40,6 +40,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Setting } from "./types";
+import { AiDraftButton } from "@/components/ai/ai-draft-button";
+import { useAiDraft } from "@/hooks/use-ai-draft";
+
+/** POST /api/ai/draft/seo (SeoDrafter). */
+type SeoDraft = { meta_title: string; meta_description: string };
 
 function valuesFromSettings(settings: Setting[]): SettingsFormValues {
   const byKey = new Map(settings.map((s) => [s.key, s.value ?? ""]));
@@ -72,6 +77,25 @@ export function SettingsForm({
   });
 
   const { user } = useAuth();
+
+  // ✦ Drafts the SEO text from the name, tagline and address as typed in this form.
+  const [schoolName, tagline, address] = useWatch({
+    control: form.control,
+    name: ["school_name", "tagline", "address"],
+  });
+  const seoAi = useAiDraft<SettingsFormValues, SeoDraft>({
+    form,
+    kind: "seo",
+    context: {
+      school_name: schoolName || null,
+      tagline: tagline || null,
+      address: address || null,
+    },
+    toValues: (draft) => ({
+      meta_title: draft.meta_title,
+      meta_description: draft.meta_description,
+    }),
+  });
   // The plan decides whether AI exists at all; this setting only turns it off.
   const planHasAi = !!user?.plan_features?.includes("ai");
 
@@ -397,6 +421,12 @@ export function SettingsForm({
           </TabsContent>
 
           <TabsContent value="seo" className="mt-4">
+            <AiDraftButton
+              ai={seoAi}
+              className="justify-end"
+              hint={t("seoAiHint")}
+              placeholder={t("seoAiPlaceholder")}
+            />
             <FormField
               control={form.control}
               name="meta_title"
@@ -404,7 +434,10 @@ export function SettingsForm({
                 <FormItem>
                   <FormLabel>{t("metaTitleLabel")}</FormLabel>
                   <FormControl>
-                    <Input {...field} className="h-10" />
+                    <Input
+                      {...field}
+                      className={`h-10 ${seoAi.highlight("meta_title") ?? ""}`}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -417,7 +450,11 @@ export function SettingsForm({
                 <FormItem>
                   <FormLabel>{t("metaDescriptionLabel")}</FormLabel>
                   <FormControl>
-                    <Textarea {...field} rows={3} />
+                    <Textarea
+                      {...field}
+                      rows={3}
+                      className={seoAi.highlight("meta_description")}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

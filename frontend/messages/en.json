@@ -1435,7 +1435,9 @@
     "aiEnabledLabel": "AI features",
     "aiEnabledHint": "Shows “Draft with AI” on forms. Only what someone types is sent to the AI provider. Turn off to hide it for everyone at this school.",
     "assistantDataLabel": "Let the assistant read school data",
-    "assistantDataHint": "The assistant can then answer questions like “who was absent today?” with what each person is allowed to see. The results of those lookups (names, attendance, marks, fees) are sent to the AI provider. Off by default."
+    "assistantDataHint": "The assistant can then answer questions like “who was absent today?” with what each person is allowed to see, and AI can write student progress notes and the dashboard’s weekly summary. The records used (names, attendance, marks, fees) are sent to the AI provider. Off by default.",
+    "seoAiHint": "Writes the meta title and description from the school's name, tagline and address on the other tabs, plus your notes.",
+    "seoAiPlaceholder": "e.g. Bilingual primary school in Maadi, small classes, STEM clubs"
   },
   "HomePage": {
     "navFeatures": "Features",
@@ -2304,5 +2306,40 @@
     "schoolDaysLater": "None chosen yet: you can pick them later in Settings.",
     "describeAgain": "Describe a change",
     "discard": "Start with an empty school instead"
+  },
+  "ProgressNote": {
+    "trigger": "Progress note",
+    "title": "Progress note for parents",
+    "description": "Written from this student's attendance over the last 30 days and recent exam results. Nothing is saved or sent: check it, then copy it.",
+    "languageLabel": "Language",
+    "english": "English",
+    "arabic": "Arabic",
+    "notesLabel": "Anything to add (optional)",
+    "notesPlaceholder": "e.g. Reads much more confidently; should hand in homework on time",
+    "write": "Write note",
+    "rewrite": "Write again",
+    "writing": "Writing…",
+    "noteLabel": "Note",
+    "reviewHint": "Check every sentence against what you know before sharing it.",
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "WeeklySummary": {
+    "title": "This week",
+    "range": "Last 7 days",
+    "write": "Summarize",
+    "rewrite": "Rewrite",
+    "writtenAt": "Written by AI at {time}, from the numbers below",
+    "enableHint": "To have AI summarize the week, turn on “Let the assistant read school data” in <link>Settings</link>.",
+    "attendance": "Attendance",
+    "noAttendance": "Not marked",
+    "attendanceVs": "{rate} (week before: {previous})",
+    "unmarked": "Classes not marked",
+    "unmarkedDay": "{day}: {count}",
+    "allMarked": "None",
+    "payments": "Payments",
+    "paymentsValue": "{count, plural, one {# payment} other {# payments}} · {total}",
+    "newStudents": "New students",
+    "examsNext": "Exams in the next 7 days"
   }
 }

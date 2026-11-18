@@ -17,6 +17,7 @@ import { OnboardingChecklist } from "@/features/onboarding/onboarding-checklist"
 import { AttendanceChart, FeesChart, StagesDonut } from "./charts";
 import { KpiCard, type KpiChange } from "./kpi-card";
 import { ActivityFeed, AttentionPanel, MiniCalendar, UpcomingExams } from "./panels";
+import { WeeklySummary } from "./weekly-summary";
 import {
   attendanceRate,
   collected,
@@ -197,6 +198,8 @@ export function AdminDashboardPage() {
           />
         )}
       </section>
+
+      <WeeklySummary />
 
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <AttendanceChart trend={dashboard.attendance_trend} className="lg:col-span-8" />

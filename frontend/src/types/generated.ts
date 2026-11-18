@@ -727,5 +727,6 @@ readonly memberships: SchoolMembershipType[],
 readonly acting_as: ActingAsType | null,
 readonly plan_features: string[] | null,
 readonly ai_available: boolean,
+readonly ai_reads_data: boolean,
 readonly platform_two_factor: boolean,
 };

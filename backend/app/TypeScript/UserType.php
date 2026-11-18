@@ -48,6 +48,11 @@ final class UserType
          * the plan includes ai and the school hasn't turned it off (AiAccess).
          */
         public readonly bool $ai_available = false,
+        /**
+         * Whether AI may also use the school's records (the assistant_data
+         * setting, AiAccess::readsData): progress notes, the weekly summary.
+         */
+        public readonly bool $ai_reads_data = false,
         /** Whether a system admin needs a two-factor code to open a school (config platform.two_factor). */
         public readonly bool $platform_two_factor = true,
     ) {}
@@ -72,6 +77,7 @@ final class UserType
             acting_as: $session ? ActingAsType::fromSession($session) : null,
             plan_features: ($current?->school ?? $session?->school)?->effectivePlan()->features,
             ai_available: app(AiAccess::class)->available($current?->school ?? $session?->school),
+            ai_reads_data: ($school = $current?->school ?? $session?->school) !== null && app(AiAccess::class)->readsData($school),
             platform_two_factor: (bool) config('platform.two_factor'),
         );
     }

@@ -20,6 +20,7 @@ import { PageLoader } from "@/components/page-loader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Section } from "./guardian-fields";
 import { StudentEditForm } from "./student-edit-form";
+import { ProgressNoteButton } from "./progress-note-dialog";
 import { StudentFeesSection } from "@/features/fee-charges/student-fees-section";
 import type { Student, Guardian } from "./types";
 import type {
@@ -197,7 +198,8 @@ function StudentDetail({
           <h1 className="text-lg font-semibold">
             {locale === "ar" ? student.name_ar : student.name_en}
           </h1>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <ProgressNoteButton studentId={student.id} />
             <Button
               type="button"
               variant="outline"

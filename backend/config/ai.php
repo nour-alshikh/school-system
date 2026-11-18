@@ -6,6 +6,8 @@ use App\Services\Ai\Drafts\CalendarEventDrafter;
 use App\Services\Ai\Drafts\ExamQuestionsDrafter;
 use App\Services\Ai\Drafts\LibraryResourceDrafter;
 use App\Services\Ai\Drafts\MeetingDrafter;
+use App\Services\Ai\Drafts\ProgressNoteDrafter;
+use App\Services\Ai\Drafts\SeoDrafter;
 use App\Services\Ai\Drafts\TranslateDrafter;
 
 /*
@@ -37,6 +39,10 @@ return [
         'calendar_event' => CalendarEventDrafter::class,
         'meeting' => MeetingDrafter::class,
         'library_resource' => LibraryResourceDrafter::class,
+        // Phase 7. progress_note sends the student's records, so it also
+        // needs the school's assistant_data setting (Drafter::readsSchoolData).
+        'progress_note' => ProgressNoteDrafter::class,
+        'seo' => SeoDrafter::class,
     ],
 
     // The assistant's read-only lookups (phase 5), offered only when the

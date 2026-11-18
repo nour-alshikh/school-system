@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OnboardingController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WeeklySummaryController;
 use App\Http\Controllers\AiDraftController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AssistantController;
@@ -390,6 +391,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'show']);
+        // "This week" card (docs/ai-assistant-plan.md, phase 7): numbers always,
+        // the AI-written summary only with assistant_data on.
+        Route::get('/admin/weekly-summary', [WeeklySummaryController::class, 'show']);
+        Route::post('/admin/weekly-summary', [WeeklySummaryController::class, 'store'])->middleware('throttle:ai');
 
         // A new school's setup checklist (docs/self-service-schools-plan.md).
         Route::get('/admin/onboarding', [OnboardingController::class, 'show']);

@@ -27,6 +27,8 @@ return [
     'assistant_lookup_failed' => 'I couldn’t look that up. Try asking another way, or open the page for it.',
     'assistant_action_ready' => 'I’ve prepared it below. Check it, then confirm.',
     'assistant_action_failed' => 'I couldn’t prepare that. Try again with a bit more detail, or do it on its page.',
+    'ai_school_data_off' => 'This uses the school’s records, so an admin needs to turn on “Let the assistant read school data” in Settings first.',
+    'weekly_summary_failed' => 'The AI couldn’t write this week’s summary right now. The numbers are below; try again in a minute.',
     'no_current_school' => 'Open a school first.',
     'blueprint_fallback' => 'We couldn’t read your description right now, so this is a standard structure. Change it below, or try describing it again later.',
     'blueprint_unchanged' => 'We couldn’t make that change right now, so your structure is as it was. Edit it below, or try again later.',

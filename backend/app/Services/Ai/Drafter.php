@@ -52,6 +52,31 @@ abstract class Drafter
         return null;
     }
 
+    /**
+     * Whether the draft sends the school's records to the AI provider (a
+     * student's attendance and results), not just what the user typed —
+     * then it needs the school's assistant_data setting on (phase 7).
+     */
+    public function readsSchoolData(): bool
+    {
+        return false;
+    }
+
+    /** Whether the user must type notes; false when the context is enough (a progress note). */
+    public function notesRequired(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Whether the user may draft with this validated context, e.g. may see
+     * the student it names. Checked after authorize(); false → 403.
+     */
+    public function authorizeContext(User $user, array $context): bool
+    {
+        return true;
+    }
+
     /** Today, for prompts that turn "next Thursday" into a date. */
     protected function today(): string
     {

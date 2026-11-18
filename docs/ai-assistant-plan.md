@@ -1,6 +1,6 @@
 # AI Assistant Plan
 
-Status: **phases 1–6 done** (phase 6 without "set up structure") (written 2026-11-17; decisions settled the same day). Related:
+Status: **all phases done** except phase 6's "set up structure" and phase 7's fee reminder (written 2026-11-17; decisions settled the same day). Related:
 [self-service-schools-plan.md](./self-service-schools-plan.md) (signup and
 the setup checklist), [central-dashboard-plan.md](./central-dashboard-plan.md)
 (where "Draft with AI" started), [authorization.md](./authorization.md).
@@ -437,6 +437,39 @@ Things that need school data (so after phase 5's data setting):
   description.
 - **Weekly summary** card on the admin dashboard ("This week: attendance
   91%, 3 classes unmarked Tuesday, 12 payments").
+
+**Done (2026-11-18), except the fee reminder.** As built:
+
+- `Drafter` gained three hooks, used by `AiDraftController`:
+  `readsSchoolData()` (needs `assistant_data`, else 403
+  `api.ai_school_data_off`), `notesRequired()` and
+  `authorizeContext($user, $context)` (403 when false).
+- `progress_note` (`ProgressNoteDrafter`): context `student_id`, `language`
+  (en/ar); notes optional. Sends `StudentSummary` (30 days of attendance,
+  recent results, exams to take) **without fees**, as a
+  `<student-records>` block marked as data. manage-students, or a teacher
+  of the student's classroom. UI: "✦ Progress note" on the student page
+  (`features/students/progress-note-dialog.tsx`): language, optional
+  notes, an editable note and Copy. Nothing is saved or sent. Teachers
+  have no student page yet, so today only manage-students users see the
+  button; the endpoint already allows teachers.
+- `seo` (`SeoDrafter`, manage-settings): notes plus the name, tagline and
+  address from the form → `meta_title` (≤70) and `meta_description`
+  (≤200). Doesn't need `assistant_data` (only what the admin typed).
+  Button on Settings → SEO.
+- Weekly summary: `App\Services\Ai\WeeklySummary` + `GET/POST
+  /api/admin/weekly-summary` (role admin; POST `throttle:ai`). The numbers
+  (last 7 days: attendance vs the week before, school days with classes
+  left unmarked, payments, new students, exams in the next 7 days) always
+  come back and work without AI; POST writes 2–4 sentences from them only
+  (logged as `weekly_summary`), cached per school and language until the
+  end of the day. Card "This week" on the admin dashboard
+  (`features/admin-dashboard/weekly-summary.tsx`).
+- The user payload carries `ai_reads_data` so these buttons show only when
+  they'd work. The `assistant_data` hint in Settings mentions them.
+- Tests: `tests/Feature/AiWaveTwoTest.php`.
+- **Not done: fee reminder message.** The app still can't send messages
+  (gaps.md); add it as a draft kind once it can.
 
 ## Not in this plan
 

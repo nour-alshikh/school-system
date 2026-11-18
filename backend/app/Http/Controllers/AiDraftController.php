@@ -33,9 +33,12 @@ class AiDraftController extends Controller
         $feature = $drafter->planFeature();
         abort_if($feature && ! $context->school()->effectivePlan()->includes($feature), 403, __('api.plan_feature_missing'));
 
+        // Drafts built from the school's records follow the assistant's data setting (phase 7).
+        abort_if($drafter->readsSchoolData() && ! $access->readsData($context->school()), 403, __('api.ai_school_data_off'));
+
         $contextRules = collect($drafter->contextRules())->mapWithKeys(fn ($rules, $key) => ["context.{$key}" => $rules])->all();
         $data = $request->validate([
-            'notes' => ['required', 'string', 'max:2000'],
+            'notes' => [$drafter->notesRequired() ? 'required' : 'nullable', 'string', 'max:2000'],
             'context' => ['nullable', 'array'],
             ...$contextRules,
         ]);
@@ -43,6 +46,8 @@ class AiDraftController extends Controller
         // Only the keys the kind validates reach its prompt.
         $draftContext = Arr::only($data['context'] ?? [], array_keys($drafter->contextRules()));
 
-        return $this->aiDraft(fn () => $drafter->draft($data['notes'], $draftContext));
+        abort_unless($drafter->authorizeContext($request->user(), $draftContext), 403);
+
+        return $this->aiDraft(fn () => $drafter->draft(trim($data['notes'] ?? ''), $draftContext));
     }
 }
