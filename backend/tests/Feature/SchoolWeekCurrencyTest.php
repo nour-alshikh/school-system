@@ -85,6 +85,24 @@ class SchoolWeekCurrencyTest extends TestCase
     }
 
     /** @param  array<string, string>  $values */
+    public function test_a_setting_row_the_school_is_missing_is_created_not_rejected(): void
+    {
+        // As on a database where the migration adding assistant_data hasn't run.
+        $this->inSchool(fn () => Setting::where('key', 'assistant_data')->delete());
+        $this->assertDatabaseMissing('settings', ['key' => 'assistant_data', 'school_id' => $this->school->id]);
+
+        $this->save(['tagline' => 'Learning together', 'assistant_data' => '1'])->assertOk();
+
+        $this->inSchool(function () {
+            $this->assertSame('1', Setting::where('key', 'assistant_data')->sole()->value);
+            $this->assertSame('general', Setting::where('key', 'assistant_data')->sole()->group->value);
+        });
+
+        // Keys outside the defaults (or the file settings) still aren't accepted.
+        $this->save(['not_a_setting' => 'x'])->assertJsonValidationErrors('settings.0.key');
+        $this->save(['logo' => 'x'])->assertJsonValidationErrors('settings.0.key');
+    }
+
     private function save(array $values): TestResponse
     {
         return $this->withToken($this->token)->putJson('/api/settings', [

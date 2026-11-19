@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Setting;
 
+use App\Services\SchoolProvisioner;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class UpdateSettingsRequest extends FormRequest
@@ -16,7 +18,11 @@ class UpdateSettingsRequest extends FormRequest
     {
         return [
             'settings' => ['required', 'array', 'min:1'],
-            'settings.*.key' => ['required', 'string', 'exists:settings,key'],
+            // The keys every school has (SchoolProvisioner), not "exists:settings,key":
+            // that checks every school's rows, and a school missing a row (one
+            // added by a migration that hasn't run yet) would still fail or
+            // silently save nothing. File settings have their own endpoint.
+            'settings.*.key' => ['required', 'string', Rule::in(self::textKeys())],
             'settings.*.value' => ['nullable', 'string'],
         ];
     }
@@ -46,6 +52,15 @@ class UpdateSettingsRequest extends FormRequest
                 };
             }
         }];
+    }
+
+    /** Settings this form may write: the defaults, less files and the setup checklist's own flag. */
+    public static function textKeys(): array
+    {
+        return array_values(array_diff(
+            array_keys(SchoolProvisioner::DEFAULT_SETTINGS),
+            ['logo', 'favicon', 'og_image', 'onboarding_dismissed_at'],
+        ));
     }
 
     /** "0,1,2,3,4": distinct weekday numbers 0 (Sunday) – 6 (Saturday). */

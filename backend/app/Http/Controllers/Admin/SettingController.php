@@ -7,6 +7,7 @@ use App\Http\Requests\Setting\UpdateSettingFileRequest;
 use App\Http\Requests\Setting\UpdateSettingsRequest;
 use App\Http\Resources\SettingResource;
 use App\Models\Setting;
+use App\Services\SchoolProvisioner;
 
 class SettingController extends Controller
 {
@@ -16,10 +17,13 @@ class SettingController extends Controller
      */
     public function update(UpdateSettingsRequest $request)
     {
+        // Upsert per school: a row a migration hasn't added yet is created
+        // instead of the change being dropped.
         foreach ($request->validated('settings') as $item) {
-            Setting::where('key', $item['key'])->update([
-                'value' => $item['value'] ?? null,
-            ]);
+            Setting::updateOrCreate(
+                ['key' => $item['key']],
+                ['value' => $item['value'] ?? null, 'group' => SchoolProvisioner::DEFAULT_SETTINGS[$item['key']]],
+            );
         }
 
         return response()->json([
