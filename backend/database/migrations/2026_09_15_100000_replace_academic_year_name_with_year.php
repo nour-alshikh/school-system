@@ -21,7 +21,17 @@ return new class extends Migration
             // number (see AcademicYearType::fromModel) instead of being
             // freely typed, so every academic year follows the same
             // "YYYY/YYYY+1" pattern.
-            $table->unsignedSmallInteger('year')->unique()->after('id');
+            //
+            // Added nullable, then made required: older SQLite (shared
+            // hosting, demo sandboxes) refuses ALTER TABLE ADD COLUMN NOT NULL
+            // without a default, while ->change() rebuilds the table there.
+            // The resulting schema is the same on every driver.
+            $table->unsignedSmallInteger('year')->nullable()->after('id');
+        });
+
+        Schema::table('academic_years', function (Blueprint $table) {
+            $table->unsignedSmallInteger('year')->nullable(false)->change();
+            $table->unique('year');
         });
     }
 
