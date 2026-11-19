@@ -11,6 +11,7 @@ import { HeaderSkeleton } from "@/components/app-skeletons";
 import { useFadeIn } from "@/hooks/use-fade-in";
 import { apiFetch } from "@/lib/api";
 import { DEMO_LOGINS_ENABLED } from "@/lib/demo-accounts";
+import { Logo } from "@/components/logo";
 import { UserAvatar } from "@/components/user-avatar";
 import { AvatarUploader } from "@/components/avatar-uploader";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -254,8 +255,8 @@ export function SiteHeader() {
     return (
       <header ref={ref} className="border-b print:hidden">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
-          <Link href="/" className="text-sm font-semibold">
-            {t("brand")}
+          <Link href="/" aria-label={t("brand")} className="flex items-center rounded-lg">
+            <Logo className="h-8" />
           </Link>
           <div className="flex items-center gap-2">
             {!isLoading && (

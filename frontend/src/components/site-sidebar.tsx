@@ -8,7 +8,7 @@ import { useAuth, useSessionHint } from "@/contexts/auth-context";
 import { SidebarSkeleton } from "@/components/app-skeletons";
 import { useStaggerIn } from "@/hooks/use-stagger-in";
 import { cn } from "@/lib/utils";
-import { BrandMark } from "@/components/brand-mark";
+import { Logo, LogoIcon } from "@/components/logo";
 import { useNavSections, type NavItem } from "@/components/app-nav";
 
 const STORAGE_KEY = "sidebar-collapsed";
@@ -36,7 +36,10 @@ function writeStored(key: string, value: boolean) {
   }
 }
 
-/** The school's mark and name, at the top of the sidebar and the drawer. */
+/**
+ * The logo and the current school's name, at the top of the sidebar and the
+ * drawer. Collapsed, just the mark.
+ */
 export function SidebarBrand({ collapsed = false }: { collapsed?: boolean }) {
   const t = useTranslations("Nav");
   const { user } = useAuth();
@@ -45,15 +48,17 @@ export function SidebarBrand({ collapsed = false }: { collapsed?: boolean }) {
   return (
     <Link
       href="/dashboard"
-      className={cn("flex min-w-0 items-center gap-2.5 rounded-lg", collapsed && "justify-center")}
+      aria-label={t("brand")}
+      className={cn("flex min-w-0 flex-col gap-1 rounded-lg", collapsed && "items-center")}
       title={collapsed ? t("brand") : undefined}
     >
-      <BrandMark />
-      {!collapsed && (
-        <span className="flex min-w-0 flex-col leading-tight">
-          <span className="truncate text-sm font-semibold">{t("brand")}</span>
+      {collapsed ? (
+        <LogoIcon className="size-8" />
+      ) : (
+        <>
+          <Logo className="h-9" />
           {schoolName && <span className="truncate text-xs text-muted-foreground">{schoolName}</span>}
-        </span>
+        </>
       )}
     </Link>
   );

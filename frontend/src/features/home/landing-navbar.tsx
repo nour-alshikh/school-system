@@ -7,7 +7,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { useFadeIn } from "@/hooks/use-fade-in";
 import { cn } from "@/lib/utils";
-import { BrandMark } from "@/components/brand-mark";
+import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
@@ -23,9 +23,8 @@ export const SECTIONS = [
 export function Brand() {
   const tNav = useTranslations("Nav");
   return (
-    <Link href="/" className="flex shrink-0 items-center gap-2 rounded-lg font-semibold">
-      <BrandMark />
-      <span className="text-[15px]">{tNav("brand")}</span>
+    <Link href="/" aria-label={tNav("brand")} className="flex shrink-0 items-center rounded-lg">
+      <Logo className="h-9" />
     </Link>
   );
 }
