@@ -121,12 +121,12 @@ class SchoolLifecycleTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
         $hilltop = School::where('slug', 'hilltop')->sole();
-        $default = School::where('slug', '!=', 'hilltop')->sole();
+        $default = School::oldest('id')->firstOrFail();
         $defaultStudents = app(TenantContext::class)->runAs($default, fn () => Student::count());
 
         $onlyHilltop = User::where('email', 'admin@hilltop.demo')->sole();
         $bothSchools = User::where('email', 'shared.teacher@demo.school')->sole();
-        $systemAdmin = User::where('email', 'test@example.com')->sole();
+        $systemAdmin = User::where('email', 'system@demo.school')->sole();
 
         // Refused until archived, exported and past the restore window.
         $this->artisan('school:purge', ['id' => $hilltop->id, '--confirm' => 'hilltop'])->assertFailed();

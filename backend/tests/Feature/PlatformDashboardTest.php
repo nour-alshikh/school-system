@@ -37,7 +37,7 @@ class PlatformDashboardTest extends TestCase
         Notification::fake();
         $this->seed(DatabaseSeeder::class);
 
-        $this->systemAdmin = User::where('email', 'test@example.com')->sole();
+        $this->systemAdmin = User::where('email', 'system@demo.school')->sole();
     }
 
     public function test_the_overview_counts_every_school(): void
@@ -45,7 +45,7 @@ class PlatformDashboardTest extends TestCase
         $response = $this->platform()->getJson('/api/platform/overview?refresh=1')->assertOk();
 
         $rows = collect($response->json('schools'))->keyBy('slug');
-        $this->assertCount(2, $rows);
+        $this->assertCount(School::count(), $rows);
 
         foreach (School::all() as $school) {
             $row = $rows[$school->slug];
@@ -100,9 +100,9 @@ class PlatformDashboardTest extends TestCase
 
         $this->platform()->getJson("/api/platform/audit-logs?school_id={$hilltop->id}")
             ->assertOk()
-            ->assertJsonCount(1, 'audit_logs')
+            ->assertJsonCount(3, 'audit_logs') // the seed's two (created, plan changed), then this
             ->assertJsonPath('audit_logs.0.action', 'school.suspended')
-            ->assertJsonPath('audit_logs.0.actor.email', 'test@example.com');
+            ->assertJsonPath('audit_logs.0.actor.email', 'system@demo.school');
 
         $this->platform()->getJson("/api/platform/schools/{$hilltop->id}")->assertJsonPath('audit.0.action', 'school.suspended');
     }
@@ -136,7 +136,7 @@ class PlatformDashboardTest extends TestCase
     public function test_school_tokens_cannot_read_the_dashboard(): void
     {
         $token = $this->postJson('/api/login', [
-            'email' => 'test@example.com', 'password' => 'password', 'role' => 'admin',
+            'email' => 'admin@demo.school', 'password' => 'password', 'role' => 'admin',
             'school_id' => School::oldest('id')->value('id'),
         ])->json('token');
 

@@ -10,6 +10,12 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    /** Admin of the default school (and of Hilltop, with the demo data). */
+    public const ADMIN_EMAIL = 'admin@demo.school';
+
+    /** Platform admin only: no school roles. */
+    public const SYSTEM_ADMIN_EMAIL = 'system@demo.school';
+
     /**
      * Seed the application's database.
      */
@@ -35,16 +41,21 @@ class DatabaseSeeder extends Seeder
         $this->call(ClassroomSubjectTeacherSeeder::class);
         $this->call(StudentSeeder::class);
 
-        // User::factory(10)->create();
-
+        // The school admin and the system admin are separate accounts, as
+        // they would be for real: the school admin runs a school, the
+        // system admin runs the platform and only enters a school through
+        // a recorded session. See docs/demo-accounts.md.
         $admin = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Demo Admin',
+            'email' => self::ADMIN_EMAIL,
         ]);
-
         $admin->assignRole('admin');
+
         // Demo only: in a real deployment use `php artisan platform:admin {email}`.
-        $admin->forceFill(['is_platform_admin' => true])->save();
+        User::factory()->create([
+            'name' => 'System Admin',
+            'email' => self::SYSTEM_ADMIN_EMAIL,
+        ])->forceFill(['is_platform_admin' => true])->save();
 
         // A plain registered account: no school, no roles, none of the
         // admin/parent/student territory. See docs/demo-accounts.md.
@@ -56,8 +67,9 @@ class DatabaseSeeder extends Seeder
         $this->call(SchoolMembershipSeeder::class);
 
         // Activity on every page (docs/demo-seeder-plan.md). Never in
-        // production by accident: local/testing, or SEED_DEMO=true.
-        if (app()->environment('local', 'testing') || filter_var(env('SEED_DEMO', false), FILTER_VALIDATE_BOOL)) {
+        // production by accident: local/testing, SEED_DEMO=true, or a demo
+        // deployment (DEMO_MODE, docs/demo-sandboxes.md).
+        if (app()->environment('local', 'testing') || filter_var(env('SEED_DEMO', false), FILTER_VALIDATE_BOOL) || config('demo.enabled')) {
             $this->call(DemoSeeder::class);
         }
     }

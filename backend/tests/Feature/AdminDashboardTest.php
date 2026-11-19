@@ -41,7 +41,7 @@ class AdminDashboardTest extends TestCase
 
         $this->school = School::oldest('id')->firstOrFail();
         $this->token = $this->postJson('/api/login', [
-            'email' => 'test@example.com', 'password' => 'password', 'role' => 'admin',
+            'email' => 'admin@demo.school', 'password' => 'password', 'role' => 'admin',
             'school_id' => $this->school->id,
         ])->assertOk()->json('token');
     }

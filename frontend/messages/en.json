@@ -2073,7 +2073,11 @@
     "dismiss": "Dismiss"
   },
   "DemoLogin": {
-    "fill": "Use the demo account"
+    "fill": "Use the demo account",
+    "reset": "Reset demo data",
+    "resetTitle": "Start over with fresh demo data?",
+    "resetBody": "Everything you changed in this demo is thrown away, and you are signed out. Other visitors never see your changes either way.",
+    "cancel": "Cancel"
   },
   "RoleDashboards": {
     "loadError": "Couldn't load your dashboard.",

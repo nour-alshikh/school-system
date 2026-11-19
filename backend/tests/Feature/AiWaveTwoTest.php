@@ -49,7 +49,7 @@ class AiWaveTwoTest extends TestCase
 
     public function test_seo_draft_uses_the_form_details_and_is_trimmed(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $this->replies(['meta_title' => str_repeat('T', 90), 'meta_description' => 'A caring bilingual school in Maadi. Book a visit.']);
 
         $this->as($admin)->postJson('/api/ai/draft/seo', [
@@ -79,7 +79,7 @@ class AiWaveTwoTest extends TestCase
     public function test_progress_note_is_off_until_the_school_lets_ai_read_its_data(): void
     {
         Http::fake();
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $student = $this->inSchool(fn () => Student::firstOrFail());
 
         $this->as($admin)->getJson('/api/user')->assertJsonPath('user.ai_reads_data', false);
@@ -94,7 +94,7 @@ class AiWaveTwoTest extends TestCase
 
     public function test_progress_note_sends_the_students_records_without_fees(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $this->enableData($admin);
         $student = $this->inSchool(function () {
             $student = Student::whereHas('feeCharges')->firstOrFail();
@@ -130,7 +130,7 @@ class AiWaveTwoTest extends TestCase
     public function test_progress_note_only_for_students_the_user_may_see(): void
     {
         Http::fake();
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $this->enableData($admin);
         $teacher = $this->login('mona.ali@teachers.demo', 'teacher');
 
@@ -159,7 +159,7 @@ class AiWaveTwoTest extends TestCase
     {
         Http::fake();
         Cache::flush();
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
 
         $payments = $this->inSchool(fn () => FeeCharge::first()?->payments()->create(['amount' => 250, 'paid_at' => today()->toDateString(), 'method' => 'cash']));
 

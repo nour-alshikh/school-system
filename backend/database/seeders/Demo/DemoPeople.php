@@ -82,9 +82,13 @@ class DemoPeople
      */
     public function student(Classroom $classroom, AcademicYear $year, string $domain, ?User $parent = null): Student
     {
-        $person = StudentSeeder::NAMES[$this->nameIndex % count(StudentSeeder::NAMES)];
-        $this->nameIndex++;
-        $slug = strtolower(str_replace(' ', '.', $person['en'])).$this->nameIndex;
+        // Skip addresses already taken: StudentSeeder uses the same names
+        // and pattern, and reusing one would give two students one login.
+        do {
+            $person = StudentSeeder::NAMES[$this->nameIndex % count(StudentSeeder::NAMES)];
+            $this->nameIndex++;
+            $slug = strtolower(str_replace(' ', '.', $person['en'])).$this->nameIndex;
+        } while (User::where('email', "{$slug}.student@{$domain}")->exists());
 
         $studentUser = $this->user($person['en'], "{$slug}.student@{$domain}");
         $this->grant($studentUser, MembershipRole::Student);

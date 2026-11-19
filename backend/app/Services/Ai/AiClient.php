@@ -5,6 +5,7 @@ namespace App\Services\Ai;
 use App\Models\AiUsage;
 use App\Tenancy\TenantContext;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -128,6 +129,34 @@ class AiClient
         if ($schoolCap !== null && ($schoolId = $this->schoolId()) && AiUsage::todayCount('school_id', $schoolId) >= (int) $schoolCap) {
             throw new AiCapReached('school');
         }
+
+        $this->ensureWithinDemoCap();
+    }
+
+    /**
+     * A demo deployment (docs/demo-sandboxes.md): ai_usage lives in each
+     * visitor's own copy, so a new copy starts at zero. The total across
+     * all of them is counted in the file cache, outside every copy.
+     *
+     * @throws AiCapReached
+     */
+    private function ensureWithinDemoCap(): void
+    {
+        $cap = config('demo.ai_daily_cap');
+
+        if (! config('demo.enabled') || $cap === null) {
+            return;
+        }
+
+        $store = Cache::store('file');
+        $key = 'demo-ai-calls:'.now()->toDateString();
+        $store->add($key, 0, now()->endOfDay());
+
+        if ((int) $store->get($key) >= (int) $cap) {
+            throw new AiCapReached('demo');
+        }
+
+        $store->increment($key);
     }
 
     /**

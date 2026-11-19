@@ -39,7 +39,8 @@ class SecondSchoolSeeder
 
     public function __construct(private readonly DemoPeople $people) {}
 
-    public function run(User $platformAdmin): School
+    /** @param  User  $sharedAdmin  the default school's admin, who also runs Hilltop (the school switcher) */
+    public function run(User $sharedAdmin): School
     {
         // Created with a password first, so the provisioner treats it as an
         // existing account: no invitation email.
@@ -49,9 +50,9 @@ class SecondSchoolSeeder
         // On Standard, so plans and their limits show up in the dashboard.
         $school->update(['source' => SchoolSource::Seed, 'plan_id' => Plan::where('key', 'standard')->value('id')]);
 
-        app(TenantContext::class)->runAs($school, function () use ($platformAdmin) {
+        app(TenantContext::class)->runAs($school, function () use ($sharedAdmin) {
             // The demo admin runs both schools (and switches between them).
-            $this->people->grant($platformAdmin, MembershipRole::Admin);
+            $this->people->grant($sharedAdmin, MembershipRole::Admin);
 
             $year = AcademicYear::create(['year' => 2025, 'is_current' => true]);
             $this->structure();

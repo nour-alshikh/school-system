@@ -60,7 +60,7 @@ class AssistantDataTest extends TestCase
 
     public function test_school_data_stays_off_until_an_admin_turns_it_on(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $this->replies(['tool' => 'fees_overview', 'args' => []], ['reply' => 'I can’t see that.', 'links' => []]);
 
         $this->as($admin)->getJson('/api/assistant/conversation')->assertJsonPath('reads_data', false);
@@ -79,7 +79,7 @@ class AssistantDataTest extends TestCase
 
     public function test_a_lookup_runs_as_the_user_and_its_result_goes_back_as_data(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $this->enableData($admin);
 
         [$classroom, $date, $absent] = $this->inSchool(function () {
@@ -123,9 +123,9 @@ class AssistantDataTest extends TestCase
             return $m[1];
         };
 
-        $this->enableData($this->login('test@example.com', 'admin'));
+        $this->enableData($this->login('admin@demo.school', 'admin'));
 
-        $admin = $tools('test@example.com', 'admin');
+        $admin = $tools('admin@demo.school', 'admin');
         $this->assertContains('fees_overview', $admin);
         $this->assertContains('find_student', $admin);
         $this->assertContains('attendance_summary', $admin);
@@ -143,7 +143,7 @@ class AssistantDataTest extends TestCase
 
     public function test_the_server_refuses_tools_and_classrooms_the_user_may_not_use(): void
     {
-        $this->enableData($this->login('test@example.com', 'admin'));
+        $this->enableData($this->login('admin@demo.school', 'admin'));
         $teacher = $this->login('mona.ali@teachers.demo', 'teacher');
 
         // A tool outside the teacher's list: not run, no second call.
@@ -172,7 +172,7 @@ class AssistantDataTest extends TestCase
 
     public function test_lookups_stop_after_two(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $this->enableData($admin);
 
         $this->replies(
@@ -189,7 +189,7 @@ class AssistantDataTest extends TestCase
 
     public function test_fees_and_student_lookups_match_the_records_and_link_the_student(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $this->enableData($admin);
 
         [$owing, $student] = $this->inSchool(fn () => [
@@ -211,7 +211,7 @@ class AssistantDataTest extends TestCase
 
     public function test_a_parent_sees_only_their_own_children(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $this->enableData($admin);
         $parent = $this->login('ali.hassan1.parent@demo.school', 'parent');
 
@@ -237,7 +237,7 @@ class AssistantDataTest extends TestCase
     public function test_every_tool_runs_for_every_role_that_may_use_it(): void
     {
         $accounts = [
-            'test@example.com' => 'admin',
+            'admin@demo.school' => 'admin',
             'mona.ali@teachers.demo' => 'teacher',
             'ali.hassan1.parent@demo.school' => 'parent',
             'ali.hassan1.student@demo.school' => 'student',

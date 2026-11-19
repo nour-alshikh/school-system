@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { Building2, Camera, Languages, LogOut, Menu, Plus, X } from "lucide-react";
+import { Building2, Camera, Languages, LogOut, Menu, Plus, RotateCcw, X } from "lucide-react";
 import { toast } from "sonner";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth, useSessionHint } from "@/contexts/auth-context";
 import { HeaderSkeleton } from "@/components/app-skeletons";
 import { useFadeIn } from "@/hooks/use-fade-in";
+import { apiFetch } from "@/lib/api";
+import { DEMO_LOGINS_ENABLED } from "@/lib/demo-accounts";
 import { UserAvatar } from "@/components/user-avatar";
 import { AvatarUploader } from "@/components/avatar-uploader";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -84,12 +86,35 @@ export function UserMenu() {
   const tRoles = useTranslations("LoginChooserPage");
   const tAvatar = useTranslations("Avatar");
   const tErrors = useTranslations("Errors");
+  const locale = useLocale();
   const { user, switchSchool } = useAuth();
   const router = useRouter();
   const handleLogout = useLogout();
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const tDemo = useTranslations("DemoLogin");
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   if (!user) return null;
+
+  /**
+   * Demo deployments: throw away this visitor's copy of the data. The
+   * sign-in went with it, so reload into the login chooser, where the
+   * next request starts a fresh copy.
+   */
+  async function handleReset() {
+    setResetting(true);
+    try {
+      await apiFetch("/api/demo/reset", { method: "POST" });
+      // A full reload on purpose: every cached query and the auth context
+      // belong to the copy that was just deleted.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign(`/${locale}/login`);
+    } catch {
+      setResetting(false);
+      toast.error(tErrors("somethingWentWrong"));
+    }
+  }
 
   async function handleSwitch(membershipId: number) {
     try {
@@ -166,12 +191,36 @@ export function UserMenu() {
               {t("createSchool")}
             </DropdownMenuItem>
           )}
+          {DEMO_LOGINS_ENABLED && (
+            <DropdownMenuItem onClick={() => setResetOpen(true)}>
+              <RotateCcw />
+              {tDemo("reset")}
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="rtl:-scale-x-100" />
             {t("logout")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={resetOpen} onOpenChange={setResetOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{tDemo("resetTitle")}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">{tDemo("resetBody")}</p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setResetOpen(false)}>
+              {tDemo("cancel")}
+            </Button>
+            <Button onClick={handleReset} disabled={resetting}>
+              <RotateCcw className="size-4" />
+              {tDemo("reset")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={avatarOpen} onOpenChange={setAvatarOpen}>
         <DialogContent>

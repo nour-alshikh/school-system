@@ -66,7 +66,7 @@ class AssistantStructureTest extends TestCase
 
     public function test_the_card_previews_only_what_is_new_and_confirming_adds_it(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $before = $this->counts();
 
         $this->replies(
@@ -114,7 +114,7 @@ class AssistantStructureTest extends TestCase
 
     public function test_nothing_new_or_an_unusable_draft_is_no_card(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
 
         $existing = ['stages' => [['name_en' => 'Primary', 'name_ar' => 'الابتدائية', 'grades' => [['name_en' => 'Grade 1', 'name_ar' => 'الصف الأول', 'classrooms' => ['A']]]]], 'subjects' => []];
         foreach ([$existing, ['stages' => [], 'subjects' => []], ['not' => 'json shape']] as $draft) {
@@ -139,7 +139,7 @@ class AssistantStructureTest extends TestCase
 
     public function test_confirm_validates_the_additions(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
 
         $this->as($admin)->postJson('/api/structure/additions', ['additions' => ['stages' => [], 'subjects' => []]])
             ->assertJsonValidationErrors('additions.stages');

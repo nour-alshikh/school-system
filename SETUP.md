@@ -48,7 +48,7 @@ whether to rename-and-keep or delete them:
   resource you actually need; keep the `Gate::before` admin bypass in
   `AppServiceProvider` regardless (see
   [docs/production-readiness.md](./docs/production-readiness.md)).
-- Seeded `test@example.com` user in `DatabaseSeeder` — remove once you don't
+- Seeded `admin@demo.school` and `system@demo.school` users in `DatabaseSeeder` — remove once you don't
   need a throwaway dev login.
 - Role-scoped login routes (`/login/admin`, `/login/teacher`, `/login/student`,
   `/login/parent`, plus the `/login` chooser page) — built for this project's

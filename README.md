@@ -45,4 +45,4 @@ npm run dev
 ```
 
 Visit `http://localhost:3000/register` to create an account, or use the seeded
-`test@example.com` user (role `user`).
+`admin@demo.school` school admin and `system@demo.school` system admin (see docs/demo-accounts.md).

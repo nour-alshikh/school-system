@@ -47,9 +47,26 @@ class StudentSeeder extends Seeder
         ['en' => 'Amir Reda', 'ar' => 'أمير رضا', 'gender' => 'male'],
         ['en' => 'Nada Sameh', 'ar' => 'ندى سامح', 'gender' => 'female'],
         ['en' => 'Bilal Emad', 'ar' => 'بلال عماد', 'gender' => 'male'],
+        ['en' => 'Hana Wagdy', 'ar' => 'هنا وجدي', 'gender' => 'female'],
+        ['en' => 'Mazen Hossam', 'ar' => 'مازن حسام', 'gender' => 'male'],
+        ['en' => 'Laila Osama', 'ar' => 'ليلى أسامة', 'gender' => 'female'],
+        ['en' => 'Hamza Yasser', 'ar' => 'حمزة ياسر', 'gender' => 'male'],
+        ['en' => 'Reem Khalil', 'ar' => 'ريم خليل', 'gender' => 'female'],
+        ['en' => 'Yassin Mohsen', 'ar' => 'ياسين محسن', 'gender' => 'male'],
+        ['en' => 'Sara Fouad', 'ar' => 'سارة فؤاد', 'gender' => 'female'],
+        ['en' => 'Eyad Ramy', 'ar' => 'إياد رامي', 'gender' => 'male'],
+        ['en' => 'Mariam Tamer', 'ar' => 'مريم تامر', 'gender' => 'female'],
+        ['en' => 'Khaled Ayman', 'ar' => 'خالد أيمن', 'gender' => 'male'],
+        ['en' => 'Nadine Hesham', 'ar' => 'نادين هشام', 'gender' => 'female'],
+        ['en' => 'Abdallah Saeed', 'ar' => 'عبد الله سعيد', 'gender' => 'male'],
+        ['en' => 'Tala Medhat', 'ar' => 'تالا مدحت', 'gender' => 'female'],
+        ['en' => 'Moaz Galal', 'ar' => 'معاذ جلال', 'gender' => 'male'],
+        ['en' => 'Judy Raafat', 'ar' => 'جودي رأفت', 'gender' => 'female'],
+        ['en' => 'Fares Ehab', 'ar' => 'فارس إيهاب', 'gender' => 'male'],
     ];
 
-    private const STUDENTS_PER_CLASSROOM = 2;
+    /** Enough for class lists, attendance and fee totals to look like a real class. */
+    private const STUDENTS_PER_CLASSROOM = 6;
 
     private ?string $password = null;
 

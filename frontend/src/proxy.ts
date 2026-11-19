@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "@/i18n/routing";
+import { rememberSandbox, sandboxFor } from "@/lib/demo-sandbox";
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -30,6 +31,12 @@ function splitLocale(pathname: string): { locale: string; rest: string } | null 
 }
 
 export function proxy(request: NextRequest) {
+  // A demo visitor's sandbox id is set on their first page view, before the
+  // page's API calls start (src/lib/demo-sandbox.ts).
+  return rememberSandbox(route(request), sandboxFor(request));
+}
+
+function route(request: NextRequest): NextResponse {
   // Handles locale detection, the "always" prefix redirect, and the
   // NEXT_LOCALE cookie — runs first so every path below already has its
   // locale segment resolved (or is being redirected to get one).

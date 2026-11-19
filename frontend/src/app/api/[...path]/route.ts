@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { rememberSandbox, SANDBOX_HEADER, sandboxFor } from "@/lib/demo-sandbox";
 
 // This is the whole BFF: the browser only ever talks to this same-origin
 // route, never to Laravel directly. That's what makes auth work when the
@@ -42,7 +43,7 @@ const COOKIE_OPTIONS = {
   maxAge: 60 * 60 * 24 * 90,
 };
 
-async function proxy(request: NextRequest, path: string[]): Promise<Response> {
+async function proxy(request: NextRequest, path: string[], sandbox: string | null): Promise<Response> {
   const pathname = path.join("/");
   const targetUrl = new URL(
     `/api/${pathname}${request.nextUrl.search}`,
@@ -59,6 +60,7 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
 
   const token = request.cookies.get(TOKEN_COOKIE)?.value;
   if (token) headers.set("Authorization", `Bearer ${token}`);
+  if (sandbox) headers.set(SANDBOX_HEADER, sandbox);
 
   const ip = clientIp(request);
   if (BFF_SHARED_SECRET && ip) {
@@ -107,10 +109,27 @@ async function proxy(request: NextRequest, path: string[]): Promise<Response> {
     if (platformToken) {
       await fetch(new URL("/api/logout", LARAVEL_API_URL), {
         method: "POST",
-        headers: { Accept: "application/json", Authorization: `Bearer ${platformToken}` },
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${platformToken}`,
+          ...(sandbox ? { [SANDBOX_HEADER]: sandbox } : {}),
+        },
       }).catch(() => undefined);
     }
     return handleLogout(laravelResponse);
+  }
+
+  // The visitor's copy of the demo data was thrown away, and their
+  // sign-in with it: clear the auth cookies (the sandbox id stays, and the
+  // next request gets a fresh copy under it).
+  if (pathname === "demo/reset") {
+    const response = await passThrough(laravelResponse);
+    if (laravelResponse.ok) {
+      response.cookies.delete(TOKEN_COOKIE);
+      response.cookies.delete(PLATFORM_TOKEN_COOKIE);
+      response.cookies.delete(AUTH_STATUS_COOKIE);
+    }
+    return response;
   }
 
   // The school session ended (expired, or the system admin lost access):
@@ -219,7 +238,11 @@ type RouteParams = { params: Promise<{ path: string[] }> };
 
 async function handler(request: NextRequest, { params }: RouteParams) {
   const { path } = await params;
-  return proxy(request, path);
+
+  const sandbox = sandboxFor(request);
+  const response = await proxy(request, path, sandbox?.id ?? null);
+
+  return response instanceof NextResponse ? rememberSandbox(response, sandbox) : response;
 }
 
 export {

@@ -23,6 +23,8 @@ return [
     'ai_disabled' => 'AI features are turned off for this school. An admin can turn them on in Settings.',
     'ai_cap_reached_user' => 'You’ve used today’s AI requests. Try again tomorrow.',
     'ai_cap_reached_school' => 'This school has used today’s AI requests. Try again tomorrow.',
+    'ai_cap_reached_demo' => 'The demo has used today’s AI requests. Try again tomorrow.',
+    'demo_reset' => 'Your demo data was reset.',
     'assistant_failed' => 'The assistant couldn’t answer right now. Try again in a minute.',
     'assistant_lookup_failed' => 'I couldn’t look that up. Try asking another way, or open the page for it.',
     'assistant_action_ready' => 'I’ve prepared it below. Check it, then confirm.',

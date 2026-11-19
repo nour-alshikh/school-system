@@ -3,10 +3,13 @@
 namespace Database\Seeders\Demo;
 
 use App\Enums\SchoolSource;
+use App\Models\AcademicYear;
+use App\Models\Classroom;
 use App\Models\School;
 use App\Models\Setting;
 use App\Models\User;
 use App\Tenancy\TenantContext;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -35,6 +38,9 @@ class DemoSeeder extends Seeder
         ],
     ];
 
+    /** StudentSeeder's first parent: one child in Grade 1, a second added here. */
+    public const SIBLINGS_PARENT_EMAIL = 'ali.hassan1.parent@demo.school';
+
     public function run(): void
     {
         // One transaction: all or nothing, and far faster on SQLite, where
@@ -52,16 +58,19 @@ class DemoSeeder extends Seeder
 
         $default = School::query()->oldest('id')->firstOrFail();
         $default->update(['source' => SchoolSource::Seed]);
-        $platformAdmin = User::where('email', 'test@example.com')->firstOrFail();
+        $schoolAdmin = User::where('email', DatabaseSeeder::ADMIN_EMAIL)->firstOrFail();
 
-        $hilltop = (new SecondSchoolSeeder($people))->run($platformAdmin);
+        $hilltop = (new SecondSchoolSeeder($people))->run($schoolAdmin);
         (new CrossSchoolPeopleSeeder($people))->run($default, $hilltop);
 
         // Before fees and attendance, so those use the students' final classrooms.
-        $context->runAs($default, fn () => (new HistoryDemoSeeder($people))->run($platformAdmin));
+        $context->runAs($default, function () use ($people, $schoolAdmin) {
+            (new HistoryDemoSeeder($people))->run($schoolAdmin);
+            $this->siblings($people);
+        });
 
         $admins = [
-            'default' => $platformAdmin,
+            'default' => $schoolAdmin,
             'hilltop' => User::where('email', SecondSchoolSeeder::ADMIN_EMAIL)->firstOrFail(),
         ];
 
@@ -83,10 +92,28 @@ class DemoSeeder extends Seeder
             });
         }
 
+        // Last: a suspended school, announcements and the audit trail refer
+        // to the schools above.
+        (new PlatformDemoSeeder($people))->run($default, $hilltop);
+
         (new PhotoDemoSeeder)->avatars([
-            $platformAdmin,
+            $schoolAdmin,
             User::where('email', 'mona.ali@teachers.demo')->first(),
             User::where('email', CrossSchoolPeopleSeeder::FAMILY_PARENT_EMAIL)->first(),
         ]);
+    }
+
+    /**
+     * The demo parent (docs/demo-accounts.md) gets a second child at the
+     * same school, so their portal shows the child picker.
+     */
+    private function siblings(DemoPeople $people): void
+    {
+        $parent = User::where('email', self::SIBLINGS_PARENT_EMAIL)->first();
+        $classroom = Classroom::where('name', 'Grade 4 - A')->first();
+
+        if ($parent && $classroom) {
+            $people->student($classroom, AcademicYear::where('is_current', true)->firstOrFail(), 'demo.school', $parent);
+        }
     }
 }

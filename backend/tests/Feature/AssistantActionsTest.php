@@ -52,7 +52,7 @@ class AssistantActionsTest extends TestCase
 
     public function test_an_event_is_proposed_not_created_and_the_card_can_be_marked_done(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $events = $this->inSchool(fn () => CalendarEvent::count());
         $date = today()->addDays(9)->toDateString();
 
@@ -146,7 +146,7 @@ class AssistantActionsTest extends TestCase
 
     public function test_a_meeting_resolves_classrooms_and_refuses_the_past(): void
     {
-        $admin = $this->login('test@example.com', 'admin');
+        $admin = $this->login('admin@demo.school', 'admin');
         $meetings = $this->inSchool(fn () => Meeting::count());
         $classrooms = $this->inSchool(fn () => Classroom::orderBy('id')->take(2)->get());
         $start = now()->addDays(3)->setTime(10, 0);

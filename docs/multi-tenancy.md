@@ -310,7 +310,7 @@ As shipped (step 6):
    As shipped:
    - A platform admin is a global flag, `users.is_platform_admin`, not a school role.
      Grant it only with `php artisan platform:admin {email}` (`--revoke` to remove);
-     the web UI can't grant it. The seeded `test@example.com` has it for demos.
+     the web UI can't grant it. The seeded `system@demo.school` has it for demos (and no school roles).
    - `GET/POST /api/platform/schools`, `PATCH /api/platform/schools/{school}` (name,
      status), behind the `platform-admin` middleware. The frontend page is
      Platform → Schools (`/platform/schools`), shown in the sidebar only to platform

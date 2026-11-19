@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\ResolveSchool;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrustBffClientIp;
+use App\Http\Middleware\UseDemoSandbox;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,7 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // First of all, so throttles and logs see the visitor's address, not the BFF's.
-        $middleware->prepend(TrustBffClientIp::class);
+        // Then, on a demo deployment, the visitor's own copy of the data,
+        // before anything touches the database (docs/demo-sandboxes.md).
+        $middleware->prepend([TrustBffClientIp::class, UseDemoSandbox::class]);
         $middleware->statefulApi();
         $middleware->throttleApi();
         // AuditPlatformSession records what a system admin does inside a school.

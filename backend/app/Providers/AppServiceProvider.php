@@ -27,6 +27,20 @@ class AppServiceProvider extends ServiceProvider
         // school can't leak into the next. See docs/multi-tenancy.md.
         $this->app->scoped(TenantContext::class);
 
+        // A demo deployment (docs/demo-sandboxes.md): each visitor's
+        // database is their own SQLite copy, so anything that must hold
+        // across visitors lives outside it. Rate limits count in the file
+        // cache (a fresh sandbox mustn't reset a visitor's login throttle),
+        // jobs run inline (a worker couldn't tell which copy a queued job
+        // belongs to), and mail only goes to the log.
+        if (config('demo.enabled')) {
+            config([
+                'cache.limiter' => 'file',
+                'queue.default' => 'sync',
+                'mail.default' => 'log',
+            ]);
+        }
+
         $this->app->extend('validation.presence', fn ($verifier, $app) => new SchoolScopedPresenceVerifier($app['db']));
     }
 

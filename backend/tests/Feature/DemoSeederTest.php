@@ -4,7 +4,10 @@ namespace Tests\Feature;
 
 use App\Enums\FeeChargeStatus;
 use App\Enums\SchoolSource;
+use App\Enums\SchoolStatus;
+use App\Models\Announcement;
 use App\Models\Attendance;
+use App\Models\AuditLog;
 use App\Models\CalendarEvent;
 use App\Models\Exam;
 use App\Models\ExamAttempt;
@@ -13,6 +16,7 @@ use App\Models\FeePayment;
 use App\Models\Graduation;
 use App\Models\LibraryResource;
 use App\Models\Meeting;
+use App\Models\PlatformSession;
 use App\Models\Post;
 use App\Models\Promotion;
 use App\Models\School;
@@ -21,6 +25,7 @@ use App\Models\Student;
 use App\Models\User;
 use App\Tenancy\TenantContext;
 use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\Demo\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -48,10 +53,12 @@ class DemoSeederTest extends TestCase
 
     public function test_it_seeds_two_schools_with_activity_at_both(): void
     {
-        $this->assertSame(2, School::count());
+        // Two active schools with activity, and a suspended one for the system admin.
+        $this->assertSame(3, School::count());
         $this->assertSame(0, School::where('source', '!=', SchoolSource::Seed)->count());
+        $this->assertSame(['riverside'], School::where('status', SchoolStatus::Suspended)->pluck('slug')->all());
 
-        foreach (School::all() as $school) {
+        foreach (School::where('status', SchoolStatus::Active)->get() as $school) {
             app(TenantContext::class)->runAs($school, function () use ($school) {
                 foreach ([Student::class, FeeCharge::class, FeePayment::class, Attendance::class, Exam::class,
                     ExamAttempt::class, CalendarEvent::class, Meeting::class, Post::class, LibraryResource::class] as $model) {
@@ -63,7 +70,7 @@ class DemoSeederTest extends TestCase
             });
         }
 
-        $this->assertSame(['EGP', 'USD'], School::orderBy('id')->get()
+        $this->assertSame(['EGP', 'USD'], School::where('status', SchoolStatus::Active)->orderBy('id')->get()
             ->map(fn (School $s) => app(TenantContext::class)->runAs($s, fn () => Setting::currency()))->all());
     }
 
@@ -141,9 +148,37 @@ class DemoSeederTest extends TestCase
 
     public function test_the_demo_admin_can_sign_in_to_either_school(): void
     {
-        $admin = User::where('email', 'test@example.com')->sole();
+        $admin = User::where('email', DatabaseSeeder::ADMIN_EMAIL)->sole();
 
         $this->assertSame(2, $admin->memberships()->where('role', 'admin')->count());
+        $this->assertFalse($admin->is_platform_admin);
         $this->assertSame(2, User::where('email', 'shared.teacher@demo.school')->sole()->memberships()->count());
+    }
+
+    public function test_the_system_admin_is_its_own_account_with_something_to_review(): void
+    {
+        $system = User::where('email', DatabaseSeeder::SYSTEM_ADMIN_EMAIL)->sole();
+
+        $this->assertTrue($system->is_platform_admin);
+        $this->assertSame(0, $system->memberships()->count());
+
+        $this->assertSame(3, Announcement::count());
+        $this->assertSame(2, Announcement::active()->count());
+        $this->assertSame(1, PlatformSession::whereNotNull('ended_at')->count());
+        foreach (['school.created', 'school.suspended', 'platform.entered_school', 'platform.request', 'announcement.created'] as $action) {
+            $this->assertTrue(AuditLog::where('action', $action)->where('actor_id', $system->id)->exists(), $action);
+        }
+    }
+
+    public function test_every_student_has_their_own_login_and_a_parent_has_siblings(): void
+    {
+        $this->assertSame(0, DB::table('students')->select('user_id')->groupBy('user_id')->havingRaw('count(*) > 1')->count());
+
+        $parent = User::where('email', DemoSeeder::SIBLINGS_PARENT_EMAIL)->sole();
+        $this->assertSame(2, Student::withoutSchoolScope()->where('parent_user_id', $parent->id)->count());
+
+        // Six per "A" classroom at the default school, so classes look real.
+        $default = School::oldest('id')->first();
+        app(TenantContext::class)->runAs($default, fn () => $this->assertSame(6, Student::whereHas('classroom', fn ($q) => $q->where('name', 'Grade 1 - A'))->count()));
     }
 }

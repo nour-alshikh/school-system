@@ -17,6 +17,7 @@ use App\Http\Controllers\AvatarController;
 use App\Http\Controllers\BloodTypeController;
 use App\Http\Controllers\CalendarEventController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\DemoController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\FeeChargeController;
 use App\Http\Controllers\FeeController;
@@ -97,6 +98,10 @@ Route::get('/settings', [SettingController::class, 'index']);
 
 // Public — the landing page's pricing section. Limits and modules only.
 Route::get('/plans', [PlanController::class, 'index']);
+
+// Demo deployments only: start over with a fresh copy of the demo data
+// (docs/demo-sandboxes.md). 404 elsewhere.
+Route::middleware('throttle:10,1')->post('/demo/reset', [DemoController::class, 'reset']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

@@ -9,4 +9,11 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Needs `php artisan schedule:run` every minute (cron) in production.
-Schedule::command('assistant:prune')->daily();
+if (config('demo.enabled')) {
+    // A demo deployment's data lives in short-lived per-visitor copies
+    // (docs/demo-sandboxes.md); the default connection is the template,
+    // which nothing should change.
+    Schedule::command('demo:prune')->everyFifteenMinutes();
+} else {
+    Schedule::command('assistant:prune')->daily();
+}

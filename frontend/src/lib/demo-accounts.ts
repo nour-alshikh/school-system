@@ -10,10 +10,12 @@ export const DEMO_PASSWORD = "password";
 
 export const DEMO_ACCOUNTS: Record<"admin" | "teacher" | "student" | "parent" | "system", string> = {
   // Admin at both demo schools: shows the school picker, then the switcher.
-  admin: "test@example.com",
+  admin: "admin@demo.school",
   teacher: "mona.ali@teachers.demo",
   student: "ali.hassan1.student@demo.school",
   // A child at each school: shows the parent overview with two children.
   parent: "family.parent@demo.school",
-  system: "test@example.com",
+  // Platform only, no school roles. A demo deployment signs it in without
+  // two-factor (backend config platform.two_factor follows DEMO_MODE).
+  system: "system@demo.school",
 };
