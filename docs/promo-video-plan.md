@@ -1,7 +1,25 @@
 # Promo video plan (Remotion)
 
-> **Status: parked.** Don't start this until the owner says to. When they do,
-> work through the steps below in order. The full original brief is at the end
+> **Status: done (2026-11-20).** All six steps complete. `npm run render` in
+> `/video` produces `out/promo-1080x1080.mp4`: 75.0s, H.264 yuv420p, music
+> bed with fades. SFX play once `public/sfx/{click,pop,whoosh}.mp3` exist.
+> How to change copy and render other sizes: `video/README.md`.
+
+**Owner decisions (2026-11-20), these override the brief where they differ:**
+
+1. Scene 3 shows the **real exam flow**: rough notes in the Draft with AI
+   popover → multiple-choice questions fill in one by one (that is what the
+   exam form's AI drafts). The Arabic beat is the same form in the Arabic UI.
+2. The assistant answers in **text** with the real "Open …" link button. No bar
+   chart (the app doesn't draw one).
+3. Video chrome uses the project's **teal and amber**, not indigo/violet.
+4. AI-filled fields use the app's **amber ring**, not the indigo shimmer.
+
+**Reuse vs rebuild (Step 2):** reuse `components/ui/*`, `globals.css`, the real
+`messages/en.json`/`ar.json`, `KpiCard`, `Panel`, `AssistantText`; rebuild the
+page-level screens (exam form + popover, assistant panel + action card,
+attendance, fees, calendar, library, dashboards) with the same markup and
+classes, driven by the frame instead of API data and wall-clock state. The full original brief is at the end
 > ([Full brief](#full-brief)) and is the source of truth for every detail.
 
 A 75-second LinkedIn product video for School System, built with Remotion in a
@@ -12,8 +30,8 @@ of the Next.js build and must not touch any existing app code.
 
 | What | Where it's used | Value |
 | --- | --- | --- |
-| Music BPM | beat-snapping of transitions and key moments (brief §6) | **TBD**: ask, or measure the track |
-| Music length (mm:ss) | trim or loop with a crossfade (brief §6) | **TBD** |
+| Music BPM | beat-snapping of transitions and key moments (brief §6) | **115** (measured, steady across the track; first beat at ~0.13s; 15.65 frames/beat at 30fps) |
+| Music length (mm:ss) | trim or loop with a crossfade (brief §6) | **2:19**, so trim to 75s (no loop needed) |
 | Full logo file | brief §2 `logo-full.png` | `frontend/public/logos/full-01.svg` (light) / `full-04.svg` (white words), or `full-01.png` |
 | Icon logo file | brief §2 `logo-icon.png` | `frontend/public/logos/icon-01.svg` (or `.png`) |
 | Music file | brief §2 `music.mp3` | `frontend/public/audio/corporate-upbeat.mp3` (copy to `/video/public/music.mp3`) |

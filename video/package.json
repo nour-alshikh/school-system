@@ -1,0 +1,31 @@
+{
+  "name": "school-system-promo-video",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "75-second LinkedIn promo video for School System, built with Remotion. Isolated from the Next.js app.",
+  "scripts": {
+    "preview": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Main out/promo-1080x1080.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p",
+    "render:wide": "remotion render src/index.ts MainWide out/promo-1920x1080.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p",
+    "stills": "node scripts/stills.mjs Main",
+    "stills:wide": "node scripts/stills.mjs MainWide",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.545",
+    "@remotion/google-fonts": "^4.0.545",
+    "@remotion/media-utils": "^4.0.545",
+    "@remotion/tailwind-v4": "^4.0.545",
+    "@remotion/transitions": "^4.0.545",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "remotion": "^4.0.545"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2"
+  }
+}

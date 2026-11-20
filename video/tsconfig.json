@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "next-intl": ["./src/stubs/next-intl.ts"],
+      "next/image": ["./src/stubs/next-image.tsx"],
+      "next/navigation": ["./src/stubs/next-navigation.ts"],
+      "@/i18n/navigation": ["./src/stubs/i18n-navigation.tsx"],
+      "@/contexts/auth-context": ["./src/stubs/auth-context.tsx"],
+      "@/lib/api": ["./src/stubs/api.ts"],
+      "@/hooks/use-school-settings": ["./src/stubs/use-school-settings.ts"],
+      "@/*": ["../frontend/src/*"],
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"],
+      "react-dom": ["./node_modules/@types/react-dom"],
+      "react-dom/*": ["./node_modules/@types/react-dom/*"],
+      "*": ["./node_modules/*", "../frontend/node_modules/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "remotion.config.ts"]
+}

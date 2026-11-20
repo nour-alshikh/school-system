@@ -1,0 +1,35 @@
+/* The app's real theme (tokens, base layer, teal/amber brand). */
+@import "../../frontend/src/app/globals.css";
+
+/* Scan the frontend's components for their Tailwind classes, plus our own. */
+@source "../../frontend/src/components";
+@source "../../frontend/src/features";
+@source "./";
+
+/* next/font defines these in the app; here they point at the fonts loaded in fonts.ts. */
+:root {
+  /* Cairo second, so any Arabic glyph in an English context still gets the app's Arabic font. */
+  --font-geist-sans: "Geist", "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --font-geist-mono: "Geist Mono", ui-monospace, monospace;
+  --font-cairo: "Cairo", ui-sans-serif, sans-serif;
+}
+
+/* The app switches to Cairo on html[dir=rtl]; in the video any subtree can be RTL. */
+[dir="rtl"] {
+  font-family: var(--font-cairo);
+}
+
+/* Motion is driven only by useCurrentFrame(). CSS transitions and animations
+   run on wall-clock time, which would make frames non-deterministic. */
+*,
+*::before,
+*::after {
+  transition: none !important;
+  animation: none !important;
+  caret-color: transparent;
+}
+
+html,
+body {
+  background: transparent;
+}
